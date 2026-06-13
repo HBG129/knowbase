@@ -1,0 +1,17 @@
+﻿__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.env
+*.egg-info/
+node_modules/
+.next/
+out/
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+data/
+uploads/
+*.db

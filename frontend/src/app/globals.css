@@ -1,0 +1,345 @@
+﻿@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   KnowBase Design System
+   Inspired by: Vercel (ink+canvas+gradient)
+                Stripe (glass+indigo+mesh)
+                Claude (warmth+rhythm)
+   ============================================ */
+
+@layer base {
+  :root {
+    /* ── Canvas ── */
+    --canvas: 255 255 255;
+    --canvas-soft: 250 250 250;
+    --canvas-softer: 245 245 245;
+    --canvas-glass: 255 255 255;
+
+    /* ── Ink ── */
+    --ink: 10 10 14;
+    --ink-soft: 23 23 23;
+    --ink-body: 64 64 64;
+    --ink-muted: 136 136 136;
+    --ink-placeholder: 180 180 180;
+
+    /* ── Accent (Indigo → Violet) ── */
+    --accent: 83 58 253;
+    --accent-deep: 68 52 212;
+    --accent-soft: 238 235 255;
+    --accent-glow: 147 130 255;
+
+    /* ── Link ── */
+    --link: 0 112 243;
+    --link-deep: 7 97 209;
+
+    /* ── Semantic ── */
+    --success: 0 112 243;
+    --success-soft: 211 229 255;
+    --error: 238 0 0;
+    --error-soft: 247 212 214;
+    --warning: 245 166 35;
+    --warning-soft: 255 239 207;
+
+    /* ── Border ── */
+    --hairline: 235 235 235;
+    --hairline-strong: 220 220 220;
+    --hairline-focus: 83 58 253;
+
+    /* ── Glass ── */
+    --glass-bg: 255 255 255;
+    --glass-opacity: 0.72;
+    --glass-blur: 20px;
+    --glass-border: 255 255 255;
+    --glass-border-opacity: 0.18;
+
+    /* ── Shadow ── */
+    --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.06), 0 2px 4px -2px rgba(0,0,0,0.04);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.06), 0 4px 6px -4px rgba(0,0,0,0.04);
+    --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.06), 0 8px 10px -6px rgba(0,0,0,0.04);
+    --shadow-glass: 0 8px 32px rgba(0,0,0,0.08);
+
+    /* ── Radius ── */
+    --radius-xs: 4px;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 24px;
+    --radius-pill: 100px;
+    --radius-full: 9999px;
+  }
+
+  .dark {
+    --canvas: 10 10 14;
+    --canvas-soft: 18 18 24;
+    --canvas-softer: 24 24 32;
+    --canvas-glass: 18 18 24;
+    --ink: 240 240 244;
+    --ink-soft: 210 210 220;
+    --ink-body: 180 180 192;
+    --ink-muted: 120 120 136;
+    --ink-placeholder: 80 80 96;
+    --accent: 137 117 255;
+    --accent-deep: 120 100 240;
+    --accent-soft: 30 28 60;
+    --accent-glow: 100 90 200;
+    --link: 100 160 255;
+    --link-deep: 80 140 240;
+    --success: 60 200 120;
+    --success-soft: 20 40 30;
+    --error: 255 80 80;
+    --error-soft: 40 20 24;
+    --warning: 255 180 50;
+    --warning-soft: 40 30 15;
+    --hairline: 44 44 56;
+    --hairline-strong: 60 60 76;
+    --hairline-focus: 137 117 255;
+    --glass-bg: 18 18 24;
+    --glass-opacity: 0.80;
+    --glass-blur: 20px;
+    --glass-border: 255 255 255;
+    --glass-border-opacity: 0.06;
+    --shadow-xs: 0 1px 2px rgba(0,0,0,0.2);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.3);
+    --shadow-lg: 0 10px 15px rgba(0,0,0,0.4);
+    --shadow-xl: 0 20px 25px rgba(0,0,0,0.5);
+    --shadow-glass: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  /* ── Global ── */
+  body {
+    @apply bg-canvas text-ink antialiased;
+    font-feature-settings: "ss01", "cv01", "cv02";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  * {
+    @apply border-hairline;
+  }
+
+  /* ── Reduced Motion ── */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ── Selection ── */
+  ::selection {
+    background: rgba(var(--ink), 0.08);
+    color: rgb(var(--ink));
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(var(--ink-muted), 0.2);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(var(--ink-muted), 0.35);
+  }
+
+  /* ── Focus Ring ── */
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent));
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+
+@layer utilities {
+  /* ── Glass Card ── */
+  .glass {
+    background: rgba(var(--glass-bg), var(--glass-opacity));
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid rgba(var(--glass-border), var(--glass-border-opacity));
+    box-shadow: var(--shadow-glass);
+  }
+
+  .glass-strong {
+    background: rgba(var(--glass-bg), 0.88);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(var(--glass-border), 0.24);
+    box-shadow: var(--shadow-glass);
+  }
+
+  .glass-subtle {
+    background: rgba(var(--glass-bg), 0.48);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(var(--glass-border), 0.10);
+  }
+
+  /* ── Gradient Text ── */
+  .text-gradient {
+    background: linear-gradient(135deg, rgb(var(--accent)), #a855f7, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-blue {
+    background: linear-gradient(135deg, #007cf0, #00dfd8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── Gradient Background ── */
+  .bg-gradient-hero {
+    background:
+      radial-gradient(ellipse 80% 60% at 50% -20%, rgba(120, 119, 198, 0.15), transparent),
+      radial-gradient(ellipse 60% 50% at 80% 80%, rgba(99, 102, 241, 0.08), transparent),
+      radial-gradient(ellipse 50% 40% at 20% 70%, rgba(236, 72, 153, 0.06), transparent),
+      rgb(var(--canvas));
+  }
+
+  .bg-gradient-card {
+    background: linear-gradient(135deg, rgba(var(--accent), 0.04), rgba(var(--accent), 0.01));
+  }
+
+  .bg-gradient-mesh {
+    background:
+      radial-gradient(circle at 20% 50%, rgba(147, 130, 255, 0.12), transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(0, 223, 216, 0.08), transparent 50%),
+      radial-gradient(circle at 60% 80%, rgba(236, 72, 153, 0.05), transparent 50%),
+      rgb(var(--canvas-soft));
+  }
+
+  /* ── Dot Pattern ── */
+  .bg-dots {
+    background-image: radial-gradient(rgba(var(--ink), 0.06) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* ── Animation ── */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(var(--ink), 0.04) 0%,
+      rgba(var(--ink), 0.08) 50%,
+      rgba(var(--ink), 0.04) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+}
+
+/* ============================================
+   Typography (Geist / Inter)
+   ============================================ */
+
+@layer base {
+  h1, .h1 { @apply text-[48px] font-semibold leading-[48px] tracking-[-0.05em]; }
+  h2, .h2 { @apply text-[32px] font-semibold leading-[40px] tracking-[-0.04em]; }
+  h3, .h3 { @apply text-[24px] font-semibold leading-[32px] tracking-[-0.04em]; }
+  h4, .h4 { @apply text-[20px] font-semibold leading-[28px] tracking-[-0.03em]; }
+
+  .body-lg { @apply text-[18px] font-normal leading-[28px]; }
+  .body-md { @apply text-[16px] font-normal leading-[24px]; }
+  .body-sm { @apply text-[14px] font-normal leading-[20px] tracking-[-0.02em]; }
+
+  .caption { @apply text-[12px] font-normal leading-[16px]; }
+  .caption-mono { @apply font-mono text-[12px] leading-[16px]; }
+  .code { @apply font-mono text-[13px] leading-[20px]; }
+
+  .btn-md { @apply text-[14px] font-medium leading-[20px]; }
+  .btn-lg { @apply text-[16px] font-medium leading-[24px]; }
+}
+
+/* ============================================
+   Prose (for Markdown chat responses)
+   ============================================ */
+
+.prose-custom {
+  @apply text-ink-body leading-relaxed;
+}
+.prose-custom h1 { @apply text-2xl font-semibold text-ink mt-6 mb-3; }
+.prose-custom h2 { @apply text-xl font-semibold text-ink mt-5 mb-2; }
+.prose-custom h3 { @apply text-lg font-semibold text-ink mt-4 mb-2; }
+.prose-custom p { @apply mb-3; }
+.prose-custom p:last-child { @apply mb-0; }
+.prose-custom hr { @apply my-4 border-hairline; }
+.prose-custom strong { @apply font-semibold text-ink; }
+.prose-custom code {
+  @apply bg-accent-soft text-accent px-1.5 py-0.5 rounded text-[13px] font-mono;
+}
+.prose-custom pre {
+  @apply bg-ink text-canvas p-4 rounded-xl overflow-x-auto my-3 text-[13px] leading-relaxed;
+}
+.prose-custom pre code {
+  @apply bg-transparent text-canvas p-0 text-[13px];
+}
+.prose-custom ul { @apply list-disc pl-5 mb-3 space-y-0.5; }
+.prose-custom ol { @apply list-decimal pl-5 mb-3 space-y-0.5; }
+.prose-custom li { @apply mb-0; }
+.prose-custom blockquote {
+  @apply border border-hairline rounded-xl px-4 py-3 my-3 text-ink-body bg-canvas-soft/50;
+  @apply not-italic;
+}
+.prose-custom a {
+  @apply text-link underline underline-offset-2;
+}
+.prose-custom table {
+  @apply w-full border-collapse my-3 text-sm;
+}
+.prose-custom thead {
+  @apply bg-canvas-soft;
+}
+.prose-custom th {
+  @apply text-left p-2.5 border-b-2 border-hairline-strong font-semibold text-ink text-[13px];
+}
+.prose-custom td {
+  @apply p-2.5 border-b border-hairline text-ink-body;
+}
+.prose-custom tr:last-child td {
+  @apply border-b-0;
+}
