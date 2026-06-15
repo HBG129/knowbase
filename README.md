@@ -122,6 +122,11 @@ The default local setup uses SQLite and does not require Docker.
 
 ## Verification
 
+GitHub Actions runs CI on pushes and pull requests to `main`:
+
+- frontend build with Node 20
+- backend tests with Python 3.12
+
 Frontend build:
 
 ```powershell
@@ -136,7 +141,7 @@ cd backend
 .\.venv\Scripts\python.exe -m pytest tests -q
 ```
 
-If Windows blocks the default pytest temp/cache directories, run:
+Stable Windows backend test command:
 
 ```powershell
 cd backend
@@ -147,10 +152,18 @@ $env:TMP = $tmp
 .\.venv\Scripts\python.exe -m pytest tests -q --basetemp $tmp -p no:cacheprovider
 ```
 
+This avoids Windows permission issues in the default pytest temp/cache paths.
+
 Recent local verification:
 
 - Frontend production build passed.
 - Backend test suite passed with 40 tests.
+
+## Repository hygiene
+
+- `.gitattributes` keeps source files on LF and Windows batch files on CRLF.
+- Batch scripts use ASCII output where possible to avoid console mojibake.
+- Runtime data, uploaded files, local databases, `.env`, virtual environments, `node_modules`, and Next.js build output are ignored by git.
 
 ## Recent product polish
 
