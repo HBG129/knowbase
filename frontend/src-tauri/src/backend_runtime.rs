@@ -14,13 +14,14 @@ pub struct BackendProcess {
 }
 
 impl BackendProcess {
-    pub fn start() -> Self {
+    pub fn start(resource_dir: Option<PathBuf>) -> Self {
         let manifest_dir = manifest_dir();
         let current_exe = env::current_exe().ok();
         let override_path = env::var_os("KNOWBASE_BACKEND_EXE").map(PathBuf::from);
 
         for candidate in backend_exe_candidates(
             &manifest_dir,
+            resource_dir.as_deref(),
             current_exe.as_deref(),
             override_path.as_deref(),
         ) {
@@ -81,6 +82,7 @@ fn manifest_dir() -> PathBuf {
 
 fn backend_exe_candidates(
     manifest_dir: &Path,
+    resource_dir: Option<&Path>,
     current_exe: Option<&Path>,
     override_path: Option<&Path>,
 ) -> Vec<PathBuf> {
@@ -88,6 +90,10 @@ fn backend_exe_candidates(
 
     if let Some(path) = override_path {
         candidates.push(path.to_path_buf());
+    }
+
+    if let Some(path) = resource_dir {
+        candidates.push(path.join(BACKEND_EXE_NAME));
     }
 
     if let Some(path) = current_exe.and_then(packaged_backend_path_from_current_exe) {
@@ -143,7 +149,7 @@ mod tests {
         let override_path = Path::new(r"D:\Runtime\KnowBaseBackend.exe");
 
         let candidates =
-            backend_exe_candidates(manifest_dir, Some(current_exe), Some(override_path));
+            backend_exe_candidates(manifest_dir, None, Some(current_exe), Some(override_path));
 
         assert_eq!(candidates[0], override_path);
     }
@@ -153,11 +159,30 @@ mod tests {
         let manifest_dir = Path::new(r"D:\Codex_AI_Workspace\knowbase\frontend\src-tauri");
         let current_exe = Path::new(r"D:\Apps\KnowBase\KnowBase.exe");
 
-        let candidates = backend_exe_candidates(manifest_dir, Some(current_exe), None);
+        let candidates = backend_exe_candidates(manifest_dir, None, Some(current_exe), None);
 
         assert!(candidates.contains(&PathBuf::from(r"D:\Apps\KnowBase\KnowBaseBackend.exe")));
         assert!(candidates.contains(&PathBuf::from(
             r"D:\Codex_AI_Workspace\knowbase\backend\dist\KnowBaseBackend.exe"
         )));
+    }
+
+    #[test]
+    fn backend_candidates_include_resource_dir_before_packaged_path() {
+        let manifest_dir = Path::new(r"D:\Codex_AI_Workspace\knowbase\frontend\src-tauri");
+        let resource_dir = Path::new(r"D:\Apps\KnowBase\resources");
+        let current_exe = Path::new(r"D:\Apps\KnowBase\KnowBase.exe");
+
+        let candidates =
+            backend_exe_candidates(manifest_dir, Some(resource_dir), Some(current_exe), None);
+
+        assert_eq!(
+            candidates[0],
+            PathBuf::from(r"D:\Apps\KnowBase\resources\KnowBaseBackend.exe")
+        );
+        assert_eq!(
+            candidates[1],
+            PathBuf::from(r"D:\Apps\KnowBase\KnowBaseBackend.exe")
+        );
     }
 }

@@ -6,7 +6,8 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
-            app.manage(backend_runtime::BackendProcess::start());
+            let resource_dir = app.path().resource_dir().ok();
+            app.manage(backend_runtime::BackendProcess::start(resource_dir));
             Ok(())
         })
         .run(tauri::generate_context!())

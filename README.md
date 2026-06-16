@@ -239,7 +239,7 @@ npm run tauri:dev
 npm run tauri:build
 ```
 
-The current Tauri shell can attempt to start `KnowBaseBackend.exe` from either an explicit `KNOWBASE_BACKEND_EXE` path, the packaged app directory, or `backend\dist` during development. The Windows installer, resource bundling, app icon, signing, and update flow are still planned.
+The current Tauri shell can attempt to start `KnowBaseBackend.exe` from an explicit `KNOWBASE_BACKEND_EXE` path, the packaged resource directory, the packaged app directory, or `backend\dist` during development. The Tauri config already declares `backend\dist\KnowBaseBackend.exe` as a bundle resource. The Windows installer, app icon, signing, and update flow are still planned.
 
 ## Docker Services
 
