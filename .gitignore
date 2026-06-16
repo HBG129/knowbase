@@ -4,6 +4,9 @@
 .venv/
 .env
 *.egg-info/
+backend/*.spec
+backend/build/
+backend/dist/
 node_modules/
 .next/
 out/

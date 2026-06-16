@@ -163,11 +163,29 @@ Recent local verification:
 - Frontend production build passed.
 - Backend test suite passed with 40 tests.
 
+## Desktop packaging
+
+KnowBase is being prepared as a customer-installable desktop app. The first packaging step is the backend executable:
+
+```powershell
+.\package-backend.bat
+```
+
+This creates:
+
+```text
+backend\dist\KnowBaseBackend.exe
+```
+
+The packaged backend stores desktop runtime data under `%APPDATA%\KnowBase` by default. For testing, set `KNOWBASE_DATA_DIR` before starting the executable.
+
+This backend executable is not yet the final customer installer. Customers still need a desktop shell and installer, planned next with Tauri.
+
 ## Repository hygiene
 
 - `.gitattributes` keeps source files on LF and Windows batch files on CRLF.
 - Batch scripts use ASCII output where possible to avoid console mojibake.
-- Runtime data, uploaded files, local databases, `.env`, virtual environments, `node_modules`, and Next.js build output are ignored by git.
+- Runtime data, uploaded files, local databases, `.env`, virtual environments, PyInstaller output, `node_modules`, and Next.js build output are ignored by git.
 
 ## Recent product polish
 
