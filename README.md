@@ -73,12 +73,16 @@ At least one LLM provider key should be configured for real chat responses.
 
 ### 2. Backend
 
+Backend local development expects Python 3.12. Keep the virtual environment inside the project:
+
 ```powershell
 cd backend
+D:\Anaconda\python.exe -m venv .venv
+.\.venv\Scripts\python.exe -c "import subprocess, sys, tomllib; p=tomllib.load(open('pyproject.toml','rb'))['project']; deps=p['dependencies']+p['optional-dependencies']['dev']; subprocess.check_call([sys.executable,'-m','pip','install',*deps])"
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-If the virtual environment does not exist yet, create it and install the project dependencies first.
+Do not repoint an existing `.venv` to another Python install. If it points to a missing interpreter, delete and recreate `backend\.venv` with a working Python 3.12 interpreter.
 
 ### 3. Frontend
 
@@ -108,7 +112,7 @@ From the project root:
 .\start-dev.bat
 ```
 
-This starts the backend with reload and the frontend with hot reload in separate windows.
+This checks the backend virtual environment, backend imports, Node.js, npm, and frontend dependencies before starting servers. It prints the required fix commands when something is missing; it does not install or download dependencies automatically.
 
 ## Docker services
 
