@@ -217,6 +217,12 @@ To check the desktop packaging prerequisites from the project root:
 .\check-desktop-prereqs.bat
 ```
 
+To run the desktop packaging pipeline from one entry point:
+
+```powershell
+.\package-desktop.bat
+```
+
 Windows Tauri compilation also requires Microsoft C++ Build Tools. If `cl.exe` is not available, install the Visual Studio Build Tools with the C++ workload before running a full Tauri build.
 
 Current local Rust verification:
@@ -237,6 +243,12 @@ Development commands:
 cd frontend
 npm run tauri:dev
 npm run tauri:build
+```
+
+Release packaging command:
+
+```powershell
+.\package-desktop.bat
 ```
 
 The current Tauri shell can attempt to start `KnowBaseBackend.exe` from an explicit `KNOWBASE_BACKEND_EXE` path, the packaged resource directory, the packaged app directory, or `backend\dist` during development. The Tauri config already declares `backend\dist\KnowBaseBackend.exe` as a bundle resource. The Windows installer, app icon, signing, and update flow are still planned.
@@ -290,12 +302,14 @@ Recent local verification:
 - Backend executable health check: `{"status":"ok"}`
 - Rust toolchain: installed under `D:\Codex_AI_Workspace\.tools`
 - Desktop prerequisite check: available through `.\check-desktop-prereqs.bat`
+- Desktop packaging pipeline: available through `.\package-desktop.bat`
 - Tauri backend runtime path check: passed with `rustc --test --emit=metadata`
 
 ## Repository Hygiene
 
 - `.gitattributes` keeps source files on LF and Windows batch files on CRLF.
 - Batch scripts use ASCII output where possible to avoid console mojibake.
+- Packaging scripts route pip, npm, and PyInstaller caches through `D:\Codex_AI_Workspace\.tools` when possible.
 - Runtime data, uploaded files, local databases, `.env`, virtual environments, PyInstaller output, `node_modules`, and Next.js build output are ignored by git.
 
 ## Security Notes

@@ -6,6 +6,12 @@ cd /d "%~dp0"
 set "BACKEND_DIR=%~dp0backend"
 set "PY=%BACKEND_DIR%\.venv\Scripts\python.exe"
 if not defined CONDA_DLL_DIR set "CONDA_DLL_DIR=D:\Anaconda\Library\bin"
+if not defined PIP_CACHE_DIR (
+  for %%I in ("%~dp0..\.tools\pip-cache") do set "PIP_CACHE_DIR=%%~fI"
+)
+if not defined PYINSTALLER_CONFIG_DIR (
+  for %%I in ("%~dp0..\.tools\pyinstaller-cache") do set "PYINSTALLER_CONFIG_DIR=%%~fI"
+)
 
 echo ================================================
 echo        KnowBase Backend EXE Packaging
