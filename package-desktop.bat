@@ -22,7 +22,19 @@ echo Tools root:
 echo   %TOOLS_ROOT%
 echo.
 
-echo [1/3] Building backend executable...
+echo [1/3] Checking desktop prerequisites...
+call "%~dp0check-desktop-prereqs.bat"
+if errorlevel 1 (
+  echo.
+  echo Desktop packaging stopped: prerequisites are incomplete.
+  echo Install the missing tools above, then run package-desktop.bat again.
+  if "%PACKAGE_DESKTOP_PAUSE%"=="1" pause
+  exit /b 1
+)
+cd /d "%~dp0"
+
+echo.
+echo [2/3] Building backend executable...
 call "%~dp0package-backend.bat"
 if errorlevel 1 (
   echo.
@@ -32,13 +44,9 @@ if errorlevel 1 (
 )
 cd /d "%~dp0"
 
-echo.
-echo [2/3] Checking desktop prerequisites...
-call "%~dp0check-desktop-prereqs.bat"
-if errorlevel 1 (
+if not exist "%~dp0backend\dist\KnowBaseBackend.exe" (
   echo.
-  echo Desktop packaging stopped: prerequisites are incomplete.
-  echo Install the missing tools above, then run package-desktop.bat again.
+  echo Desktop packaging stopped: backend executable was not created.
   if "%PACKAGE_DESKTOP_PAUSE%"=="1" pause
   exit /b 1
 )
