@@ -58,10 +58,12 @@ if errorlevel 1 (
 echo.
 
 echo [Microsoft C++ Build Tools]
+set "MSVC_FAIL=0"
 where cl >nul 2>nul
 if errorlevel 1 (
   echo ERROR: cl.exe was not found.
   set "FAIL=1"
+  set "MSVC_FAIL=1"
 ) else (
   cl 2>&1 | findstr /C:"Version"
 )
@@ -70,8 +72,27 @@ where link >nul 2>nul
 if errorlevel 1 (
   echo ERROR: link.exe was not found.
   set "FAIL=1"
+  set "MSVC_FAIL=1"
 ) else (
   echo link.exe found.
+)
+
+if "%MSVC_FAIL%"=="1" (
+  echo.
+  echo Install hint:
+  echo   Install Microsoft C++ Build Tools and select:
+  echo   - Desktop development with C++
+  echo   Then restart this terminal and rerun:
+  echo   .\check-desktop-prereqs.bat
+  echo.
+  echo Official Tauri Windows prerequisites:
+  echo   https://v2.tauri.app/start/prerequisites/
+  echo.
+  echo Common Visual Studio developer shell locations:
+  if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat" echo   FOUND: "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat"
+  if exist "%ProgramFiles%\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat" echo   FOUND: "%ProgramFiles%\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat"
+  if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" echo   FOUND: "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat"
+  if exist "%ProgramFiles%\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" echo   FOUND: "%ProgramFiles%\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat"
 )
 echo.
 

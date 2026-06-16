@@ -225,7 +225,7 @@ To run the desktop packaging pipeline from one entry point:
 
 The packaging pipeline checks desktop prerequisites first, then builds the backend executable, then runs the Tauri build.
 
-Windows Tauri compilation also requires Microsoft C++ Build Tools. If `cl.exe` is not available, install the Visual Studio Build Tools with the C++ workload before running a full Tauri build.
+Windows Tauri compilation also requires Microsoft C++ Build Tools. If `cl.exe` or `link.exe` is not available, install Microsoft C++ Build Tools and select the `Desktop development with C++` workload before running a full Tauri build. See the official Tauri Windows prerequisites: <https://v2.tauri.app/start/prerequisites/>.
 
 Current local Rust verification:
 
