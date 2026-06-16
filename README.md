@@ -54,7 +54,7 @@ KnowBase is being prepared for customers who should be able to install and run t
 4. Windows installer
 5. App icon, signing, update flow, and release packaging
 
-Current milestone: the backend executable is already buildable and has been verified through `/api/health`. A minimal Tauri shell is being added next.
+Current milestone: the backend executable is buildable, and the Tauri shell now includes the first backend process startup/shutdown foundation.
 
 ## Quick Start
 
@@ -225,6 +225,7 @@ Current local Rust verification:
 rustc 1.96.0
 cargo 1.96.0
 cargo metadata: passed
+backend runtime path tests: metadata check passed
 cargo check: blocked because link.exe is missing
 ```
 
@@ -238,7 +239,7 @@ npm run tauri:dev
 npm run tauri:build
 ```
 
-The current Tauri shell is a foundation step. Automatic backend process management and the Windows installer are still planned.
+The current Tauri shell can attempt to start `KnowBaseBackend.exe` from either an explicit `KNOWBASE_BACKEND_EXE` path, the packaged app directory, or `backend\dist` during development. The Windows installer, resource bundling, app icon, signing, and update flow are still planned.
 
 ## Docker Services
 
@@ -289,6 +290,7 @@ Recent local verification:
 - Backend executable health check: `{"status":"ok"}`
 - Rust toolchain: installed under `D:\Codex_AI_Workspace\.tools`
 - Desktop prerequisite check: available through `.\check-desktop-prereqs.bat`
+- Tauri backend runtime path check: passed with `rustc --test --emit=metadata`
 
 ## Repository Hygiene
 
