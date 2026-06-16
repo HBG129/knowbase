@@ -1,0 +1,102 @@
+@echo off
+setlocal EnableExtensions
+cd /d "%~dp0"
+
+set "FAIL=0"
+for %%I in ("%~dp0..\.tools") do set "TOOLS_ROOT=%%~fI"
+set "RUSTUP_HOME=%TOOLS_ROOT%\rustup"
+set "CARGO_HOME=%TOOLS_ROOT%\cargo"
+set "PATH=%CARGO_HOME%\bin;%PATH%"
+
+echo ================================================
+echo       KnowBase Desktop Prerequisite Check
+echo ================================================
+echo.
+
+echo [Workspace tools]
+echo %TOOLS_ROOT%
+echo.
+
+echo [Node.js]
+where node >nul 2>nul
+if errorlevel 1 (
+  echo ERROR: node was not found on PATH.
+  set "FAIL=1"
+) else (
+  node --version
+)
+echo.
+
+echo [npm]
+where npm >nul 2>nul
+if errorlevel 1 (
+  echo ERROR: npm was not found on PATH.
+  set "FAIL=1"
+) else (
+  call npm --version
+)
+echo.
+
+echo [Rust]
+where rustc >nul 2>nul
+if errorlevel 1 (
+  echo ERROR: rustc was not found. Run setup-rust-env.bat or install Rust.
+  set "FAIL=1"
+) else (
+  rustc --version
+)
+echo.
+
+echo [Cargo]
+where cargo >nul 2>nul
+if errorlevel 1 (
+  echo ERROR: cargo was not found. Run setup-rust-env.bat or install Rust.
+  set "FAIL=1"
+) else (
+  cargo --version
+)
+echo.
+
+echo [Microsoft C++ Build Tools]
+where cl >nul 2>nul
+if errorlevel 1 (
+  echo ERROR: cl.exe was not found.
+  set "FAIL=1"
+) else (
+  cl 2>&1 | findstr /C:"Version"
+)
+
+where link >nul 2>nul
+if errorlevel 1 (
+  echo ERROR: link.exe was not found.
+  set "FAIL=1"
+) else (
+  echo link.exe found.
+)
+echo.
+
+echo [Backend executable]
+if exist "backend\dist\KnowBaseBackend.exe" (
+  echo backend\dist\KnowBaseBackend.exe found.
+) else (
+  echo WARN: backend\dist\KnowBaseBackend.exe was not found.
+  echo       Run package-backend.bat before testing packaged desktop startup.
+)
+echo.
+
+echo [Tauri manifest]
+if exist "frontend\src-tauri\tauri.conf.json" (
+  echo frontend\src-tauri\tauri.conf.json found.
+) else (
+  echo ERROR: Tauri config was not found.
+  set "FAIL=1"
+)
+echo.
+
+if "%FAIL%"=="1" (
+  echo Result: desktop prerequisites are incomplete.
+  exit /b 1
+)
+
+echo Result: desktop prerequisites look ready.
+exit /b 0

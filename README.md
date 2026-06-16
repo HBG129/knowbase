@@ -211,6 +211,12 @@ To use it in a terminal session:
 .\setup-rust-env.bat
 ```
 
+To check the desktop packaging prerequisites from the project root:
+
+```powershell
+.\check-desktop-prereqs.bat
+```
+
 Windows Tauri compilation also requires Microsoft C++ Build Tools. If `cl.exe` is not available, install the Visual Studio Build Tools with the C++ workload before running a full Tauri build.
 
 Current local Rust verification:
@@ -282,6 +288,7 @@ Recent local verification:
 - Frontend production build: passed
 - Backend executable health check: `{"status":"ok"}`
 - Rust toolchain: installed under `D:\Codex_AI_Workspace\.tools`
+- Desktop prerequisite check: available through `.\check-desktop-prereqs.bat`
 
 ## Repository Hygiene
 
