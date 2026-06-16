@@ -13,7 +13,7 @@ KnowBase turns PDFs, Word documents, Markdown notes, text files, and CSVs into s
 | Web app | Usable for local development |
 | Backend API | Working |
 | Backend executable | Working with PyInstaller |
-| Desktop shell | Planned with Tauri |
+| Desktop shell | Tauri foundation in progress |
 | Customer installer | Not released yet |
 
 The current repository is ready for development and packaging work. It is not yet a finished customer installer.
@@ -49,12 +49,12 @@ Most AI chat tools make you bring context every time. KnowBase is designed aroun
 KnowBase is being prepared for customers who should be able to install and run the app without setting up a development environment.
 
 1. Backend executable with PyInstaller
-2. Tauri desktop shell
+2. Tauri desktop shell foundation
 3. Desktop shell starts and stops the backend automatically
 4. Windows installer
 5. App icon, signing, update flow, and release packaging
 
-Current milestone: the backend executable is already buildable and has been verified through `/api/health`.
+Current milestone: the backend executable is already buildable and has been verified through `/api/health`. A minimal Tauri shell is being added next.
 
 ## Quick Start
 
@@ -90,7 +90,7 @@ http://127.0.0.1:8000
 KnowBase
 ├─ frontend/        Next.js 14, React, Tailwind CSS, Zustand
 ├─ backend/         FastAPI, SQLAlchemy, SQLite, LangChain
-├─ desktop path     PyInstaller backend exe now, Tauri shell planned
+├─ desktop path     PyInstaller backend exe, Tauri shell foundation
 └─ data/            Local runtime data, ignored by git
 ```
 
@@ -190,6 +190,50 @@ Expected response:
 {"status":"ok"}
 ```
 
+## Tauri Desktop Shell
+
+The repository includes the first Tauri shell foundation under:
+
+```text
+frontend\src-tauri
+```
+
+The local Rust toolchain used during development was installed under:
+
+```text
+D:\Codex_AI_Workspace\.tools\rustup
+D:\Codex_AI_Workspace\.tools\cargo
+```
+
+To use it in a terminal session:
+
+```powershell
+.\setup-rust-env.bat
+```
+
+Windows Tauri compilation also requires Microsoft C++ Build Tools. If `cl.exe` is not available, install the Visual Studio Build Tools with the C++ workload before running a full Tauri build.
+
+Current local Rust verification:
+
+```text
+rustc 1.96.0
+cargo 1.96.0
+cargo metadata: passed
+cargo check: blocked because link.exe is missing
+```
+
+The Visual Studio Build Tools bootstrapper was attempted, but it failed while downloading `vs_installer.opc` due to certificate/network errors from the installer. Install Microsoft C++ Build Tools manually if the automated installer fails on this machine.
+
+Development commands:
+
+```powershell
+cd frontend
+npm run tauri:dev
+npm run tauri:build
+```
+
+The current Tauri shell is a foundation step. Automatic backend process management and the Windows installer are still planned.
+
 ## Docker Services
 
 The included `docker-compose.yml` can start PostgreSQL with pgvector, Redis, MinIO, backend, and frontend:
@@ -237,6 +281,7 @@ Recent local verification:
 - Backend tests: 42 passed
 - Frontend production build: passed
 - Backend executable health check: `{"status":"ok"}`
+- Rust toolchain: installed under `D:\Codex_AI_Workspace\.tools`
 
 ## Repository Hygiene
 
