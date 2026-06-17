@@ -92,7 +92,7 @@ docs\customer-quick-start.md
 Use the template in:
 
 ```text
-docs\release-readiness-checklist.md
+docs\release-notes-template.md
 ```
 
 Release notes must include:
@@ -103,6 +103,12 @@ Release notes must include:
 - known limitations,
 - verification results,
 - installer artifact name.
+
+If the release includes visible UI changes, prepare demo assets using:
+
+```text
+docs\demo-assets.md
+```
 
 ## 6. Publish The GitHub Release
 

@@ -1,0 +1,47 @@
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+    authors:
+      - dependabot
+  categories:
+    - title: Customer Experience
+      labels:
+        - customer
+        - ux
+        - ui
+        - enhancement
+    - title: AI And Retrieval
+      labels:
+        - ai
+        - rag
+        - retrieval
+        - langchain
+    - title: Desktop Packaging
+      labels:
+        - desktop
+        - tauri
+        - packaging
+        - installer
+    - title: Backend
+      labels:
+        - backend
+        - api
+        - database
+    - title: Frontend
+      labels:
+        - frontend
+        - react
+        - nextjs
+    - title: Documentation
+      labels:
+        - documentation
+        - docs
+    - title: Maintenance
+      labels:
+        - chore
+        - ci
+        - dependencies
+    - title: Other Changes
+      labels:
+        - "*"

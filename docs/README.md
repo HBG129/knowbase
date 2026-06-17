@@ -13,6 +13,8 @@ Use this index to find the right document quickly.
 - `architecture.md` - system structure, runtime modes, data flow, storage, and packaging boundaries.
 - `release-readiness-checklist.md` - required checks before publishing a customer installer.
 - `release-process.md` - release workflow from verification to GitHub Release publishing.
+- `release-notes-template.md` - copy-ready GitHub Release notes template.
+- `demo-assets.md` - screenshot, GIF, and demo-script guidance for README and releases.
 - `desktop-build-troubleshooting.md` - Windows desktop packaging prerequisites and MSVC troubleshooting.
 
 ## Support

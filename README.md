@@ -112,6 +112,18 @@ Release process:
 docs\release-process.md
 ```
 
+Release notes template:
+
+```text
+docs\release-notes-template.md
+```
+
+Demo asset guide:
+
+```text
+docs\demo-assets.md
+```
+
 ### For developers
 
 Contribution guide:

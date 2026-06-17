@@ -93,6 +93,8 @@ Before public release, confirm:
 - Local data location is documented in `docs\customer-data-and-privacy.md`.
 - Uninstall behavior and manual data removal are documented in `docs\customer-data-and-privacy.md`.
 - Known limitations are listed in `docs\known-limitations.md`.
+- Release notes use `docs\release-notes-template.md`.
+- README and release assets follow `docs\demo-assets.md`.
 
 ## Security And Privacy
 
@@ -106,35 +108,10 @@ Before release, confirm:
 - Logs do not expose API keys or document contents.
 - Support workflow is documented in `docs\support-runbook.md`.
 
-## Release Notes Template
+## Release Notes
 
-Use this structure for each GitHub release:
+Use the standalone release notes template:
 
-```markdown
-# KnowBase vX.Y.Z
-
-## Highlights
-
-- Desktop installer for Windows.
-- Local knowledge bases for private documents.
-- RAG answers with source citations.
-
-## Requirements
-
-- Windows 10 or later.
-- Internet access for LLM API calls.
-- Customer-provided LLM API key.
-
-## Known Limitations
-
-- App signing is not configured yet.
-- Auto-update is not configured yet.
-- Enterprise deployment policy is not finalized.
-
-## Verification
-
-- Clean Windows install: passed/failed.
-- PDF upload and chat: passed/failed.
-- Word upload and chat: passed/failed.
-- App close process cleanup: passed/failed.
+```text
+docs\release-notes-template.md
 ```
