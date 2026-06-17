@@ -88,6 +88,18 @@ Documentation index:
 docs\README.md
 ```
 
+Changelog:
+
+```text
+CHANGELOG.md
+```
+
+Roadmap:
+
+```text
+docs\roadmap.md
+```
+
 Architecture overview:
 
 ```text
