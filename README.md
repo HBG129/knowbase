@@ -102,6 +102,12 @@ docs\release-process.md
 
 ### For developers
 
+Contribution guide:
+
+```text
+CONTRIBUTING.md
+```
+
 On Windows, from the project root:
 
 ```powershell
