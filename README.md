@@ -370,3 +370,4 @@ Recent local verification:
 - Rotate `JWT_SECRET_KEY` before production deployment.
 - Customers still need their own LLM API key unless a hosted model service is added later.
 - Use production-grade database, object storage, and CORS settings before public exposure.
+- See `SECURITY.md` for reporting guidance and sensitive-data handling rules.
