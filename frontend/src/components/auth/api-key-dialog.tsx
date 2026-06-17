@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function ApiKeyDialog({ open, onClose }: Props) {
-  const { user, setApiKey, clearApiKey, fetchMe } = useAuthStore();
+  const { user, setApiKey, clearApiKey } = useAuthStore();
   const [apiKey, setApiKeyVal] = useState("");
   const [provider, setProvider] = useState("zhipu");
   const [showKey, setShowKey] = useState(false);
@@ -46,7 +46,7 @@ export function ApiKeyDialog({ open, onClose }: Props) {
     try {
       await clearApiKey();
       setApiKeyVal("");
-      setMessage("API Key 已清除，将使用系统默认 Key。");
+      setMessage("API Key 已清除。如未配置系统默认 Key，聊天时需要重新添加个人 Key。");
     } catch (err: any) {
       setMessage("清除失败: " + (err.message || "Unknown error"));
     } finally {
@@ -97,8 +97,7 @@ export function ApiKeyDialog({ open, onClose }: Props) {
           {!user?.has_api_key && (
             <div className="p-3 rounded-xl bg-warning-soft/30 border border-warning/20">
               <p className="text-xs text-ink-body">
-                未配置个人 API Key，将使用<strong>系统默认的智谱AI</strong>（免费额度有限）。
-                建议配置你自己的 Key 以获得更稳定的服务。
+                未配置个人 API Key。若当前安装包没有内置系统 Key，聊天和文档向量化会要求你先添加自己的 Key。
               </p>
             </div>
           )}
