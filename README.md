@@ -94,6 +94,12 @@ Known limitations before customer release:
 docs\known-limitations.md
 ```
 
+Release process:
+
+```text
+docs\release-process.md
+```
+
 ### For developers
 
 On Windows, from the project root:
