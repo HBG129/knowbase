@@ -11,6 +11,7 @@ Read:
 ```text
 README.md
 docs\README.md
+docs\architecture.md
 SECURITY.md
 docs\known-limitations.md
 docs\release-readiness-checklist.md

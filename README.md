@@ -88,6 +88,12 @@ Documentation index:
 docs\README.md
 ```
 
+Architecture overview:
+
+```text
+docs\architecture.md
+```
+
 Customer data and privacy notes:
 
 ```text
@@ -138,10 +144,16 @@ http://127.0.0.1:8000
 
 ```text
 KnowBase
-├─ frontend/        Next.js 14, React, Tailwind CSS, Zustand
-├─ backend/         FastAPI, SQLAlchemy, SQLite, LangChain
-├─ desktop path     PyInstaller backend exe, Tauri shell foundation
-└─ data/            Local runtime data, ignored by git
++-- frontend/        Next.js 14, React, Tailwind CSS, Zustand
++-- backend/         FastAPI, SQLAlchemy, SQLite, LangChain
++-- desktop path     PyInstaller backend exe, Tauri shell foundation
++-- data/            Local runtime data, ignored by git
+```
+
+Detailed architecture:
+
+```text
+docs\architecture.md
 ```
 
 ### Frontend
