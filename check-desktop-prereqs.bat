@@ -146,6 +146,9 @@ echo.
 echo Official Tauri Windows prerequisites:
 echo   https://v2.tauri.app/start/prerequisites/
 echo.
+echo KnowBase troubleshooting:
+echo   docs\desktop-build-troubleshooting.md
+echo.
 echo Common Visual Studio developer shell locations:
 if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat" echo   FOUND: "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat"
 if exist "%ProgramFiles%\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat" echo   FOUND: "%ProgramFiles%\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat"

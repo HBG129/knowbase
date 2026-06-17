@@ -217,6 +217,12 @@ To check the desktop packaging prerequisites from the project root:
 .\check-desktop-prereqs.bat
 ```
 
+If desktop prerequisites fail, see:
+
+```text
+docs\desktop-build-troubleshooting.md
+```
+
 To run the desktop packaging pipeline from one entry point:
 
 ```powershell
