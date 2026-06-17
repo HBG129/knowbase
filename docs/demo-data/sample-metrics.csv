@@ -1,0 +1,11 @@
+metric,period,value,target,notes
+clean_install_success,2026-06,0,1,Must pass before customer release
+backend_auto_start,2026-06,1,1,Desktop shell should start packaged backend
+pdf_upload_chat,2026-06,1,1,PDF upload and cited answer smoke test
+word_upload_chat,2026-06,1,1,Word upload and cited answer smoke test
+markdown_upload_chat,2026-06,1,1,Markdown upload and cited answer smoke test
+txt_upload_chat,2026-06,1,1,TXT upload and cited answer smoke test
+csv_upload_chat,2026-06,1,1,CSV upload and cited answer smoke test
+support_initial_response_business_days,2026-06,1,3,General support target
+critical_launch_response_business_days,2026-06,1,1,Critical startup failure target
+orphan_backend_processes_after_close,2026-06,0,0,Desktop close should stop backend

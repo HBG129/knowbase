@@ -36,6 +36,14 @@ Keep image width at 1400 to 1800 pixels for GitHub readability.
 
 Use synthetic documents only.
 
+This repository includes safe synthetic demo files in:
+
+```text
+docs\demo-data
+```
+
+Use them for screenshots, GIFs, release validation, and interview walkthroughs.
+
 Good demo document examples:
 
 - a fake employee handbook,
@@ -75,6 +83,16 @@ The user creates a private knowledge base, uploads local documents, and asks que
 The backend parses files, chunks text, runs vector retrieval, sends grounded context to the LLM, and streams a cited answer back to the desktop UI.
 The packaging direction is PyInstaller for the Python backend plus Tauri for the Windows desktop shell, so the target customer does not need Python or Node.js installed.
 ```
+
+## Suggested Demo Question
+
+After uploading the synthetic files from `docs\demo-data`, ask:
+
+```text
+What are the onboarding steps, release goals, and support response targets?
+```
+
+The answer should cite the handbook, planning notes, and metrics CSV.
 
 ## Storage
 

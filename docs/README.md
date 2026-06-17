@@ -7,6 +7,7 @@ Use this index to find the right document quickly.
 - `customer-quick-start.md` - target first-run flow for packaged Windows customers.
 - `customer-data-and-privacy.md` - local data location, privacy notes, backup, restore, and uninstall data handling.
 - `known-limitations.md` - current limitations before a public customer release.
+- `demo-data\` - synthetic files for safe screenshots, demos, and release validation.
 
 ## Release And Packaging
 

@@ -1,0 +1,32 @@
+KnowBase Demo Planning Notes
+
+Date: 2026-06-10
+Meeting type: synthetic product planning session
+
+Participants:
+- Product lead
+- AI application developer
+- Desktop packaging owner
+- Support reviewer
+
+Decisions:
+1. The first customer-facing release should focus on the Windows desktop path.
+2. The core demo must show knowledge base creation, file upload, cited RAG answers, and recent conversation reopening.
+3. The release page must include requirements, known limitations, verification results, and installer artifact name.
+4. The project should avoid using private documents in README images, release screenshots, or interview demos.
+
+Release goals:
+- Make the app installable without Python, Node.js, Rust, Git, or source code.
+- Keep local document data under the Windows user profile.
+- Show a useful API key prompt when no model provider key is configured.
+- Validate PDF, Word, Markdown, TXT, and CSV uploads before public release.
+
+Open risks:
+- Desktop packaging depends on Microsoft C++ Build Tools when building locally.
+- App signing and auto-update are not configured yet.
+- API key storage should move toward OS credential storage before broad customer release.
+
+Next actions:
+- Prepare synthetic demo documents.
+- Capture README screenshots after the UI is stable.
+- Test the installer on a clean Windows machine.

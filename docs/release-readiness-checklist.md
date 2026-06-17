@@ -53,6 +53,7 @@ Run these checks before publishing a build:
 - User can create a knowledge base.
 - User can upload PDF, Word, Markdown, TXT, and CSV files.
 - Uploaded documents appear in the knowledge base document list.
+- Synthetic demo files from `docs\demo-data` upload and produce cited answers.
 - Chat input is enabled only when the selected knowledge base has usable documents.
 - AI answer returns with source citations.
 - Missing LLM API key shows a useful error and a direct API Key Settings action.
