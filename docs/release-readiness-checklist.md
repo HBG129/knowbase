@@ -49,6 +49,7 @@ Run these checks before publishing a build:
 - Uploaded documents appear in the knowledge base document list.
 - Chat input is enabled only when the selected knowledge base has usable documents.
 - AI answer returns with source citations.
+- Missing LLM API key shows a useful error and a direct API Key Settings action.
 - Recent conversations appear and reopen correctly.
 - Conversation deletion uses the in-app confirmation flow.
 - App closes without leaving orphan backend processes.

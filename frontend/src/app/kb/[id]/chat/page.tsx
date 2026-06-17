@@ -6,7 +6,8 @@ import { useAuthStore } from "@/stores/auth-store";
 import { ChatMessage } from "@/components/chat/chat-message";
 import { ChatInput } from "@/components/chat/chat-input";
 import { CitationPanel } from "@/components/chat/citation-panel";
-import { ArrowLeft, Plus, MessageSquare, Bot, PanelRightClose, PanelRightOpen, Trash2, Eraser, Upload, AlertTriangle } from "lucide-react";
+import { ApiKeyDialog } from "@/components/auth/api-key-dialog";
+import { ArrowLeft, Plus, MessageSquare, Bot, PanelRightClose, PanelRightOpen, Trash2, Eraser, Upload, AlertTriangle, Key } from "lucide-react";
 import { api, apiStream } from "@/lib/api";
 
 interface Citation { doc_id: string; chunk_index: number; snippet: string; }
@@ -18,6 +19,22 @@ interface Document { id: string; status: string; }
 type PendingAction =
   | { type: "delete-conversation"; conversationId: string; title: string }
   | { type: "clear-messages" };
+
+function isApiKeyError(message: string) {
+  const value = message.toLowerCase();
+  return value.includes("api key") && (
+    value.includes("no llm") ||
+    value.includes("no embedding") ||
+    value.includes("configured")
+  );
+}
+
+function formatChatError(message: string) {
+  if (isApiKeyError(message)) {
+    return "I cannot answer yet because no model API key is configured. Open API Key Settings, add a provider key, then try again.";
+  }
+  return "Error: " + message;
+}
 
 export default function ChatPage() {
   const { id } = useParams<{ id: string }>();
@@ -36,6 +53,8 @@ export default function ChatPage() {
   const [activeCitation, setActiveCitation] = useState<{ docId: string; chunkIndex: number } | null>(null);
   const [mobilePanel, setMobilePanel] = useState<"chat" | "citations">("chat");
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
+  const [apiKeyOpen, setApiKeyOpen] = useState(false);
+  const [showApiKeyPrompt, setShowApiKeyPrompt] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const msgRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const abortRef = useRef<AbortController | null>(null);
@@ -109,6 +128,7 @@ export default function ChatPage() {
   async function handleSend(msg: string) {
     if (sending || streaming) return;
     setSending(true);
+    setShowApiKeyPrompt(false);
 
     const tempId = "temp-" + Date.now();
     setMessages((prev) => [...prev, {
@@ -177,12 +197,14 @@ export default function ChatPage() {
                 fetchConversations();
               }
             } else if (data.type === "error") {
+              const message = data.message || "Request failed";
+              if (isApiKeyError(message)) setShowApiKeyPrompt(true);
               setStreaming(false);
               setStreamingContent("");
               setMessages((prev) => [...prev, {
                 id: "err-" + Date.now(),
                 role: "assistant",
-                content: "Error: " + data.message,
+                content: formatChatError(message),
                 created_at: new Date().toISOString(),
               }]);
             }
@@ -201,10 +223,12 @@ export default function ChatPage() {
           }]);
         }
       } else {
+        const message = err.message || "Request failed";
+        if (isApiKeyError(message)) setShowApiKeyPrompt(true);
         setMessages((prev) => [...prev, {
           id: "err-" + Date.now(),
           role: "assistant",
-          content: "Error: " + (err.message || "Request failed"),
+          content: formatChatError(message),
           created_at: new Date().toISOString(),
         }]);
       }
@@ -454,6 +478,26 @@ export default function ChatPage() {
             <div ref={chatEndRef} />
           </div>
         )}
+        {showApiKeyPrompt && (
+          <div className="border-t border-warning/20 bg-warning-soft/30 px-4 py-3">
+            <div className="mx-auto flex max-w-3xl flex-col gap-3 rounded-xl border border-warning/25 bg-canvas px-4 py-3 shadow-sm sm:flex-row sm:items-center">
+              <AlertTriangle className="h-5 w-5 shrink-0 text-warning" />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-ink">Model API key required</p>
+                <p className="mt-0.5 text-xs leading-5 text-ink-muted">
+                  Add your LLM provider key before asking questions. This is required on customer installs that do not ship with a system fallback key.
+                </p>
+              </div>
+              <button
+                onClick={() => setApiKeyOpen(true)}
+                className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-ink px-3 text-xs font-medium text-canvas transition-all hover:bg-ink-soft active:scale-[0.98]"
+              >
+                <Key className="h-3.5 w-3.5" />
+                Set API Key
+              </button>
+            </div>
+          </div>
+        )}
         <ChatInput
           onSend={handleSend}
           disabled={sending || readyDocCount === 0}
@@ -505,6 +549,7 @@ export default function ChatPage() {
           </button>
         </div>
       )}
+      <ApiKeyDialog open={apiKeyOpen} onClose={() => setApiKeyOpen(false)} />
     </div>
   );
 }
