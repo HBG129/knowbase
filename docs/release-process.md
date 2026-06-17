@@ -61,6 +61,14 @@ frontend\src-tauri\target\release\bundle
 
 Do not publish if packaging fails or if the generated bundle is missing.
 
+Alternatively, run the manual GitHub Actions workflow:
+
+```text
+Desktop Package
+```
+
+This uses a GitHub-hosted Windows runner and can build without relying on the local machine's Visual Studio Build Tools installation.
+
 ## 4. Test On A Clean Windows Machine
 
 Install the generated package on a Windows machine or virtual machine without the development toolchain.

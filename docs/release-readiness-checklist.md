@@ -36,6 +36,12 @@ The release build is blocked if `cl.exe` or `link.exe` is missing. See:
 docs\desktop-build-troubleshooting.md
 ```
 
+If the local build machine is blocked, try the manual GitHub Actions workflow:
+
+```text
+Desktop Package
+```
+
 ## Functional Smoke Test
 
 Run these checks before publishing a build:

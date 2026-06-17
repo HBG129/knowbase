@@ -1,0 +1,81 @@
+name: Desktop Package
+
+on:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    name: Windows desktop package
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup Miniconda Python
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: "3.12"
+          auto-update-conda: false
+          auto-activate-base: true
+
+      - name: Setup Rust
+        shell: pwsh
+        run: |
+          rustup default stable
+          rustc --version
+          cargo --version
+
+      - name: Install backend dependencies
+        shell: pwsh
+        run: |
+          python -m venv backend\.venv
+          .\backend\.venv\Scripts\python.exe -m pip install --upgrade pip
+          .\backend\.venv\Scripts\python.exe -c "import subprocess, sys, tomllib; p=tomllib.load(open('backend/pyproject.toml','rb'))['project']; deps=p['dependencies']+p['optional-dependencies']['dev']+p['optional-dependencies']['packaging']; subprocess.check_call([sys.executable,'-m','pip','install',*deps])"
+          "CONDA_DLL_DIR=$env:CONDA_PREFIX\Library\bin" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run backend tests
+        working-directory: backend
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path data\pytest-tmp | Out-Null
+          .\.venv\Scripts\python.exe -m pytest tests -q --basetemp data\pytest-tmp -p no:cacheprovider
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Build desktop package
+        shell: cmd
+        env:
+          KNOWBASE_NO_PAUSE: "1"
+        run: package-desktop.bat
+
+      - name: Upload backend executable
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: KnowBaseBackend
+          path: backend/dist/KnowBaseBackend.exe
+          if-no-files-found: warn
+
+      - name: Upload desktop build output
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: KnowBaseDesktop
+          path: |
+            frontend/src-tauri/target/release/*.exe
+            frontend/src-tauri/target/release/bundle/**
+          if-no-files-found: warn
