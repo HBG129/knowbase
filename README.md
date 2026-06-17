@@ -82,6 +82,12 @@ Customer data and privacy notes:
 docs\customer-data-and-privacy.md
 ```
 
+Known limitations before customer release:
+
+```text
+docs\known-limitations.md
+```
+
 ### For developers
 
 On Windows, from the project root:

@@ -83,7 +83,7 @@ Before public release, confirm:
 - The app shows useful errors when no LLM API key is configured.
 - Local data location is documented in `docs\customer-data-and-privacy.md`.
 - Uninstall behavior and manual data removal are documented in `docs\customer-data-and-privacy.md`.
-- Known limitations are listed.
+- Known limitations are listed in `docs\known-limitations.md`.
 
 ## Security And Privacy
 
