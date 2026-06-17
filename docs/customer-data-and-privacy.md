@@ -54,6 +54,48 @@ Before enterprise or public customer release, these items should be reviewed:
 - Add a clear privacy notice in the installed app.
 - Review logs to ensure API keys and document contents are not written accidentally.
 
+## Backup And Restore
+
+Before uninstalling, reinstalling, or moving to another machine, back up:
+
+```text
+%APPDATA%\KnowBase
+```
+
+This preserves:
+
+- local accounts,
+- saved API key records,
+- knowledge bases,
+- uploaded documents,
+- conversation history,
+- document processing metadata.
+
+To restore data, close KnowBase, replace the target `%APPDATA%\KnowBase` directory with the backed-up copy, then reopen the app.
+
+Do not restore a production customer's data onto a shared or untrusted machine.
+
+## Uninstall And Data Removal
+
+The final Windows installer behavior is not locked yet.
+
+Until the installer explicitly offers a data removal option, assume uninstalling the app may leave local data behind under:
+
+```text
+%APPDATA%\KnowBase
+```
+
+To remove local KnowBase data manually:
+
+1. Close KnowBase.
+2. Confirm no `KnowBaseBackend.exe` process is still running.
+3. Back up `%APPDATA%\KnowBase` if the customer may need the data later.
+4. Delete `%APPDATA%\KnowBase`.
+
+Manual deletion removes uploaded documents, local accounts, conversation history, saved API key records, and the local SQLite database.
+
+Do not delete this directory during support unless the customer understands the data loss.
+
 ## Safe Support Instructions
 
 When helping a customer debug issues:
