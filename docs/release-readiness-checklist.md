@@ -79,6 +79,7 @@ Before public release, confirm:
 - App name and icon are final.
 - Installer name is clear and versioned.
 - README has a customer installation section.
+- Customer quick start is documented in `docs\customer-quick-start.md`.
 - README explains customer API key requirements and first-run setup.
 - The app shows useful errors when no LLM API key is configured.
 - Local data location is documented in `docs\customer-data-and-privacy.md`.

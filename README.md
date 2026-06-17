@@ -76,6 +76,12 @@ Customers should expect to provide:
 - A supported provider key: Zhipu GLM, DeepSeek, or OpenAI.
 - Permission for KnowBase to store local app data under the Windows user profile.
 
+Customer quick start:
+
+```text
+docs\customer-quick-start.md
+```
+
 Customer data and privacy notes:
 
 ```text
