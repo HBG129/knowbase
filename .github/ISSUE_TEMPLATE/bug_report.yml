@@ -1,0 +1,97 @@
+name: Bug report
+description: Report a reproducible KnowBase problem.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a KnowBase issue.
+
+        Do not include API keys, full `%APPDATA%\KnowBase` folders, private documents, database files, or screenshots containing secrets.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What went wrong?
+      placeholder: Example: Chat shows an API key error even after saving a provider key.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Desktop packaging
+        - App launch
+        - Login or registration
+        - API key setup
+        - Knowledge base management
+        - Document upload or parsing
+        - Chat or citations
+        - GitHub Actions
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: List the exact steps that reproduce the issue.
+      placeholder: |
+        1. Open KnowBase
+        2. Create a knowledge base
+        3. Upload a PDF
+        4. Ask a question
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What actually happened? Paste only non-sensitive errors or logs.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: App version, release tag, or git commit if known.
+      placeholder: v0.1.0 or commit hash
+
+  - type: input
+    id: os
+    attributes:
+      label: Windows version
+      placeholder: Windows 11 23H2
+
+  - type: dropdown
+    id: install_type
+    attributes:
+      label: How are you running KnowBase?
+      options:
+        - Local development
+        - Backend executable
+        - Tauri desktop app
+        - GitHub Actions artifact
+        - Other
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
+      description: Add screenshots or notes with secrets hidden.
