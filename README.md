@@ -223,6 +223,12 @@ If desktop prerequisites fail, see:
 docs\desktop-build-troubleshooting.md
 ```
 
+Before publishing a customer installer, use:
+
+```text
+docs\release-readiness-checklist.md
+```
+
 To run the desktop packaging pipeline from one entry point:
 
 ```powershell
