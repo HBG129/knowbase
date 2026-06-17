@@ -10,6 +10,7 @@ Read:
 
 ```text
 README.md
+docs\README.md
 SECURITY.md
 docs\known-limitations.md
 docs\release-readiness-checklist.md
@@ -114,6 +115,7 @@ See `SECURITY.md` for the full security policy.
 
 Before opening or merging a pull request:
 
+- Use `.github\PULL_REQUEST_TEMPLATE.md`.
 - Working tree is clean.
 - Relevant tests or builds were run.
 - Documentation is updated if user-facing behavior changed.

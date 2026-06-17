@@ -82,6 +82,12 @@ Customer quick start:
 docs\customer-quick-start.md
 ```
 
+Documentation index:
+
+```text
+docs\README.md
+```
+
 Customer data and privacy notes:
 
 ```text

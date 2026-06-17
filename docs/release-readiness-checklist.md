@@ -85,6 +85,7 @@ Before public release, confirm:
 - App name and icon are final.
 - Installer name is clear and versioned.
 - README has a customer installation section.
+- Documentation index is available in `docs\README.md`.
 - Customer quick start is documented in `docs\customer-quick-start.md`.
 - Release process is documented in `docs\release-process.md`.
 - README explains customer API key requirements and first-run setup.
@@ -103,6 +104,7 @@ Before release, confirm:
 - API keys are stored in a customer-controlled location.
 - CORS is not left open for public network exposure.
 - Logs do not expose API keys or document contents.
+- Support workflow is documented in `docs\support-runbook.md`.
 
 ## Release Notes Template
 
