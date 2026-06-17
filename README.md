@@ -62,6 +62,20 @@ Current milestone: the backend executable is buildable, and the Tauri shell now 
 
 A customer installer is not available yet. The app is still in desktop packaging work.
 
+When a customer installer is available, the target experience is:
+
+- Install and launch KnowBase without Python, Node.js, Rust, or Git.
+- Register an account inside the app.
+- Create a knowledge base and upload documents.
+- Add a personal LLM API key from the sidebar `Set API Key` action if the installer does not include a system fallback key.
+- Ask questions after at least one document has finished processing.
+
+Customers should expect to provide:
+
+- Internet access for LLM API calls.
+- A supported provider key: Zhipu GLM, DeepSeek, or OpenAI.
+- Permission for KnowBase to store local app data under the Windows user profile.
+
 ### For developers
 
 On Windows, from the project root:
