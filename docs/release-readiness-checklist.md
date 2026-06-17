@@ -81,7 +81,7 @@ Before public release, confirm:
 - README has a customer installation section.
 - README explains customer API key requirements and first-run setup.
 - The app shows useful errors when no LLM API key is configured.
-- Local data location is documented.
+- Local data location is documented in `docs\customer-data-and-privacy.md`.
 - Uninstall behavior is understood and documented.
 - Known limitations are listed.
 
