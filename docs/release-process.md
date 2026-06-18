@@ -137,6 +137,12 @@ Record the clean-machine result with:
 docs\clean-machine-validation.md
 ```
 
+For GitHub tracking, open a `Release validation` issue and paste the installer name and SHA256 from:
+
+```text
+D:\Codex_AI_Workspace\artifacts\knowbase-release\RELEASE_NOTES_DRAFT.md
+```
+
 ## 5. Prepare Release Notes
 
 Use the template in:

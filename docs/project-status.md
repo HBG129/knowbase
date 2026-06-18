@@ -31,6 +31,7 @@ This document tracks the practical delivery status of KnowBase.
   - `SHA256SUMS.txt`,
   - `RELEASE_ARTIFACTS.md`,
   - `RELEASE_NOTES_DRAFT.md`.
+- GitHub issue form exists for release validation tracking.
 - Desktop artifact verification script checks for:
   - `backend\dist\KnowBaseBackend.exe`
   - NSIS installer under `frontend\src-tauri\target\release\bundle\nsis`

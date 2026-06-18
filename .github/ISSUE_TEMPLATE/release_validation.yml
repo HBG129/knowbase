@@ -1,0 +1,108 @@
+name: Release validation
+description: Track clean-machine validation for a KnowBase Windows release candidate.
+title: "[Release Validation]: "
+labels: ["release", "desktop", "packaging"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this issue before publishing a customer installer.
+
+        Do not attach API keys, private documents, local databases, `.env` files, or `%APPDATA%\KnowBase` folders.
+
+  - type: input
+    id: release_version
+    attributes:
+      label: Release version
+      placeholder: 0.1.0-rc.1
+    validations:
+      required: true
+
+  - type: input
+    id: installer
+    attributes:
+      label: Installer artifact
+      placeholder: KnowBase_0.1.0_x64-setup.exe
+    validations:
+      required: true
+
+  - type: input
+    id: installer_sha256
+    attributes:
+      label: Installer SHA256
+      placeholder: E7983E649266CF155F2DECDA68B284BCDCA9B1E75B480781F9302D6B45D46D7F
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: clean_machine
+    attributes:
+      label: Clean machine baseline
+      options:
+        - label: Test machine does not have Python installed.
+        - label: Test machine does not have Node.js installed.
+        - label: Test machine does not have Rust installed.
+        - label: Test machine does not have Git installed.
+        - label: Test machine does not have the KnowBase source checkout.
+        - label: Test machine has internet access.
+        - label: Test machine has a valid LLM provider API key for testing.
+
+  - type: checkboxes
+    id: install_launch
+    attributes:
+      label: Install and launch
+      options:
+        - label: Installer runs without developer tools.
+        - label: KnowBase launches from Start Menu or desktop shortcut.
+        - label: Desktop app starts the backend automatically.
+        - label: App opens without a developer terminal.
+        - label: App stores runtime data under `%APPDATA%\KnowBase`.
+
+  - type: checkboxes
+    id: first_run
+    attributes:
+      label: First-run flow
+      options:
+        - label: User registration succeeds.
+        - label: Login succeeds.
+        - label: Knowledge base creation succeeds.
+        - label: API key settings accepts a valid provider key.
+        - label: PDF upload and cited chat answer work.
+        - label: Word upload and cited chat answer work.
+        - label: Markdown upload and cited chat answer work.
+        - label: TXT upload and cited chat answer work.
+        - label: CSV upload and cited chat answer work.
+        - label: Recent conversations reopen correctly.
+        - label: Conversation deletion uses in-app confirmation.
+
+  - type: checkboxes
+    id: shutdown_security
+    attributes:
+      label: Shutdown, security, and privacy
+      options:
+        - label: Closing the app stops the backend process.
+        - label: Relaunch keeps account, knowledge base, documents, and conversations.
+        - label: No API key appears in visible logs.
+        - label: No document content appears in visible logs.
+        - label: No `.env`, database, uploaded document, or `%APPDATA%\KnowBase` folder is attached to this issue.
+
+  - type: textarea
+    id: failures
+    attributes:
+      label: Failures or notes
+      description: List any failed checks and the exact non-sensitive error text.
+      placeholder: |
+        - Failed check:
+        - Windows version:
+        - Non-sensitive error:
+
+  - type: dropdown
+    id: release_decision
+    attributes:
+      label: Release decision
+      options:
+        - Block release
+        - Ready for limited tester release
+        - Ready for public release
+    validations:
+      required: true
