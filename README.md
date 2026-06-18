@@ -14,11 +14,11 @@ KnowBase turns PDFs, Word documents, Markdown notes, text files, and CSVs into s
 | Web app | Usable for local development |
 | Backend API | Working |
 | Backend executable | Working with PyInstaller |
-| Desktop shell | Tauri packaging path in progress |
-| Desktop package workflow | Runs on relevant pushes |
-| Customer installer | Not released yet |
+| Desktop shell | Tauri Windows packaging verified in CI |
+| Desktop package workflow | Passing and uploading artifacts |
+| Customer installer | CI artifact available, not publicly released yet |
 
-The current repository is ready for development and packaging work. It is not yet a finished customer installer.
+The current repository is ready for development and packaging work. A Windows installer artifact is produced by GitHub Actions, but it still needs clean-machine validation before customer release.
 
 ## Why KnowBase
 
@@ -53,16 +53,16 @@ KnowBase is being prepared for customers who should be able to install and run t
 1. Backend executable with PyInstaller
 2. Tauri desktop shell foundation
 3. Desktop shell starts and stops the backend automatically
-4. Windows installer
-5. App icon, signing, update flow, and release packaging
+4. Windows installer artifact in CI
+5. Clean-machine validation, finalized icon, signing, update flow, and release packaging
 
-Current milestone: the backend executable is buildable, and the Tauri shell now includes the first backend process startup/shutdown foundation.
+Current milestone: the backend executable and Tauri Windows installer are produced by CI; the next release gate is installing and validating the artifact on a clean Windows machine.
 
 ## Quick Start
 
 ### For users
 
-A customer installer is not available yet. The app is still in desktop packaging work.
+A public customer installer is not released yet. GitHub Actions now produces a Windows installer artifact for validation.
 
 When a customer installer is available, the target experience is:
 

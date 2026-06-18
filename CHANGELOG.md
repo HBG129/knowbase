@@ -9,7 +9,8 @@ This project is still pre-release. Version numbers below describe repository mil
 ### Added
 
 - Windows desktop packaging foundation with Tauri and PyInstaller.
-- Manual GitHub Actions desktop packaging workflow.
+- GitHub Actions desktop packaging workflow that builds and uploads Windows artifacts on relevant `main` pushes.
+- Temporary Tauri Windows app icon required for CI resource generation.
 - Customer quick start, privacy notes, release process, support runbook, and architecture documentation.
 - Synthetic demo data for safe screenshots, release validation, and interview walkthroughs.
 - GitHub issue templates, pull request template, Dependabot configuration, and release notes categorization.
@@ -22,9 +23,9 @@ This project is still pre-release. Version numbers below describe repository mil
 
 ### Known Limitations
 
-- Customer installer is not published yet.
+- Windows installer artifact is produced by CI, but it is not publicly released yet.
 - Local Tauri packaging still requires Microsoft C++ Build Tools.
-- App signing and auto-update are not configured yet.
+- Final app icon, app signing, and auto-update are not configured yet.
 - API key storage should move toward OS credential storage before broad customer release.
 
 ## 0.1.0-pre

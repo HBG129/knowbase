@@ -9,16 +9,20 @@ This document tracks the practical delivery status of KnowBase.
 | Area | Progress | Notes |
 | --- | ---: | --- |
 | Resume and interview showcase | 92% | Strong project story, architecture, RAG workflow, packaging path, docs, and GitHub history are present. |
-| GitHub portfolio completeness | 91% | README, architecture, roadmap, changelog, support, security, release docs, demo data, and CI are in place. |
-| Customer-installable software | 76% | Desktop packaging path exists, but installer artifact and clean-machine validation are not complete yet. |
+| GitHub portfolio completeness | 93% | README, architecture, roadmap, changelog, support, security, release docs, demo data, CI, and desktop artifacts are in place. |
+| Customer-installable software | 83% | Windows installer artifact is produced by CI; clean-machine validation is still required before customer release. |
 
 ## Verified
 
 - Backend test suite passes in GitHub Actions: 42 tests.
 - Frontend production build passes in GitHub Actions.
 - Backend executable packaging foundation exists with PyInstaller.
-- Tauri desktop shell exists and is configured for bundle builds.
+- Tauri desktop shell exists and is configured for Windows bundle builds.
 - Desktop package workflow runs automatically on relevant `main` pushes.
+- Desktop package workflow succeeded on run `27772144566` for commit `41e6c84`.
+- Uploaded CI artifacts:
+  - `KnowBaseDesktop-Windows-3`
+  - `KnowBaseBackend-3`
 - Desktop artifact verification script checks for:
   - `backend\dist\KnowBaseBackend.exe`
   - NSIS installer under `frontend\src-tauri\target\release\bundle\nsis`
@@ -39,21 +43,20 @@ This blocks local Tauri installer builds.
 
 ### GitHub Actions
 
-The desktop package workflow has progressed far enough to prove that:
+The desktop package workflow is currently passing:
 
 - backend tests pass,
 - frontend build passes,
-- the failure is inside desktop packaging, not the core app build.
-
-The workflow has been updated to preserve the runner's Rust toolchain and detect Visual Studio through `vswhere`, which should allow the next run to get further into the Tauri packaging stage.
+- backend executable packaging completes,
+- Tauri Windows packaging completes,
+- installer artifact verification passes,
+- backend executable and desktop installer bundle artifacts upload successfully.
 
 ## Next Required Checks
 
-1. Run or inspect the latest `Desktop Package` workflow.
-2. Confirm `KnowBaseDesktop-Windows-<run number>` is uploaded.
-3. Download the artifact.
-4. Install on a clean Windows machine or VM.
-5. Validate:
+1. Download `KnowBaseDesktop-Windows-3` from the latest passing `Desktop Package` workflow.
+2. Install on a clean Windows machine or VM.
+3. Validate:
    - app launches,
    - backend starts automatically,
    - user can register,
@@ -64,8 +67,8 @@ The workflow has been updated to preserve the runner's Rust toolchain and detect
 
 ## Not Release Ready Until
 
-- A Windows installer artifact is produced.
 - The installer is tested on a clean Windows machine.
-- The app icon and installer name are finalized.
+- The temporary app icon is replaced with a finalized brand icon.
+- The installer name and release version are finalized.
 - API key storage is reviewed for customer use.
 - Release notes include exact verification results.
