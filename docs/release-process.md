@@ -98,6 +98,12 @@ After downloading the desktop artifact ZIP, verify it before installation:
 .\scripts\check-release-artifact.ps1 -ZipPath D:\Codex_AI_Workspace\artifacts\KnowBaseDesktop-Windows-3.zip
 ```
 
+Prepare the files for a GitHub Release:
+
+```powershell
+.\scripts\prepare-release-package.ps1 -ZipPath D:\Codex_AI_Workspace\artifacts\KnowBaseDesktop-Windows-3.zip
+```
+
 ## 4. Test On A Clean Windows Machine
 
 Install the generated package on a Windows machine or virtual machine without the development toolchain.

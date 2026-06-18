@@ -45,6 +45,12 @@ Artifact:
 [installer file name]
 ```
 
+SHA256:
+
+```text
+[installer sha256]
+```
+
 Expected local data directory:
 
 ```text
