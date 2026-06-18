@@ -59,7 +59,13 @@ Expected output location:
 frontend\src-tauri\target\release\bundle
 ```
 
-Do not publish if packaging fails or if the generated bundle is missing.
+Verify generated artifacts:
+
+```powershell
+.\scripts\check-desktop-artifacts.ps1
+```
+
+Do not publish if packaging fails, if the generated bundle is missing, or if the artifact check fails.
 
 Alternatively, run the manual GitHub Actions workflow:
 
@@ -76,13 +82,13 @@ KnowBaseBackend-<run number>
 KnowBaseDesktop-Windows-<run number>
 ```
 
-The desktop artifact must include the Tauri Windows bundle output from:
+The desktop artifact must include the NSIS installer output from:
 
 ```text
-frontend\src-tauri\target\release\bundle
+frontend\src-tauri\target\release\bundle\nsis
 ```
 
-If the workflow cannot find the backend executable or desktop bundle, the artifact upload step fails instead of publishing an empty artifact.
+If the workflow cannot find the backend executable or NSIS installer, the artifact verification step fails before upload.
 
 ## 4. Test On A Clean Windows Machine
 

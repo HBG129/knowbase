@@ -28,6 +28,7 @@ Run:
 ```powershell
 .\check-desktop-prereqs.bat
 .\package-desktop.bat
+.\scripts\check-desktop-artifacts.ps1
 ```
 
 The release build is blocked if `cl.exe` or `link.exe` is missing. See:

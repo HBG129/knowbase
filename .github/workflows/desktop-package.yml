@@ -62,14 +62,9 @@ jobs:
           KNOWBASE_NO_PAUSE: "1"
         run: package-desktop.bat
 
-      - name: List desktop package output
+      - name: Verify desktop artifacts
         shell: pwsh
-        run: |
-          $bundle = "frontend/src-tauri/target/release/bundle"
-          if (-not (Test-Path $bundle)) {
-            throw "Desktop bundle directory was not created: $bundle"
-          }
-          Get-ChildItem -Path $bundle -Recurse | Select-Object FullName, Length
+        run: .\scripts\check-desktop-artifacts.ps1
 
       - name: Upload backend executable
         uses: actions/upload-artifact@v4
@@ -84,6 +79,6 @@ jobs:
         with:
           name: KnowBaseDesktop-Windows-${{ github.run_number }}
           path: |
-            frontend/src-tauri/target/release/bundle/**
+            frontend/src-tauri/target/release/bundle/nsis/*.exe
           if-no-files-found: error
           retention-days: 14

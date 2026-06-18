@@ -64,6 +64,8 @@ KnowBaseBackend-<run number>
 KnowBaseDesktop-Windows-<run number>
 ```
 
+Before upload, `scripts\check-desktop-artifacts.ps1` verifies that both the packaged backend executable and NSIS installer exist.
+
 ## Components
 
 ```text

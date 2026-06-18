@@ -23,6 +23,17 @@ The final desktop output should be created under:
 frontend\src-tauri\target\release\bundle
 ```
 
+After packaging, verify artifacts with:
+
+```powershell
+.\scripts\check-desktop-artifacts.ps1
+```
+
+The check requires:
+
+- `backend\dist\KnowBaseBackend.exe`
+- at least one NSIS installer under `frontend\src-tauri\target\release\bundle\nsis`
+
 ## Required Tools
 
 The desktop build requires:
