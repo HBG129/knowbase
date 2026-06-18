@@ -28,6 +28,7 @@ Internal alpha means the app can be tested by the developer or a trusted reviewe
 Required:
 
 - Windows installer artifact produced by local build or GitHub Actions.
+- Desktop package workflow runs on relevant `main` pushes or manual dispatch.
 - Clean Windows machine test passes.
 - Backend starts automatically from the desktop shell.
 - App closes without orphan backend processes.

@@ -43,6 +43,8 @@ If the local build machine is blocked, try the manual GitHub Actions workflow:
 Desktop Package
 ```
 
+The workflow also runs automatically on relevant pushes to `main`.
+
 Required workflow artifacts:
 
 - `KnowBaseBackend-<run number>`

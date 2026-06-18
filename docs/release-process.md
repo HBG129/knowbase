@@ -75,6 +75,8 @@ Desktop Package
 
 This uses a GitHub-hosted Windows runner and can build without relying on the local machine's Visual Studio Build Tools installation.
 
+The same workflow also runs automatically on pushes to `main` when backend, frontend, desktop packaging scripts, or the desktop workflow itself changes.
+
 Expected GitHub Actions artifacts:
 
 ```text
