@@ -52,6 +52,12 @@ Required workflow artifacts:
 
 The desktop workflow is not release-ready if either artifact is missing.
 
+After downloading the desktop ZIP, verify the release artifact before installing it:
+
+```powershell
+.\scripts\check-release-artifact.ps1 -ZipPath D:\Codex_AI_Workspace\artifacts\KnowBaseDesktop-Windows-3.zip
+```
+
 ## Functional Smoke Test
 
 Run these checks before publishing a build:
@@ -74,6 +80,12 @@ Run these checks before publishing a build:
 ## Clean Machine Test
 
 Test the installer on a Windows machine or virtual machine that does not have the development stack installed.
+
+Use:
+
+```text
+docs\clean-machine-validation.md
+```
 
 The clean machine must not require:
 

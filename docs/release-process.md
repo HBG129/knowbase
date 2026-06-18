@@ -92,6 +92,12 @@ frontend\src-tauri\target\release\bundle\nsis
 
 If the workflow cannot find the backend executable or NSIS installer, the artifact verification step fails before upload.
 
+After downloading the desktop artifact ZIP, verify it before installation:
+
+```powershell
+.\scripts\check-release-artifact.ps1 -ZipPath D:\Codex_AI_Workspace\artifacts\KnowBaseDesktop-Windows-3.zip
+```
+
 ## 4. Test On A Clean Windows Machine
 
 Install the generated package on a Windows machine or virtual machine without the development toolchain.
@@ -108,6 +114,12 @@ Validate the first-run flow in:
 
 ```text
 docs\customer-quick-start.md
+```
+
+Record the clean-machine result with:
+
+```text
+docs\clean-machine-validation.md
 ```
 
 ## 5. Prepare Release Notes

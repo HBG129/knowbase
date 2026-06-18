@@ -10,7 +10,7 @@ This document tracks the practical delivery status of KnowBase.
 | --- | ---: | --- |
 | Resume and interview showcase | 92% | Strong project story, architecture, RAG workflow, packaging path, docs, and GitHub history are present. |
 | GitHub portfolio completeness | 93% | README, architecture, roadmap, changelog, support, security, release docs, demo data, CI, and desktop artifacts are in place. |
-| Customer-installable software | 83% | Windows installer artifact is produced by CI; clean-machine validation is still required before customer release. |
+| Customer-installable software | 84% | Windows installer artifact is produced and locally verified; clean-machine validation is still required before customer release. |
 
 ## Verified
 
@@ -23,6 +23,9 @@ This document tracks the practical delivery status of KnowBase.
 - Uploaded CI artifacts:
   - `KnowBaseDesktop-Windows-3`
   - `KnowBaseBackend-3`
+- Downloaded artifact `KnowBaseDesktop-Windows-3.zip` verified locally:
+  - ZIP SHA256: `552E81842025B52D0B9C106257D2B2D08E69CA52BCD9169DF5F87A31F699FB26`
+  - Installer inside ZIP: `KnowBase_0.1.0_x64-setup.exe`
 - Desktop artifact verification script checks for:
   - `backend\dist\KnowBaseBackend.exe`
   - NSIS installer under `frontend\src-tauri\target\release\bundle\nsis`
@@ -54,9 +57,8 @@ The desktop package workflow is currently passing:
 
 ## Next Required Checks
 
-1. Download `KnowBaseDesktop-Windows-3` from the latest passing `Desktop Package` workflow.
-2. Install on a clean Windows machine or VM.
-3. Validate:
+1. Install `KnowBase_0.1.0_x64-setup.exe` on a clean Windows machine or VM.
+2. Validate:
    - app launches,
    - backend starts automatically,
    - user can register,
