@@ -4,9 +4,9 @@ cd /d "%~dp0"
 
 set "FAIL=0"
 for %%I in ("%~dp0..\.tools") do set "TOOLS_ROOT=%%~fI"
-set "RUSTUP_HOME=%TOOLS_ROOT%\rustup"
-set "CARGO_HOME=%TOOLS_ROOT%\cargo"
-set "PATH=%CARGO_HOME%\bin;%PATH%"
+if not defined RUSTUP_HOME if exist "%TOOLS_ROOT%\rustup" set "RUSTUP_HOME=%TOOLS_ROOT%\rustup"
+if not defined CARGO_HOME if exist "%TOOLS_ROOT%\cargo\bin\cargo.exe" set "CARGO_HOME=%TOOLS_ROOT%\cargo"
+if defined CARGO_HOME set "PATH=%CARGO_HOME%\bin;%PATH%"
 
 echo ================================================
 echo       KnowBase Desktop Prerequisite Check
@@ -61,7 +61,28 @@ echo [Microsoft C++ Build Tools]
 call :CheckMsvcTools
 if errorlevel 1 (
   set "FAIL=1"
-  call :ShowMsvcInstallHint
+  echo.
+  echo Install hint:
+  echo   Install Microsoft C++ Build Tools and select:
+  echo   - Desktop development with C++
+  echo   Then restart this terminal and rerun:
+  echo   .\check-desktop-prereqs.bat
+  echo.
+  echo Official Tauri Windows prerequisites:
+  echo   https://v2.tauri.app/start/prerequisites/
+  echo.
+  echo KnowBase troubleshooting:
+  echo   docs\desktop-build-troubleshooting.md
+  echo.
+  echo Common Visual Studio developer shell locations:
+  if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat" echo   FOUND: "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat"
+  if exist "%ProgramFiles%\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat" echo   FOUND: "%ProgramFiles%\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat"
+  if exist "%ProgramFiles%\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" echo   FOUND: "%ProgramFiles%\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat"
+  if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" echo   FOUND: "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat"
+  if exist "%ProgramFiles%\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" echo   FOUND: "%ProgramFiles%\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat"
+  if exist "%ProgramFiles%\Microsoft Visual Studio\2026\Enterprise\Common7\Tools\VsDevCmd.bat" echo   FOUND: "%ProgramFiles%\Microsoft Visual Studio\2026\Enterprise\Common7\Tools\VsDevCmd.bat"
+  if exist "%ProgramFiles%\Microsoft Visual Studio\2026\BuildTools\Common7\Tools\VsDevCmd.bat" echo   FOUND: "%ProgramFiles%\Microsoft Visual Studio\2026\BuildTools\Common7\Tools\VsDevCmd.bat"
+  if exist "%ProgramFiles%\Microsoft Visual Studio\2026\Community\Common7\Tools\VsDevCmd.bat" echo   FOUND: "%ProgramFiles%\Microsoft Visual Studio\2026\Community\Common7\Tools\VsDevCmd.bat"
 )
 echo.
 
@@ -103,15 +124,33 @@ exit /b 0
 :TryLoadMsvcTools
 echo cl.exe or link.exe was not found on PATH.
 echo Trying common Visual Studio developer shell locations...
+call :LoadMsvcToolsWithVswhere
+if not errorlevel 1 goto RecheckMsvcTools
+call :LoadVsDevCmd "%ProgramFiles%\Microsoft Visual Studio\2026\Enterprise\Common7\Tools\VsDevCmd.bat"
+if not errorlevel 1 goto RecheckMsvcTools
+call :LoadVsDevCmd "%ProgramFiles%\Microsoft Visual Studio\2026\BuildTools\Common7\Tools\VsDevCmd.bat"
+if not errorlevel 1 goto RecheckMsvcTools
+call :LoadVsDevCmd "%ProgramFiles%\Microsoft Visual Studio\2026\Community\Common7\Tools\VsDevCmd.bat"
+if not errorlevel 1 goto RecheckMsvcTools
 call :LoadVsDevCmd "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat"
 if not errorlevel 1 goto RecheckMsvcTools
 call :LoadVsDevCmd "%ProgramFiles%\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat"
+if not errorlevel 1 goto RecheckMsvcTools
+call :LoadVsDevCmd "%ProgramFiles%\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat"
 if not errorlevel 1 goto RecheckMsvcTools
 call :LoadVsDevCmd "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat"
 if not errorlevel 1 goto RecheckMsvcTools
 call :LoadVsDevCmd "%ProgramFiles%\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat"
 if not errorlevel 1 goto RecheckMsvcTools
 goto MsvcToolsMissing
+
+:LoadMsvcToolsWithVswhere
+set "VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
+if not exist "%VSWHERE%" exit /b 1
+for /f "usebackq tokens=*" %%I in (`"%VSWHERE%" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VS_INSTALL=%%I"
+if not defined VS_INSTALL exit /b 1
+call :LoadVsDevCmd "%VS_INSTALL%\Common7\Tools\VsDevCmd.bat"
+exit /b %errorlevel%
 
 :RecheckMsvcTools
 where cl >nul 2>nul
@@ -134,24 +173,3 @@ exit /b 1
 echo ERROR: cl.exe was not found.
 echo ERROR: link.exe was not found.
 exit /b 1
-
-:ShowMsvcInstallHint
-echo.
-echo Install hint:
-echo   Install Microsoft C++ Build Tools and select:
-echo   - Desktop development with C++
-echo   Then restart this terminal and rerun:
-echo   .\check-desktop-prereqs.bat
-echo.
-echo Official Tauri Windows prerequisites:
-echo   https://v2.tauri.app/start/prerequisites/
-echo.
-echo KnowBase troubleshooting:
-echo   docs\desktop-build-troubleshooting.md
-echo.
-echo Common Visual Studio developer shell locations:
-if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat" echo   FOUND: "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat"
-if exist "%ProgramFiles%\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat" echo   FOUND: "%ProgramFiles%\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat"
-if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" echo   FOUND: "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat"
-if exist "%ProgramFiles%\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" echo   FOUND: "%ProgramFiles%\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat"
-exit /b 0

@@ -7,12 +7,12 @@ if not defined KNOWBASE_NO_PAUSE set "PACKAGE_DESKTOP_PAUSE=1"
 set "KNOWBASE_NO_PAUSE=1"
 
 for %%I in ("%~dp0..\.tools") do set "TOOLS_ROOT=%%~fI"
-set "RUSTUP_HOME=%TOOLS_ROOT%\rustup"
-set "CARGO_HOME=%TOOLS_ROOT%\cargo"
 set "PIP_CACHE_DIR=%TOOLS_ROOT%\pip-cache"
 set "PYINSTALLER_CONFIG_DIR=%TOOLS_ROOT%\pyinstaller-cache"
 set "npm_config_cache=%TOOLS_ROOT%\npm-cache"
-set "PATH=%CARGO_HOME%\bin;%PATH%"
+if not defined RUSTUP_HOME if exist "%TOOLS_ROOT%\rustup" set "RUSTUP_HOME=%TOOLS_ROOT%\rustup"
+if not defined CARGO_HOME if exist "%TOOLS_ROOT%\cargo\bin\cargo.exe" set "CARGO_HOME=%TOOLS_ROOT%\cargo"
+if defined CARGO_HOME set "PATH=%CARGO_HOME%\bin;%PATH%"
 
 echo ================================================
 echo          KnowBase Desktop Packaging
