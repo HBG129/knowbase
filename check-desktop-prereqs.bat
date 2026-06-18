@@ -104,6 +104,16 @@ if exist "frontend\src-tauri\tauri.conf.json" (
 )
 echo.
 
+echo [Tauri Windows icon]
+if exist "frontend\src-tauri\icons\icon.ico" (
+  echo frontend\src-tauri\icons\icon.ico found.
+) else (
+  echo ERROR: Tauri Windows icon was not found.
+  echo        Expected: frontend\src-tauri\icons\icon.ico
+  set "FAIL=1"
+)
+echo.
+
 if "%FAIL%"=="1" (
   echo Result: desktop prerequisites are incomplete.
   exit /b 1
