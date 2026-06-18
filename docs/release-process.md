@@ -69,6 +69,21 @@ Desktop Package
 
 This uses a GitHub-hosted Windows runner and can build without relying on the local machine's Visual Studio Build Tools installation.
 
+Expected GitHub Actions artifacts:
+
+```text
+KnowBaseBackend-<run number>
+KnowBaseDesktop-Windows-<run number>
+```
+
+The desktop artifact must include the Tauri Windows bundle output from:
+
+```text
+frontend\src-tauri\target\release\bundle
+```
+
+If the workflow cannot find the backend executable or desktop bundle, the artifact upload step fails instead of publishing an empty artifact.
+
 ## 4. Test On A Clean Windows Machine
 
 Install the generated package on a Windows machine or virtual machine without the development toolchain.

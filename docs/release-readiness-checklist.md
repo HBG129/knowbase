@@ -42,6 +42,13 @@ If the local build machine is blocked, try the manual GitHub Actions workflow:
 Desktop Package
 ```
 
+Required workflow artifacts:
+
+- `KnowBaseBackend-<run number>`
+- `KnowBaseDesktop-Windows-<run number>`
+
+The desktop workflow is not release-ready if either artifact is missing.
+
 ## Functional Smoke Test
 
 Run these checks before publishing a build:

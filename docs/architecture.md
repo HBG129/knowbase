@@ -57,6 +57,13 @@ The repository includes a manual GitHub Actions workflow for desktop packaging:
 
 Use it when local desktop packaging is blocked by missing Microsoft C++ Build Tools.
 
+The workflow uploads two short-lived artifacts:
+
+```text
+KnowBaseBackend-<run number>
+KnowBaseDesktop-Windows-<run number>
+```
+
 ## Components
 
 ```text
