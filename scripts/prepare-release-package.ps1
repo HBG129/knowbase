@@ -4,6 +4,8 @@ param(
 
   [string]$ExpectedSha256 = "",
 
+  [string]$Version = "0.1.0-rc.1",
+
   [string]$OutputDir = ""
 )
 
@@ -48,6 +50,7 @@ $zipHash = Get-FileHash -Algorithm SHA256 -LiteralPath $zip.Path
 $installerHash = Get-FileHash -Algorithm SHA256 -LiteralPath $installerPath
 $checksumPath = Join-Path $OutputDir "SHA256SUMS.txt"
 $summaryPath = Join-Path $OutputDir "RELEASE_ARTIFACTS.md"
+$releaseNotesPath = Join-Path $OutputDir "RELEASE_NOTES_DRAFT.md"
 $installerName = Split-Path -Leaf $installerPath
 $zipName = Split-Path -Leaf $zip.Path
 
@@ -80,8 +83,107 @@ $summary = @(
 )
 Set-Content -LiteralPath $summaryPath -Value $summary -Encoding ASCII
 
+$releaseNotes = @(
+  "# KnowBase v$Version"
+  ''
+  'Private AI knowledge workspace for local documents.'
+  ''
+  '## Highlights'
+  ''
+  '- Windows desktop app packaging milestone.'
+  '- Local knowledge bases for PDF, Word, Markdown, TXT, and CSV files.'
+  '- RAG answers with source citations.'
+  '- Recent conversations, guided empty states, and in-app confirmations.'
+  ''
+  '## Who This Release Is For'
+  ''
+  'This release is intended for:'
+  ''
+  '- users testing KnowBase on Windows,'
+  '- reviewers evaluating the AI knowledge-base workflow,'
+  '- developers validating desktop packaging and local runtime behavior.'
+  ''
+  'This release is not intended for:'
+  ''
+  '- production enterprise deployment,'
+  '- unattended installation at scale,'
+  '- environments that require code signing or automatic updates.'
+  ''
+  '## Requirements'
+  ''
+  '- Windows 10 or later.'
+  '- Internet access for LLM API calls.'
+  '- Customer-provided LLM API key unless a system fallback key is configured.'
+  '- Permission to store local app data under the Windows user profile.'
+  ''
+  '## Installer'
+  ''
+  'Artifact:'
+  ''
+  '```text'
+  $installerName
+  '```'
+  ''
+  'SHA256:'
+  ''
+  '```text'
+  $installerHash.Hash
+  '```'
+  ''
+  'Expected local data directory:'
+  ''
+  '```text'
+  '%APPDATA%\KnowBase'
+  '```'
+  ''
+  '## First Run'
+  ''
+  '1. Install and launch KnowBase.'
+  '2. Register a local account.'
+  '3. Create a knowledge base.'
+  '4. Upload one supported document.'
+  '5. Add an LLM API key if prompted.'
+  '6. Ask a question and check that the answer includes citations.'
+  ''
+  '## Verification'
+  ''
+  '- Clean Windows install: not tested'
+  '- Backend auto-start: not tested'
+  '- Register and login: not tested'
+  '- PDF upload and chat: not tested'
+  '- Word upload and chat: not tested'
+  '- Markdown upload and chat: not tested'
+  '- TXT upload and chat: not tested'
+  '- CSV upload and chat: not tested'
+  '- App close process cleanup: not tested'
+  ''
+  '## Known Limitations'
+  ''
+  '- App signing is not configured yet.'
+  '- Auto-update is not configured yet.'
+  '- Enterprise deployment policy is not finalized.'
+  '- API keys should move toward OS credential storage before a broad customer release.'
+  '- Local desktop packaging requires Microsoft C++ Build Tools when building outside GitHub Actions.'
+  ''
+  '## Security And Privacy'
+  ''
+  '- Do not upload private customer documents when reporting issues.'
+  '- Do not share API keys, `.env` files, local databases, or `%APPDATA%\KnowBase`.'
+  '- See `SECURITY.md` for sensitive-data handling rules.'
+  ''
+  '## Related Documentation'
+  ''
+  '- `docs\customer-quick-start.md`'
+  '- `docs\customer-data-and-privacy.md`'
+  '- `docs\known-limitations.md`'
+  '- `docs\release-process.md`'
+  '- `docs\release-readiness-checklist.md`'
+)
+Set-Content -LiteralPath $releaseNotesPath -Value $releaseNotes -Encoding ASCII
+
 Write-Output "Release package prepared."
 Write-Output "Output: $OutputDir"
 Write-Output "Installer: $installerPath"
 Write-Output "Checksums: $checksumPath"
 Write-Output "Summary: $summaryPath"
+Write-Output "Release notes draft: $releaseNotesPath"

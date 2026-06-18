@@ -26,6 +26,11 @@ This document tracks the practical delivery status of KnowBase.
 - Downloaded artifact `KnowBaseDesktop-Windows-3.zip` verified locally:
   - ZIP SHA256: `552E81842025B52D0B9C106257D2B2D08E69CA52BCD9169DF5F87A31F699FB26`
   - Installer inside ZIP: `KnowBase_0.1.0_x64-setup.exe`
+- Release package preparation script generates:
+  - installer copy for GitHub Release upload,
+  - `SHA256SUMS.txt`,
+  - `RELEASE_ARTIFACTS.md`,
+  - `RELEASE_NOTES_DRAFT.md`.
 - Desktop artifact verification script checks for:
   - `backend\dist\KnowBaseBackend.exe`
   - NSIS installer under `frontend\src-tauri\target\release\bundle\nsis`

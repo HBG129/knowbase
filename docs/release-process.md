@@ -104,6 +104,15 @@ Prepare the files for a GitHub Release:
 .\scripts\prepare-release-package.ps1 -ZipPath D:\Codex_AI_Workspace\artifacts\KnowBaseDesktop-Windows-3.zip
 ```
 
+This creates:
+
+```text
+D:\Codex_AI_Workspace\artifacts\knowbase-release\KnowBase_0.1.0_x64-setup.exe
+D:\Codex_AI_Workspace\artifacts\knowbase-release\SHA256SUMS.txt
+D:\Codex_AI_Workspace\artifacts\knowbase-release\RELEASE_ARTIFACTS.md
+D:\Codex_AI_Workspace\artifacts\knowbase-release\RELEASE_NOTES_DRAFT.md
+```
+
 ## 4. Test On A Clean Windows Machine
 
 Install the generated package on a Windows machine or virtual machine without the development toolchain.
