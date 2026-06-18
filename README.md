@@ -1,6 +1,7 @@
 # KnowBase
 
 [![CI](https://github.com/HBG129/knowbase/actions/workflows/ci.yml/badge.svg)](https://github.com/HBG129/knowbase/actions/workflows/ci.yml)
+[![Desktop Package](https://github.com/HBG129/knowbase/actions/workflows/desktop-package.yml/badge.svg)](https://github.com/HBG129/knowbase/actions/workflows/desktop-package.yml)
 
 Private AI knowledge workspace for local documents.
 
@@ -13,7 +14,8 @@ KnowBase turns PDFs, Word documents, Markdown notes, text files, and CSVs into s
 | Web app | Usable for local development |
 | Backend API | Working |
 | Backend executable | Working with PyInstaller |
-| Desktop shell | Tauri foundation in progress |
+| Desktop shell | Tauri packaging path in progress |
+| Desktop package workflow | Runs on relevant pushes |
 | Customer installer | Not released yet |
 
 The current repository is ready for development and packaging work. It is not yet a finished customer installer.
@@ -98,6 +100,12 @@ Roadmap:
 
 ```text
 docs\roadmap.md
+```
+
+Project status:
+
+```text
+docs\project-status.md
 ```
 
 Architecture overview:
