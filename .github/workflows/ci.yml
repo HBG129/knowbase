@@ -8,7 +8,7 @@ on:
 
 jobs:
   scripts:
-    name: PowerShell script syntax
+    name: Repository checks
     runs-on: windows-latest
 
     steps:
@@ -18,6 +18,10 @@ jobs:
       - name: Check PowerShell scripts
         shell: pwsh
         run: .\scripts\check-powershell-scripts.ps1
+
+      - name: Check version consistency
+        shell: pwsh
+        run: .\scripts\check-version-consistency.ps1
 
   frontend:
     name: Frontend build
