@@ -51,6 +51,7 @@ $installerHash = Get-FileHash -Algorithm SHA256 -LiteralPath $installerPath
 $checksumPath = Join-Path $OutputDir "SHA256SUMS.txt"
 $summaryPath = Join-Path $OutputDir "RELEASE_ARTIFACTS.md"
 $releaseNotesPath = Join-Path $OutputDir "RELEASE_NOTES_DRAFT.md"
+$validationIssuePath = Join-Path $OutputDir "RELEASE_VALIDATION_ISSUE_DRAFT.md"
 $installerName = Split-Path -Leaf $installerPath
 $zipName = Split-Path -Leaf $zip.Path
 
@@ -181,9 +182,89 @@ $releaseNotes = @(
 )
 Set-Content -LiteralPath $releaseNotesPath -Value $releaseNotes -Encoding ASCII
 
+$validationIssue = @(
+  "# Release Validation: KnowBase v$Version"
+  ''
+  'Use this as a working note when filling the GitHub `Release validation` issue form.'
+  ''
+  '## Release Version'
+  ''
+  '```text'
+  $Version
+  '```'
+  ''
+  '## Installer Artifact'
+  ''
+  '```text'
+  $installerName
+  '```'
+  ''
+  '## Installer SHA256'
+  ''
+  '```text'
+  $installerHash.Hash
+  '```'
+  ''
+  '## Clean Machine Baseline'
+  ''
+  '- [ ] Test machine does not have Python installed.'
+  '- [ ] Test machine does not have Node.js installed.'
+  '- [ ] Test machine does not have Rust installed.'
+  '- [ ] Test machine does not have Git installed.'
+  '- [ ] Test machine does not have the KnowBase source checkout.'
+  '- [ ] Test machine has internet access.'
+  '- [ ] Test machine has a valid LLM provider API key for testing.'
+  ''
+  '## Install And Launch'
+  ''
+  '- [ ] Installer runs without developer tools.'
+  '- [ ] KnowBase launches from Start Menu or desktop shortcut.'
+  '- [ ] Desktop app starts the backend automatically.'
+  '- [ ] App opens without a developer terminal.'
+  '- [ ] App stores runtime data under `%APPDATA%\KnowBase`.'
+  ''
+  '## First-Run Flow'
+  ''
+  '- [ ] User registration succeeds.'
+  '- [ ] Login succeeds.'
+  '- [ ] Knowledge base creation succeeds.'
+  '- [ ] API key settings accepts a valid provider key.'
+  '- [ ] PDF upload and cited chat answer work.'
+  '- [ ] Word upload and cited chat answer work.'
+  '- [ ] Markdown upload and cited chat answer work.'
+  '- [ ] TXT upload and cited chat answer work.'
+  '- [ ] CSV upload and cited chat answer work.'
+  '- [ ] Recent conversations reopen correctly.'
+  '- [ ] Conversation deletion uses in-app confirmation.'
+  ''
+  '## Shutdown, Security, And Privacy'
+  ''
+  '- [ ] Closing the app stops the backend process.'
+  '- [ ] Relaunch keeps account, knowledge base, documents, and conversations.'
+  '- [ ] No API key appears in visible logs.'
+  '- [ ] No document content appears in visible logs.'
+  '- [ ] No `.env`, database, uploaded document, or `%APPDATA%\KnowBase` folder is attached to the issue.'
+  ''
+  '## Failures Or Notes'
+  ''
+  '```text'
+  '- Failed check:'
+  '- Windows version:'
+  '- Non-sensitive error:'
+  '```'
+  ''
+  '## Release Decision'
+  ''
+  '- [ ] Block release'
+  '- [ ] Ready for limited tester release'
+  '- [ ] Ready for public release'
+)
+Set-Content -LiteralPath $validationIssuePath -Value $validationIssue -Encoding ASCII
+
 Write-Output "Release package prepared."
 Write-Output "Output: $OutputDir"
 Write-Output "Installer: $installerPath"
 Write-Output "Checksums: $checksumPath"
 Write-Output "Summary: $summaryPath"
 Write-Output "Release notes draft: $releaseNotesPath"
+Write-Output "Release validation issue draft: $validationIssuePath"

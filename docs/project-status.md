@@ -30,7 +30,8 @@ This document tracks the practical delivery status of KnowBase.
   - installer copy for GitHub Release upload,
   - `SHA256SUMS.txt`,
   - `RELEASE_ARTIFACTS.md`,
-  - `RELEASE_NOTES_DRAFT.md`.
+  - `RELEASE_NOTES_DRAFT.md`,
+  - `RELEASE_VALIDATION_ISSUE_DRAFT.md`.
 - GitHub issue form exists for release validation tracking.
 - Desktop artifact verification script checks for:
   - `backend\dist\KnowBaseBackend.exe`

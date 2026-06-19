@@ -111,6 +111,7 @@ D:\Codex_AI_Workspace\artifacts\knowbase-release\KnowBase_0.1.0_x64-setup.exe
 D:\Codex_AI_Workspace\artifacts\knowbase-release\SHA256SUMS.txt
 D:\Codex_AI_Workspace\artifacts\knowbase-release\RELEASE_ARTIFACTS.md
 D:\Codex_AI_Workspace\artifacts\knowbase-release\RELEASE_NOTES_DRAFT.md
+D:\Codex_AI_Workspace\artifacts\knowbase-release\RELEASE_VALIDATION_ISSUE_DRAFT.md
 ```
 
 ## 4. Test On A Clean Windows Machine
@@ -141,6 +142,12 @@ For GitHub tracking, open a `Release validation` issue and paste the installer n
 
 ```text
 D:\Codex_AI_Workspace\artifacts\knowbase-release\RELEASE_NOTES_DRAFT.md
+```
+
+Use this local draft as the working checklist while testing:
+
+```text
+D:\Codex_AI_Workspace\artifacts\knowbase-release\RELEASE_VALIDATION_ISSUE_DRAFT.md
 ```
 
 ## 5. Prepare Release Notes
