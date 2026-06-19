@@ -19,6 +19,7 @@ List the checks you ran:
 - [ ] Backend tests: `cd backend && .\.venv\Scripts\python.exe -m pytest tests -q`
 - [ ] Desktop prerequisites: `.\check-desktop-prereqs.bat`
 - [ ] Desktop package: `.\package-desktop.bat`
+- [ ] PowerShell script syntax: `.\scripts\check-powershell-scripts.ps1`
 - [ ] Manual GitHub Actions workflow: `Desktop Package`
 - [ ] Documentation-only change; command verification not required
 

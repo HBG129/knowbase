@@ -34,6 +34,7 @@ This document tracks the practical delivery status of KnowBase.
   - `RELEASE_VALIDATION_ISSUE_DRAFT.md`.
 - GitHub issue form exists for release validation tracking.
 - Installed app check script exists for clean-machine evidence capture.
+- CI checks PowerShell script syntax to catch release-script parse errors.
 - Desktop artifact verification script checks for:
   - `backend\dist\KnowBaseBackend.exe`
   - NSIS installer under `frontend\src-tauri\target\release\bundle\nsis`
