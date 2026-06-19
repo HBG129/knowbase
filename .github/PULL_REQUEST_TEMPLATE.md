@@ -22,6 +22,7 @@ List the checks you ran:
 - [ ] PowerShell script syntax: `.\scripts\check-powershell-scripts.ps1`
 - [ ] Version consistency: `.\scripts\check-version-consistency.ps1`
 - [ ] Sensitive tracked files: `.\scripts\check-sensitive-files.ps1`
+- [ ] Release preflight: `.\scripts\check-release-preflight.ps1 -SkipGitStatus`
 - [ ] Manual GitHub Actions workflow: `Desktop Package`
 - [ ] Documentation-only change; command verification not required
 

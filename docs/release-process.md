@@ -25,6 +25,12 @@ If `cl.exe` or `link.exe` is missing, stop and fix the Visual Studio Build Tools
 
 ## 2. Run Verification
 
+Run repository preflight checks:
+
+```powershell
+.\scripts\check-release-preflight.ps1
+```
+
 Run backend tests:
 
 ```powershell

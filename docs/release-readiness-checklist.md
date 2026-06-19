@@ -26,6 +26,7 @@ The build machine must have:
 Run:
 
 ```powershell
+.\scripts\check-release-preflight.ps1
 .\check-desktop-prereqs.bat
 .\package-desktop.bat
 .\scripts\check-desktop-artifacts.ps1

@@ -27,6 +27,10 @@ jobs:
         shell: pwsh
         run: .\scripts\check-sensitive-files.ps1
 
+      - name: Check release preflight
+        shell: pwsh
+        run: .\scripts\check-release-preflight.ps1 -SkipGitStatus
+
   frontend:
     name: Frontend build
     runs-on: ubuntu-latest
