@@ -36,6 +36,7 @@ This document tracks the practical delivery status of KnowBase.
 - Installed app check script exists for clean-machine evidence capture.
 - CI checks PowerShell script syntax to catch release-script parse errors.
 - CI checks backend, desktop app, and release-draft version consistency.
+- CI blocks tracked `.env`, local databases, uploads, artifacts, and desktop build outputs.
 - Desktop artifact verification script checks for:
   - `backend\dist\KnowBaseBackend.exe`
   - NSIS installer under `frontend\src-tauri\target\release\bundle\nsis`

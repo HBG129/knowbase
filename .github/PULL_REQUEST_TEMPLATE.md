@@ -21,6 +21,7 @@ List the checks you ran:
 - [ ] Desktop package: `.\package-desktop.bat`
 - [ ] PowerShell script syntax: `.\scripts\check-powershell-scripts.ps1`
 - [ ] Version consistency: `.\scripts\check-version-consistency.ps1`
+- [ ] Sensitive tracked files: `.\scripts\check-sensitive-files.ps1`
 - [ ] Manual GitHub Actions workflow: `Desktop Package`
 - [ ] Documentation-only change; command verification not required
 
