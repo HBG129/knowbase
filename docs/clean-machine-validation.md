@@ -75,6 +75,20 @@ Validate:
 - Relaunching the app keeps existing account, knowledge base, documents, and conversations.
 - No API key or document content appears in visible logs.
 
+After installing and launching KnowBase, run the installed app check script:
+
+```powershell
+.\scripts\check-installed-app.ps1
+```
+
+The script writes a local Markdown report to the current user's Desktop under:
+
+```text
+KnowBaseValidation
+```
+
+Use the report as supporting evidence for the GitHub `Release validation` issue. Do not attach local databases, uploaded documents, API keys, or `%APPDATA%\KnowBase` contents.
+
 ## Release Decision
 
 Do not publish the installer if any of these fail:

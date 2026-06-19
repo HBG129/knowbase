@@ -222,6 +222,7 @@ $validationIssue = @(
   '- [ ] Desktop app starts the backend automatically.'
   '- [ ] App opens without a developer terminal.'
   '- [ ] App stores runtime data under `%APPDATA%\KnowBase`.'
+  '- [ ] `scripts\check-installed-app.ps1` report was generated and reviewed.'
   ''
   '## First-Run Flow'
   ''

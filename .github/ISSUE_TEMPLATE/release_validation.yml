@@ -57,6 +57,7 @@ body:
         - label: Desktop app starts the backend automatically.
         - label: App opens without a developer terminal.
         - label: App stores runtime data under `%APPDATA%\KnowBase`.
+        - label: check-installed-app.ps1 report was generated and reviewed.
 
   - type: checkboxes
     id: first_run

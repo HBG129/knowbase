@@ -150,6 +150,14 @@ Use this local draft as the working checklist while testing:
 D:\Codex_AI_Workspace\artifacts\knowbase-release\RELEASE_VALIDATION_ISSUE_DRAFT.md
 ```
 
+After installing and launching the app on the clean machine, run:
+
+```powershell
+.\scripts\check-installed-app.ps1
+```
+
+Attach only the generated Markdown report if it contains no secrets or private document content.
+
 ## 5. Prepare Release Notes
 
 Use the template in:

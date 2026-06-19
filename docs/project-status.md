@@ -10,7 +10,7 @@ This document tracks the practical delivery status of KnowBase.
 | --- | ---: | --- |
 | Resume and interview showcase | 92% | Strong project story, architecture, RAG workflow, packaging path, docs, and GitHub history are present. |
 | GitHub portfolio completeness | 93% | README, architecture, roadmap, changelog, support, security, release docs, demo data, CI, and desktop artifacts are in place. |
-| Customer-installable software | 84% | Windows installer artifact is produced and locally verified; clean-machine validation is still required before customer release. |
+| Customer-installable software | 86% | Windows installer artifact is produced and locally verified; clean-machine validation script is ready, but real clean-machine validation is still required before customer release. |
 
 ## Verified
 
@@ -33,6 +33,7 @@ This document tracks the practical delivery status of KnowBase.
   - `RELEASE_NOTES_DRAFT.md`,
   - `RELEASE_VALIDATION_ISSUE_DRAFT.md`.
 - GitHub issue form exists for release validation tracking.
+- Installed app check script exists for clean-machine evidence capture.
 - Desktop artifact verification script checks for:
   - `backend\dist\KnowBaseBackend.exe`
   - NSIS installer under `frontend\src-tauri\target\release\bundle\nsis`
