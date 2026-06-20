@@ -111,6 +111,7 @@ Before public release, confirm:
 - README has a customer installation section.
 - Documentation index is available in `docs\README.md`.
 - Customer quick start is documented in `docs\customer-quick-start.md`.
+- Customer beta testing is planned in `docs\customer-beta-test-plan.md`.
 - Release process is documented in `docs\release-process.md`.
 - README explains customer API key requirements and first-run setup.
 - The app shows useful errors when no LLM API key is configured.

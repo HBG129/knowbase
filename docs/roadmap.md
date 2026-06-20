@@ -54,6 +54,7 @@ Customer beta means a small number of real users can try the app with clear limi
 
 Required:
 
+- Customer beta follows `docs\customer-beta-test-plan.md`.
 - Installer is versioned and attached to a GitHub Release.
 - Customer quick start is accurate.
 - Local data and uninstall behavior are documented.
