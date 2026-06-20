@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-06-18
+Last updated: 2026-06-20
 
 This document tracks the practical delivery status of KnowBase.
 
@@ -8,9 +8,9 @@ This document tracks the practical delivery status of KnowBase.
 
 | Area | Progress | Notes |
 | --- | ---: | --- |
-| Resume and interview showcase | 92% | Strong project story, architecture, RAG workflow, packaging path, docs, and GitHub history are present. |
-| GitHub portfolio completeness | 93% | README, architecture, roadmap, changelog, support, security, release docs, demo data, CI, and desktop artifacts are in place. |
-| Customer-installable software | 86% | Windows installer artifact is produced and locally verified; clean-machine validation script is ready, but real clean-machine validation is still required before customer release. |
+| Resume and interview showcase | 95% | Strong project story, architecture, RAG workflow, packaging path, release process, CI history, and customer-readiness narrative are present. |
+| GitHub portfolio completeness | 95% | README, architecture, roadmap, changelog, support, security, release docs, demo data, CI, release gates, and desktop artifacts are in place. |
+| Customer-installable software | 88% | Windows installer artifact is produced and locally verified; release preflight and validation scripts are ready, but real clean-machine validation is still required before customer release. |
 
 ## Verified
 
@@ -39,6 +39,7 @@ This document tracks the practical delivery status of KnowBase.
 - CI blocks tracked `.env`, local databases, uploads, artifacts, and desktop build outputs.
 - CI checks required release documentation paths and references.
 - CI runs the release preflight script that aggregates repository checks before packaging or publishing.
+- Last confirmed full CI run before this update: run `27832480404` for commit `251b489`.
 - Desktop artifact verification script checks for:
   - `backend\dist\KnowBaseBackend.exe`
   - NSIS installer under `frontend\src-tauri\target\release\bundle\nsis`
