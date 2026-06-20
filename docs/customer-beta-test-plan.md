@@ -67,6 +67,8 @@ Ask testers to report:
 - non-sensitive screenshot or error text,
 - whether `docs\customer-troubleshooting.md` helped.
 
+For GitHub tracking, ask testers to use the `Beta feedback` issue form.
+
 For install, launch, backend, or health check failures, ask testers to run:
 
 ```powershell

@@ -10,6 +10,7 @@ function Fail($Messages) {
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $errors = New-Object System.Collections.Generic.List[string]
 $issueTemplates = @(
+  ".github\ISSUE_TEMPLATE\beta_feedback.yml",
   ".github\ISSUE_TEMPLATE\bug_report.yml",
   ".github\ISSUE_TEMPLATE\feature_request.yml",
   ".github\ISSUE_TEMPLATE\release_validation.yml"
@@ -22,6 +23,7 @@ $requiredPaths = @(
   "package-desktop.bat",
   ".github\workflows\ci.yml",
   ".github\workflows\desktop-package.yml",
+  ".github\ISSUE_TEMPLATE\beta_feedback.yml",
   ".github\ISSUE_TEMPLATE\release_validation.yml",
   "docs\README.md",
   "docs\clean-machine-validation.md",
@@ -79,6 +81,10 @@ $contentChecks = @(
   @{
     Path = "docs\release-readiness-checklist.md"
     Needle = "docs\customer-beta-test-plan.md"
+  },
+  @{
+    Path = "docs\customer-beta-test-plan.md"
+    Needle = "Beta feedback"
   },
   @{
     Path = "docs\customer-quick-start.md"
