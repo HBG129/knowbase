@@ -82,6 +82,12 @@ For local data and privacy notes, see:
 docs\customer-data-and-privacy.md
 ```
 
+For customer troubleshooting, see:
+
+```text
+docs\customer-troubleshooting.md
+```
+
 For current product limitations, see:
 
 ```text

@@ -27,6 +27,7 @@ $requiredPaths = @(
   "docs\clean-machine-validation.md",
   "docs\customer-data-and-privacy.md",
   "docs\customer-quick-start.md",
+  "docs\customer-troubleshooting.md",
   "docs\demo-assets.md",
   "docs\demo-data",
   "docs\known-limitations.md",
@@ -61,6 +62,14 @@ $contentChecks = @(
   @{
     Path = "README.md"
     Needle = "docs\customer-data-and-privacy.md"
+  },
+  @{
+    Path = "docs\README.md"
+    Needle = "customer-troubleshooting.md"
+  },
+  @{
+    Path = "docs\customer-quick-start.md"
+    Needle = "docs\customer-troubleshooting.md"
   },
   @{
     Path = "docs\release-process.md"
