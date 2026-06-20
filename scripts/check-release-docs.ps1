@@ -9,6 +9,11 @@ function Fail($Messages) {
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $errors = New-Object System.Collections.Generic.List[string]
+$issueTemplates = @(
+  ".github\ISSUE_TEMPLATE\bug_report.yml",
+  ".github\ISSUE_TEMPLATE\feature_request.yml",
+  ".github\ISSUE_TEMPLATE\release_validation.yml"
+)
 
 $requiredPaths = @(
   "README.md",
@@ -80,6 +85,10 @@ $contentChecks = @(
   @{
     Path = "docs\support-runbook.md"
     Needle = ".\scripts\collect-support-info.ps1"
+  },
+  @{
+    Path = ".github\ISSUE_TEMPLATE\bug_report.yml"
+    Needle = ".\scripts\collect-support-info.ps1"
   }
 )
 
@@ -93,6 +102,17 @@ foreach ($check in $contentChecks) {
   $content = Get-Content -LiteralPath $fullPath -Raw
   if (-not $content.Contains($check.Needle)) {
     $errors.Add("$($check.Path) does not mention required text: $($check.Needle)")
+  }
+}
+
+foreach ($path in $issueTemplates) {
+  $fullPath = Join-Path $repoRoot $path
+  $lineNumber = 0
+  foreach ($line in Get-Content -LiteralPath $fullPath) {
+    $lineNumber += 1
+    if ($line -match '^\s*placeholder:\s+[^"''|].*:\s+') {
+      $errors.Add("Issue template placeholder with colon must be quoted: $path line $lineNumber")
+    }
   }
 }
 

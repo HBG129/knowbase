@@ -8,7 +8,7 @@ body:
     attributes:
       label: Problem
       description: What user problem would this solve?
-      placeholder: Example: I need to share a read-only knowledge base with another user.
+      placeholder: "Example: I need to share a read-only knowledge base with another user."
     validations:
       required: true
 
@@ -49,4 +49,4 @@ body:
     attributes:
       label: Success criteria
       description: How would we know this feature is working?
-      placeholder: Example: A user can create a read-only link, open it on another machine, and view cited answers without editing the source knowledge base.
+      placeholder: "Example: A user can create a read-only link, open it on another machine, and view cited answers without editing the source knowledge base."
