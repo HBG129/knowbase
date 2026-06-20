@@ -25,6 +25,7 @@ Use this index to find the right document quickly.
 ## Support
 
 - `support-runbook.md` - safe support workflow for customer issues without collecting secrets or private data.
+- `..\scripts\collect-support-info.ps1` - local support report script for installation and startup triage.
 
 ## Design And Planning Records
 

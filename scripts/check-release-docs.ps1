@@ -37,6 +37,7 @@ $requiredPaths = @(
   "scripts\check-release-preflight.ps1",
   "scripts\check-sensitive-files.ps1",
   "scripts\check-version-consistency.ps1",
+  "scripts\collect-support-info.ps1",
   "scripts\prepare-release-package.ps1"
 )
 
@@ -75,6 +76,10 @@ $contentChecks = @(
   @{
     Path = ".github\PULL_REQUEST_TEMPLATE.md"
     Needle = ".\scripts\check-release-preflight.ps1 -SkipGitStatus"
+  },
+  @{
+    Path = "docs\support-runbook.md"
+    Needle = ".\scripts\collect-support-info.ps1"
   }
 )
 

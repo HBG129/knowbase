@@ -15,6 +15,14 @@ Do not ask customers to send:
 
 Ask for redacted screenshots and non-sensitive error text first.
 
+If the issue involves installation or desktop startup, ask the customer to run:
+
+```powershell
+.\scripts\collect-support-info.ps1
+```
+
+They may attach the generated Markdown report after checking it for private details. The script does not collect API keys, database contents, uploaded document contents, or uploaded file names.
+
 ## Basic Triage
 
 Collect:
@@ -43,6 +51,12 @@ Relevant docs:
 ```text
 docs\desktop-build-troubleshooting.md
 docs\release-process.md
+```
+
+Relevant script:
+
+```text
+scripts\collect-support-info.ps1
 ```
 
 ### API Key Or Model Error
