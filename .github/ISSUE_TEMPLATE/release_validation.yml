@@ -58,6 +58,7 @@ body:
         - label: App opens without a developer terminal.
         - label: App stores runtime data under `%APPDATA%\KnowBase`.
         - label: check-installed-app.ps1 report was generated and reviewed.
+        - label: collect-support-info.ps1 report was generated for any install, launch, backend, or health check failure.
 
   - type: checkboxes
     id: first_run
@@ -91,11 +92,12 @@ body:
     id: failures
     attributes:
       label: Failures or notes
-      description: List any failed checks and the exact non-sensitive error text.
+      description: List any failed checks, the exact non-sensitive error text, and whether `docs\customer-troubleshooting.md` resolved the issue.
       placeholder: |
         - Failed check:
         - Windows version:
         - Non-sensitive error:
+        - Support report generated:
 
   - type: dropdown
     id: release_decision

@@ -72,6 +72,14 @@ $contentChecks = @(
     Needle = "docs\customer-troubleshooting.md"
   },
   @{
+    Path = "docs\clean-machine-validation.md"
+    Needle = ".\scripts\collect-support-info.ps1"
+  },
+  @{
+    Path = "docs\clean-machine-validation.md"
+    Needle = "docs\customer-troubleshooting.md"
+  },
+  @{
     Path = "docs\release-process.md"
     Needle = ".\scripts\check-release-preflight.ps1"
   },
@@ -98,6 +106,10 @@ $contentChecks = @(
   @{
     Path = ".github\ISSUE_TEMPLATE\bug_report.yml"
     Needle = ".\scripts\collect-support-info.ps1"
+  },
+  @{
+    Path = ".github\ISSUE_TEMPLATE\release_validation.yml"
+    Needle = "collect-support-info.ps1"
   }
 )
 

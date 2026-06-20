@@ -89,6 +89,14 @@ KnowBaseValidation
 
 Use the report as supporting evidence for the GitHub `Release validation` issue. Do not attach local databases, uploaded documents, API keys, or `%APPDATA%\KnowBase` contents.
 
+If any install, launch, backend, or health check fails, also generate a non-sensitive support report:
+
+```powershell
+.\scripts\collect-support-info.ps1
+```
+
+Use `docs\customer-troubleshooting.md` to classify the failure before deciding whether to block the release.
+
 ## Release Decision
 
 Do not publish the installer if any of these fail:
