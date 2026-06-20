@@ -16,9 +16,10 @@ KnowBase turns PDFs, Word documents, Markdown notes, text files, and CSVs into s
 | Backend executable | Working with PyInstaller |
 | Desktop shell | Tauri Windows packaging verified in CI |
 | Desktop package workflow | Passing and uploading artifacts |
+| Release preflight | CI checks scripts, versions, sensitive files, and release documentation |
 | Customer installer | CI artifact available, not publicly released yet |
 
-The current repository is ready for development and packaging work. A Windows installer artifact is produced by GitHub Actions, but it still needs clean-machine validation before customer release.
+The current repository is ready for development and packaging work. A Windows installer artifact is produced by GitHub Actions and guarded by release preflight checks, but it still needs clean-machine validation before customer release.
 
 ## Why KnowBase
 
