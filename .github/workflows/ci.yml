@@ -27,6 +27,10 @@ jobs:
         shell: pwsh
         run: .\scripts\check-sensitive-files.ps1
 
+      - name: Check release documentation
+        shell: pwsh
+        run: .\scripts\check-release-docs.ps1
+
       - name: Check release preflight
         shell: pwsh
         run: .\scripts\check-release-preflight.ps1 -SkipGitStatus
