@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-06-20
+Last updated: 2026-06-21
 
 This document tracks the practical delivery status of KnowBase.
 
@@ -8,9 +8,9 @@ This document tracks the practical delivery status of KnowBase.
 
 | Area | Progress | Notes |
 | --- | ---: | --- |
-| Resume and interview showcase | 95% | Strong project story, architecture, RAG workflow, packaging path, release process, CI history, and customer-readiness narrative are present. |
-| GitHub portfolio completeness | 95% | README, architecture, roadmap, changelog, support, security, release docs, demo data, CI, release gates, and desktop artifacts are in place. |
-| Customer-installable software | 88% | Windows installer artifact is produced and locally verified; release preflight and validation scripts are ready, but real clean-machine validation is still required before customer release. |
+| Resume and interview showcase | 96% | Strong project story, architecture, RAG workflow, packaging path, release process, CI history, customer-readiness narrative, and beta testing workflow are present. |
+| GitHub portfolio completeness | 97% | README, architecture, roadmap, changelog, support, security, release docs, demo data, CI, release gates, issue templates, and desktop artifacts are in place. |
+| Customer-installable software | 92% | Windows installer artifact is produced and locally verified; release preflight, validation, troubleshooting, beta, privacy, and support workflows are ready, but real clean-machine validation is still required before customer release. |
 
 ## Verified
 
@@ -33,8 +33,10 @@ This document tracks the practical delivery status of KnowBase.
   - `RELEASE_NOTES_DRAFT.md`,
   - `RELEASE_VALIDATION_ISSUE_DRAFT.md`.
 - GitHub issue form exists for release validation tracking.
+- GitHub issue form exists for structured beta feedback.
 - Installed app check script exists for clean-machine evidence capture.
 - Support info script exists for non-sensitive installation and startup triage reports.
+- Customer troubleshooting, customer beta test plan, and privacy notice draft are documented.
 - CI checks PowerShell script syntax to catch release-script parse errors.
 - CI checks backend, desktop app, and release-draft version consistency.
 - CI blocks tracked `.env`, local databases, uploads, artifacts, and desktop build outputs.
