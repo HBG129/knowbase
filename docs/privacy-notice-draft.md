@@ -19,7 +19,7 @@ This may include:
 - uploaded document files,
 - document processing metadata,
 - conversation history,
-- saved provider API key records,
+- encrypted provider API key records,
 - the local SQLite database.
 
 Treat the full `%APPDATA%\KnowBase` folder as sensitive.

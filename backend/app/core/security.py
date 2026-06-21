@@ -1,11 +1,15 @@
 """JWT token and password utilities."""
+import base64
+import hashlib
 import uuid
 from datetime import datetime, timedelta, timezone
+from cryptography.fernet import Fernet, InvalidToken
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 from app.config import settings
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+ENCRYPTED_API_KEY_PREFIX = "enc:v1:"
 
 
 def hash_password(password: str) -> str:
@@ -39,3 +43,25 @@ def decode_token(token: str) -> dict | None:
         return jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
     except JWTError:
         return None
+
+
+def _api_key_fernet() -> Fernet:
+    secret = settings.API_KEY_ENCRYPTION_SECRET or settings.JWT_SECRET_KEY
+    digest = hashlib.sha256(secret.encode("utf-8")).digest()
+    key = base64.urlsafe_b64encode(digest)
+    return Fernet(key)
+
+
+def encrypt_api_key(api_key: str) -> str:
+    token = _api_key_fernet().encrypt(api_key.encode("utf-8")).decode("utf-8")
+    return ENCRYPTED_API_KEY_PREFIX + token
+
+
+def decrypt_api_key(stored_api_key: str) -> str:
+    if not stored_api_key.startswith(ENCRYPTED_API_KEY_PREFIX):
+        return stored_api_key
+    token = stored_api_key.removeprefix(ENCRYPTED_API_KEY_PREFIX)
+    try:
+        return _api_key_fernet().decrypt(token.encode("utf-8")).decode("utf-8")
+    except InvalidToken as exc:
+        raise ValueError("Stored API key cannot be decrypted. Clear it and save the key again.") from exc

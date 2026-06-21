@@ -17,7 +17,7 @@ class User(Base):
     email_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     role: Mapped[str] = mapped_column(String(20), default="user")
-    api_key: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    api_key: Mapped[str | None] = mapped_column(String(1024), nullable=True)
     api_provider: Mapped[str | None] = mapped_column(String(20), nullable=True)  # zhipu / deepseek / openai
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

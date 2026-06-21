@@ -1,3 +1,8 @@
+from sqlalchemy import select
+
+from app.models.user import User
+
+
 def register_user(client, email="owner@example.com", username="owner"):
     response = client.post(
         "/api/auth/register",
@@ -134,3 +139,23 @@ def test_api_key_can_be_set_and_cleared_without_echoing_secret(client):
     assert clear_response.status_code == 200, clear_response.text
     assert clear_response.json()["api_provider"] is None
     assert clear_response.json()["has_api_key"] is False
+
+
+def test_api_key_is_not_stored_as_plaintext(client):
+    register_user(client)
+    headers = auth_headers(login_user(client))
+
+    response = client.put(
+        "/api/auth/me/api-key",
+        json={"api_key": "sk-customer-secret", "api_provider": "openai"},
+        headers=headers,
+    )
+
+    assert response.status_code == 200, response.text
+
+    SessionLocal = client.app.state.testing_session_factory
+    with SessionLocal() as db:
+        user = db.execute(select(User).where(User.email == "owner@example.com")).scalar_one()
+
+    assert user.api_key != "sk-customer-secret"
+    assert user.api_key

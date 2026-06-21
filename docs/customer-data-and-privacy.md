@@ -30,7 +30,7 @@ The desktop data directory contains:
 - `uploads\` - uploaded document files.
 - conversation records, document metadata, knowledge base records, and user records inside the SQLite database.
 
-If a user saves a personal LLM API key in the app, it is also stored in the local application database. Treat the data directory as sensitive.
+If a user saves a personal LLM API key in the app, the encrypted API key record is stored in the local application database. Treat the data directory as sensitive.
 
 ## What Leaves The Machine
 
@@ -48,7 +48,7 @@ Do not upload private or regulated documents unless the selected provider and ac
 
 Before enterprise or public customer release, these items should be reviewed:
 
-- Encrypt stored API keys or move them to an OS credential store.
+- Move saved API keys from database encryption to an OS credential store or equivalent secure storage.
 - Define backup and restore behavior.
 - Define uninstall behavior for local documents and database files.
 - Add a clear privacy notice in the installed app.

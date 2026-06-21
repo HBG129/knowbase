@@ -6,7 +6,13 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.models.user import User, RefreshToken
 from app.schemas.auth import RegisterRequest, TokenResponse, UserResponse
-from app.core.security import hash_password, verify_password, create_access_token, create_refresh_token
+from app.core.security import (
+    create_access_token,
+    create_refresh_token,
+    encrypt_api_key,
+    hash_password,
+    verify_password,
+)
 
 
 def register(db: Session, data: RegisterRequest) -> User:
@@ -80,7 +86,7 @@ def set_user_api_key(db: Session, user: User, api_key: str, provider: str) -> Us
     valid_providers = {"zhipu", "deepseek", "openai"}
     if provider not in valid_providers:
         raise ValueError(f"Invalid provider. Choose: {', '.join(sorted(valid_providers))}")
-    user.api_key = api_key
+    user.api_key = encrypt_api_key(api_key)
     user.api_provider = provider
     db.flush()
     return user

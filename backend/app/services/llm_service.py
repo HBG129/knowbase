@@ -1,18 +1,24 @@
 """Multi-provider LLM service: user key → system Zhipu fallback → OpenAI fallback."""
 from openai import OpenAI
 from app.config import settings
+from app.core.security import decrypt_api_key
 from app.models.user import User
+
+
+def _user_api_key(user: User) -> str:
+    return decrypt_api_key(user.api_key or "")
 
 
 def _resolve_llm(user: User | None = None) -> dict:
     """Resolve LLM config. Priority: user key > system Zhipu > system OpenAI."""
     if user and user.api_key and user.api_provider:
+        api_key = _user_api_key(user)
         if user.api_provider == "zhipu":
-            return {"api_key": user.api_key, "base_url": settings.ZHIPU_BASE_URL, "model": settings.ZHIPU_CHAT_MODEL}
+            return {"api_key": api_key, "base_url": settings.ZHIPU_BASE_URL, "model": settings.ZHIPU_CHAT_MODEL}
         elif user.api_provider == "deepseek":
-            return {"api_key": user.api_key, "base_url": settings.DEEPSEEK_BASE_URL, "model": settings.DEEPSEEK_CHAT_MODEL}
+            return {"api_key": api_key, "base_url": settings.DEEPSEEK_BASE_URL, "model": settings.DEEPSEEK_CHAT_MODEL}
         elif user.api_provider == "openai":
-            return {"api_key": user.api_key, "base_url": "https://api.openai.com/v1", "model": settings.OPENAI_CHAT_MODEL}
+            return {"api_key": api_key, "base_url": "https://api.openai.com/v1", "model": settings.OPENAI_CHAT_MODEL}
     if settings.ZHIPU_API_KEY:
         return {"api_key": settings.ZHIPU_API_KEY, "base_url": settings.ZHIPU_BASE_URL, "model": settings.ZHIPU_CHAT_MODEL}
     if settings.OPENAI_API_KEY:
@@ -23,12 +29,13 @@ def _resolve_llm(user: User | None = None) -> dict:
 def _resolve_embedding(user: User | None = None) -> dict:
     """Resolve embedding config. Same priority as LLM."""
     if user and user.api_key and user.api_provider:
+        api_key = _user_api_key(user)
         if user.api_provider == "zhipu":
-            return {"api_key": user.api_key, "base_url": settings.ZHIPU_BASE_URL, "model": settings.ZHIPU_EMBEDDING_MODEL}
+            return {"api_key": api_key, "base_url": settings.ZHIPU_BASE_URL, "model": settings.ZHIPU_EMBEDDING_MODEL}
         elif user.api_provider == "deepseek":
-            return {"api_key": user.api_key, "base_url": settings.DEEPSEEK_BASE_URL, "model": settings.OPENAI_EMBEDDING_MODEL}
+            return {"api_key": api_key, "base_url": settings.DEEPSEEK_BASE_URL, "model": settings.OPENAI_EMBEDDING_MODEL}
         elif user.api_provider == "openai":
-            return {"api_key": user.api_key, "base_url": "https://api.openai.com/v1", "model": settings.OPENAI_EMBEDDING_MODEL}
+            return {"api_key": api_key, "base_url": "https://api.openai.com/v1", "model": settings.OPENAI_EMBEDDING_MODEL}
     if settings.ZHIPU_API_KEY:
         return {"api_key": settings.ZHIPU_API_KEY, "base_url": settings.ZHIPU_BASE_URL, "model": settings.ZHIPU_EMBEDDING_MODEL}
     if settings.OPENAI_API_KEY:
