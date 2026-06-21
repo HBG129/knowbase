@@ -25,6 +25,11 @@ foreach ($file in $gitFiles) {
     continue
   }
 
+  if ($name -eq "app.secret") {
+    $blocked.Add("$file matches blocked app secret file name")
+    continue
+  }
+
   if (($name -like ".env.*") -and ($name -ne ".env.example")) {
     $blocked.Add("$file matches blocked env variant")
     continue

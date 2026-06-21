@@ -3,6 +3,7 @@
 .pytest_cache/
 .venv/
 .env
+app.secret
 *.egg-info/
 backend/*.spec
 backend/build/
