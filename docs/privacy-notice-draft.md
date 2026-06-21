@@ -20,6 +20,7 @@ This may include:
 - document processing metadata,
 - conversation history,
 - encrypted provider API key records,
+- a per-install app secret used for local tokens and saved API key encryption,
 - the local SQLite database.
 
 Treat the full `%APPDATA%\KnowBase` folder as sensitive.

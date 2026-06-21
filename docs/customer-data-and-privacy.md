@@ -27,6 +27,7 @@ $env:KNOWBASE_DATA_DIR = "D:\path\to\test-data"
 The desktop data directory contains:
 
 - `knowbase.db` - local SQLite database.
+- `app.secret` - per-install secret used for local tokens and encrypted saved API key records.
 - `uploads\` - uploaded document files.
 - conversation records, document metadata, knowledge base records, and user records inside the SQLite database.
 
@@ -65,6 +66,7 @@ Before uninstalling, reinstalling, or moving to another machine, back up:
 This preserves:
 
 - local accounts,
+- the local app secret required to read encrypted saved API key records,
 - saved API key records,
 - knowledge bases,
 - uploaded documents,

@@ -10,7 +10,7 @@ This document tracks the practical delivery status of KnowBase.
 | --- | ---: | --- |
 | Resume and interview showcase | 96% | Strong project story, architecture, RAG workflow, packaging path, release process, CI history, customer-readiness narrative, and beta testing workflow are present. |
 | GitHub portfolio completeness | 97% | README, architecture, roadmap, changelog, support, security, release docs, demo data, CI, release gates, issue templates, and desktop artifacts are in place. |
-| Customer-installable software | 93% | Windows installer artifact is produced and locally verified; release preflight, validation, troubleshooting, beta, privacy, support workflows, and encrypted saved API key storage are ready, but real clean-machine validation is still required before customer release. |
+| Customer-installable software | 94% | Windows installer artifact is produced and locally verified; release preflight, validation, troubleshooting, beta, privacy, support workflows, encrypted saved API key storage, and per-install desktop secrets are ready, but real clean-machine validation is still required before customer release. |
 
 ## Verified
 
@@ -38,6 +38,7 @@ This document tracks the practical delivery status of KnowBase.
 - Support info script exists for non-sensitive installation and startup triage reports.
 - Customer troubleshooting, customer beta test plan, and privacy notice draft are documented.
 - Saved provider API keys are encrypted before storage in the local application database, with legacy plaintext compatibility for existing local data.
+- Packaged desktop runtime creates and reuses a per-install `app.secret` for local tokens and saved API key encryption.
 - CI checks PowerShell script syntax to catch release-script parse errors.
 - CI checks backend, desktop app, and release-draft version consistency.
 - CI blocks tracked `.env`, local databases, uploads, artifacts, and desktop build outputs.
