@@ -55,7 +55,7 @@ KnowBase is being prepared for customers who should be able to install and run t
 2. Tauri desktop shell foundation
 3. Desktop shell starts and stops the backend automatically
 4. Windows installer artifact in CI
-5. Clean-machine validation, finalized icon, signing, update flow, and release packaging
+5. Clean-machine validation, signing, update flow, and release packaging
 
 Current milestone: the backend executable and Tauri Windows installer are produced by CI; the next release gate is installing and validating the artifact on a clean Windows machine.
 
@@ -360,7 +360,7 @@ Release packaging command:
 .\package-desktop.bat
 ```
 
-The current Tauri shell can attempt to start `KnowBaseBackend.exe` from an explicit `KNOWBASE_BACKEND_EXE` path, the packaged resource directory, the packaged app directory, or `backend\dist` during development. The Tauri config already declares `backend\dist\KnowBaseBackend.exe` as a bundle resource. The Windows installer, app icon, signing, and update flow are still planned.
+The current Tauri shell can attempt to start `KnowBaseBackend.exe` from an explicit `KNOWBASE_BACKEND_EXE` path, the packaged resource directory, the packaged app directory, or `backend\dist` during development. The Tauri config already declares `backend\dist\KnowBaseBackend.exe` as a bundle resource and includes a KnowBase app icon. Windows installer signing and update flow are still planned.
 
 ## Docker Services
 
