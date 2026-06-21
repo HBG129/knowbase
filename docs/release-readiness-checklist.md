@@ -59,6 +59,12 @@ After downloading the desktop ZIP, verify the release artifact before installing
 .\scripts\check-release-artifact.ps1 -ZipPath D:\Codex_AI_Workspace\artifacts\KnowBaseDesktop-Windows-3.zip
 ```
 
+After extracting or preparing the installer, verify its Authenticode status:
+
+```powershell
+.\scripts\check-code-signature.ps1 -Path D:\Codex_AI_Workspace\artifacts\knowbase-release\KnowBase_0.1.0_x64-setup.exe
+```
+
 ## Functional Smoke Test
 
 Run these checks before publishing a build:
@@ -108,6 +114,7 @@ Before public release, confirm:
 
 - App name and icon are final.
 - Installer name is clear and versioned.
+- Installer code signature is valid, or release notes clearly state that the build is unsigned.
 - README has a customer installation section.
 - Documentation index is available in `docs\README.md`.
 - Customer quick start is documented in `docs\customer-quick-start.md`.

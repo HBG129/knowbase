@@ -51,6 +51,13 @@ SHA256:
 [installer sha256]
 ```
 
+Code signature:
+
+```text
+Status: [Valid/NotSigned/Unknown]
+Signer: [signer subject or blank]
+```
+
 Expected local data directory:
 
 ```text
@@ -80,10 +87,9 @@ Expected local data directory:
 
 ## Known Limitations
 
-- App signing is not configured yet.
+- Code signature status for this installer: [Valid/NotSigned/Unknown]
 - Auto-update is not configured yet.
 - Enterprise deployment policy is not finalized.
-- API keys should move toward OS credential storage before a broad customer release.
 - Local desktop packaging requires Microsoft C++ Build Tools when building outside GitHub Actions.
 
 ## Security And Privacy

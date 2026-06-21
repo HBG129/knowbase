@@ -48,6 +48,12 @@ finally {
 
 $zipHash = Get-FileHash -Algorithm SHA256 -LiteralPath $zip.Path
 $installerHash = Get-FileHash -Algorithm SHA256 -LiteralPath $installerPath
+$installerSignature = Get-AuthenticodeSignature -LiteralPath $installerPath
+$signatureStatus = [string]$installerSignature.Status
+$signatureSigner = ""
+if ($installerSignature.SignerCertificate) {
+  $signatureSigner = [string]$installerSignature.SignerCertificate.Subject
+}
 $checksumPath = Join-Path $OutputDir "SHA256SUMS.txt"
 $summaryPath = Join-Path $OutputDir "RELEASE_ARTIFACTS.md"
 $releaseNotesPath = Join-Path $OutputDir "RELEASE_NOTES_DRAFT.md"
@@ -77,6 +83,11 @@ $summary = @(
   '```text'
   $checksums
   '```'
+  ''
+  '## Code Signature'
+  ''
+  "- Status: ``$signatureStatus``"
+  "- Signer: ``$signatureSigner``"
   ''
   '## Next Step'
   ''
@@ -131,6 +142,18 @@ $releaseNotes = @(
   $installerHash.Hash
   '```'
   ''
+  'Code signature status:'
+  ''
+  '```text'
+  $signatureStatus
+  '```'
+  ''
+  'Signer:'
+  ''
+  '```text'
+  $signatureSigner
+  '```'
+  ''
   'Expected local data directory:'
   ''
   '```text'
@@ -160,10 +183,9 @@ $releaseNotes = @(
   ''
   '## Known Limitations'
   ''
-  '- App signing is not configured yet.'
+  "- Code signature status for this installer: $signatureStatus"
   '- Auto-update is not configured yet.'
   '- Enterprise deployment policy is not finalized.'
-  '- API keys should move toward OS credential storage before a broad customer release.'
   '- Local desktop packaging requires Microsoft C++ Build Tools when building outside GitHub Actions.'
   ''
   '## Security And Privacy'
@@ -203,6 +225,13 @@ $validationIssue = @(
   ''
   '```text'
   $installerHash.Hash
+  '```'
+  ''
+  '## Code Signature'
+  ''
+  '```text'
+  "Status: $signatureStatus"
+  "Signer: $signatureSigner"
   '```'
   ''
   '## Clean Machine Baseline'

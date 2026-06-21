@@ -120,6 +120,14 @@ D:\Codex_AI_Workspace\artifacts\knowbase-release\RELEASE_NOTES_DRAFT.md
 D:\Codex_AI_Workspace\artifacts\knowbase-release\RELEASE_VALIDATION_ISSUE_DRAFT.md
 ```
 
+Check the installer code signature:
+
+```powershell
+.\scripts\check-code-signature.ps1 -Path D:\Codex_AI_Workspace\artifacts\knowbase-release\KnowBase_0.1.0_x64-setup.exe
+```
+
+For internal validation builds only, use `-AllowUnsigned` to record the signature state without failing the command.
+
 ## 4. Test On A Clean Windows Machine
 
 Install the generated package on a Windows machine or virtual machine without the development toolchain.
@@ -193,6 +201,7 @@ Before publishing:
 
 - confirm the git working tree is clean,
 - confirm the release commit is pushed,
+- confirm `.\scripts\check-code-signature.ps1` reports `Valid`, or state clearly that the release is unsigned,
 - attach the installer artifact,
 - include release notes,
 - include known limitations.

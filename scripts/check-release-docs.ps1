@@ -40,6 +40,7 @@ $requiredPaths = @(
   "docs\release-readiness-checklist.md",
   "docs\support-runbook.md",
   "scripts\check-desktop-artifacts.ps1",
+  "scripts\check-code-signature.ps1",
   "scripts\check-installed-app.ps1",
   "scripts\check-powershell-scripts.ps1",
   "scripts\check-release-artifact.ps1",
@@ -120,8 +121,16 @@ $contentChecks = @(
     Needle = ".\scripts\prepare-release-package.ps1"
   },
   @{
+    Path = "docs\release-process.md"
+    Needle = ".\scripts\check-code-signature.ps1"
+  },
+  @{
     Path = "docs\release-readiness-checklist.md"
     Needle = ".\scripts\check-release-preflight.ps1"
+  },
+  @{
+    Path = "docs\release-readiness-checklist.md"
+    Needle = ".\scripts\check-code-signature.ps1"
   },
   @{
     Path = "docs\release-readiness-checklist.md"

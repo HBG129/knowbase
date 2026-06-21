@@ -24,6 +24,7 @@ Use this index to find the right document quickly.
 - `release-notes-template.md` - copy-ready GitHub Release notes template.
 - `demo-assets.md` - screenshot, GIF, and demo-script guidance for README and releases.
 - `desktop-build-troubleshooting.md` - Windows desktop packaging prerequisites and MSVC troubleshooting.
+- `..\scripts\check-code-signature.ps1` - installer Authenticode status check for release validation.
 
 ## Support
 

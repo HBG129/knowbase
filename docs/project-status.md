@@ -42,6 +42,7 @@ This document tracks the practical delivery status of KnowBase.
 - Packaged desktop runtime creates and reuses a per-install `app.secret` for local tokens and saved API key encryption.
 - Tauri bundle includes a branded KnowBase app icon.
 - Tauri bundle metadata includes publisher, homepage, copyright, category, and installer descriptions.
+- Code signature check script exists and release package drafts record installer signature status.
 - CI checks PowerShell script syntax to catch release-script parse errors.
 - CI checks backend, desktop app, and release-draft version consistency.
 - CI blocks tracked `.env`, local databases, uploads, artifacts, and desktop build outputs.
@@ -92,5 +93,6 @@ The desktop package workflow is currently passing:
 ## Not Release Ready Until
 
 - The installer is tested on a clean Windows machine.
+- The installer has a valid code signature, or release notes explicitly state that the build is unsigned.
 - The final public release version is selected.
 - Release notes include exact verification results.

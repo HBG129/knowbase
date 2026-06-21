@@ -46,13 +46,13 @@ Treat these as sensitive:
 - `knowbase.db`
 - `uploads\`
 - screenshots of private documents or answers
+- Windows Credential Manager entries created by KnowBase
 
 ## Current Security Limitations
 
 These are known limitations before a public customer release:
 
-- Saved API keys are currently stored in the local application database.
-- Moving saved API keys to the Windows credential store is still planned.
+- Packaged Windows desktop builds store saved API keys through Windows Credential Manager; development and fallback modes use encrypted local database storage.
 - Local database encryption is not implemented yet.
 - App signing is not configured yet.
 - Auto-update is not configured yet.
