@@ -28,6 +28,12 @@
   "bundle": {
     "active": true,
     "targets": ["nsis"],
+    "publisher": "HBG129",
+    "homepage": "https://github.com/HBG129/knowbase",
+    "copyright": "Copyright 2026 HBG129",
+    "category": "Productivity",
+    "shortDescription": "Desktop AI knowledge base assistant",
+    "longDescription": "KnowBase is a desktop AI knowledge base assistant for local document upload, retrieval augmented generation, cited answers, and private knowledge workflows.",
     "resources": {
       "../../backend/dist/KnowBaseBackend.exe": "KnowBaseBackend.exe"
     },

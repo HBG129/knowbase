@@ -10,7 +10,7 @@ This document tracks the practical delivery status of KnowBase.
 | --- | ---: | --- |
 | Resume and interview showcase | 96% | Strong project story, architecture, RAG workflow, packaging path, release process, CI history, customer-readiness narrative, and beta testing workflow are present. |
 | GitHub portfolio completeness | 97% | README, architecture, roadmap, changelog, support, security, release docs, demo data, CI, release gates, issue templates, and desktop artifacts are in place. |
-| Customer-installable software | 95% | Windows installer artifact is produced and locally verified; release preflight, validation, troubleshooting, beta, privacy, support workflows, encrypted saved API key storage, per-install desktop secrets, and a branded app icon are ready, but real clean-machine validation is still required before customer release. |
+| Customer-installable software | 96% | Windows installer artifact is produced and locally verified; release preflight, validation, troubleshooting, beta, privacy, support workflows, encrypted saved API key storage, per-install desktop secrets, a branded app icon, and installer metadata are ready, but real clean-machine validation is still required before customer release. |
 
 ## Verified
 
@@ -40,6 +40,7 @@ This document tracks the practical delivery status of KnowBase.
 - Saved provider API keys are encrypted before storage in the local application database, with legacy plaintext compatibility for existing local data.
 - Packaged desktop runtime creates and reuses a per-install `app.secret` for local tokens and saved API key encryption.
 - Tauri bundle includes a branded KnowBase app icon.
+- Tauri bundle metadata includes publisher, homepage, copyright, category, and installer descriptions.
 - CI checks PowerShell script syntax to catch release-script parse errors.
 - CI checks backend, desktop app, and release-draft version consistency.
 - CI blocks tracked `.env`, local databases, uploads, artifacts, and desktop build outputs.
@@ -90,6 +91,6 @@ The desktop package workflow is currently passing:
 ## Not Release Ready Until
 
 - The installer is tested on a clean Windows machine.
-- The installer name and release version are finalized.
+- The final public release version is selected.
 - OS credential-store migration decision is made for saved API keys.
 - Release notes include exact verification results.
