@@ -36,6 +36,7 @@ Each tester should receive:
 - release notes,
 - `docs\customer-quick-start.md`,
 - `docs\customer-troubleshooting.md`,
+- `docs\privacy-notice-draft.md`,
 - known limitations,
 - clear privacy warning not to upload private documents during beta.
 

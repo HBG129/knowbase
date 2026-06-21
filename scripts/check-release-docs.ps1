@@ -34,6 +34,7 @@ $requiredPaths = @(
   "docs\demo-assets.md",
   "docs\demo-data",
   "docs\known-limitations.md",
+  "docs\privacy-notice-draft.md",
   "docs\release-notes-template.md",
   "docs\release-process.md",
   "docs\release-readiness-checklist.md",
@@ -73,6 +74,18 @@ $contentChecks = @(
   @{
     Path = "docs\README.md"
     Needle = "customer-beta-test-plan.md"
+  },
+  @{
+    Path = "docs\README.md"
+    Needle = "privacy-notice-draft.md"
+  },
+  @{
+    Path = "docs\customer-beta-test-plan.md"
+    Needle = "docs\privacy-notice-draft.md"
+  },
+  @{
+    Path = "docs\release-readiness-checklist.md"
+    Needle = "docs\privacy-notice-draft.md"
   },
   @{
     Path = "docs\roadmap.md"

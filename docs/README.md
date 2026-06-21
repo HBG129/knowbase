@@ -8,6 +8,7 @@ Use this index to find the right document quickly.
 - `customer-data-and-privacy.md` - local data location, privacy notes, backup, restore, and uninstall data handling.
 - `customer-troubleshooting.md` - customer-facing troubleshooting steps for install, startup, API key, upload, and chat issues.
 - `customer-beta-test-plan.md` - controlled beta criteria, tester tasks, feedback format, and exit criteria.
+- `privacy-notice-draft.md` - tester-facing privacy notice draft for local data, provider calls, and support boundaries.
 - `known-limitations.md` - current limitations before a public customer release.
 - `demo-data\` - synthetic files for safe screenshots, demos, and release validation.
 - `assets\` - final README and release screenshots or GIFs.

@@ -33,7 +33,7 @@ This document lists current KnowBase limitations before a public customer releas
 
 ## Operational Readiness
 
-- Enterprise privacy notice and in-app legal copy are not finalized.
+- `docs\privacy-notice-draft.md` exists for testers, but final enterprise privacy notice and in-app legal copy are not finalized.
 - Support workflows and a non-sensitive support info report script are available for install and startup triage.
 - Production release notes should be created for every published installer.
 - Public release should wait until the release readiness checklist passes.

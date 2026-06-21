@@ -112,6 +112,7 @@ Before public release, confirm:
 - Documentation index is available in `docs\README.md`.
 - Customer quick start is documented in `docs\customer-quick-start.md`.
 - Customer beta testing is planned in `docs\customer-beta-test-plan.md`.
+- Privacy notice draft is available in `docs\privacy-notice-draft.md`.
 - Release process is documented in `docs\release-process.md`.
 - README explains customer API key requirements and first-run setup.
 - The app shows useful errors when no LLM API key is configured.
@@ -132,6 +133,7 @@ Before release, confirm:
 - CORS is not left open for public network exposure.
 - Logs do not expose API keys or document contents.
 - Support workflow is documented in `docs\support-runbook.md`.
+- Support privacy boundaries are documented in `docs\privacy-notice-draft.md`.
 
 ## Release Notes
 
