@@ -19,7 +19,7 @@ This document lists current KnowBase limitations before a public customer releas
 
 - Local data is stored under `%APPDATA%\KnowBase` in the desktop runtime.
 - Uploaded documents and the SQLite database remain local unless content is sent to the configured LLM provider for answering or embeddings.
-- Saved API keys are encrypted before being stored in the local application database. Moving secrets to the Windows credential store is still planned.
+- In the packaged Windows desktop runtime, saved API keys are stored through Windows Credential Manager and the local database stores only a credential reference. Non-desktop fallback modes use encrypted local database storage.
 - Local database encryption is not implemented yet.
 - Backup, restore, and uninstall data removal are documented, but not automated in the final installer yet.
 

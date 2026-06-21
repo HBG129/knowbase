@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-06-21
+Last updated: 2026-06-22
 
 This document tracks the practical delivery status of KnowBase.
 
@@ -10,11 +10,11 @@ This document tracks the practical delivery status of KnowBase.
 | --- | ---: | --- |
 | Resume and interview showcase | 96% | Strong project story, architecture, RAG workflow, packaging path, release process, CI history, customer-readiness narrative, and beta testing workflow are present. |
 | GitHub portfolio completeness | 97% | README, architecture, roadmap, changelog, support, security, release docs, demo data, CI, release gates, issue templates, and desktop artifacts are in place. |
-| Customer-installable software | 96% | Windows installer artifact is produced and locally verified; release preflight, validation, troubleshooting, beta, privacy, support workflows, encrypted saved API key storage, per-install desktop secrets, a branded app icon, and installer metadata are ready, but real clean-machine validation is still required before customer release. |
+| Customer-installable software | 97% | Windows installer artifact is produced and locally verified; release preflight, validation, troubleshooting, beta, privacy, support workflows, Windows Credential Manager API key storage, encrypted fallback API key storage, per-install desktop secrets, a branded app icon, and installer metadata are ready, but real clean-machine validation is still required before customer release. |
 
 ## Verified
 
-- Backend test suite passes locally: 45 tests.
+- Backend test suite passes locally: 49 tests.
 - Frontend production build passes in GitHub Actions.
 - Backend executable packaging foundation exists with PyInstaller.
 - Tauri desktop shell exists and is configured for Windows bundle builds.
@@ -37,7 +37,8 @@ This document tracks the practical delivery status of KnowBase.
 - Installed app check script exists for clean-machine evidence capture.
 - Support info script exists for non-sensitive installation and startup triage reports.
 - Customer troubleshooting, customer beta test plan, and privacy notice draft are documented.
-- Saved provider API keys are encrypted before storage in the local application database, with legacy plaintext compatibility for existing local data.
+- Packaged Windows desktop runtime stores saved provider API keys through Windows Credential Manager; the database stores only a credential reference.
+- Non-desktop fallback modes encrypt saved provider API keys before storage in the local application database, with legacy plaintext compatibility for existing local data.
 - Packaged desktop runtime creates and reuses a per-install `app.secret` for local tokens and saved API key encryption.
 - Tauri bundle includes a branded KnowBase app icon.
 - Tauri bundle metadata includes publisher, homepage, copyright, category, and installer descriptions.
@@ -92,5 +93,4 @@ The desktop package workflow is currently passing:
 
 - The installer is tested on a clean Windows machine.
 - The final public release version is selected.
-- OS credential-store migration decision is made for saved API keys.
 - Release notes include exact verification results.

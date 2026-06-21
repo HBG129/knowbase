@@ -19,8 +19,9 @@ This may include:
 - uploaded document files,
 - document processing metadata,
 - conversation history,
-- encrypted provider API key records,
-- a per-install app secret used for local tokens and saved API key encryption,
+- provider API key references for Windows Credential Manager,
+- encrypted provider API key records in fallback modes,
+- a per-install app secret used for local tokens and fallback API key encryption,
 - the local SQLite database.
 
 Treat the full `%APPDATA%\KnowBase` folder as sensitive.
@@ -62,7 +63,6 @@ Review the generated Markdown report before sharing it.
 
 Before public or enterprise release, these areas still need review:
 
-- saved API keys should move to an OS credential store or equivalent secure storage,
 - local database encryption is not implemented,
 - code signing is not configured,
 - enterprise privacy notice and in-app legal copy are not final,

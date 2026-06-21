@@ -27,11 +27,11 @@ $env:KNOWBASE_DATA_DIR = "D:\path\to\test-data"
 The desktop data directory contains:
 
 - `knowbase.db` - local SQLite database.
-- `app.secret` - per-install secret used for local tokens and encrypted saved API key records.
+- `app.secret` - per-install secret used for local tokens and encrypted fallback API key records.
 - `uploads\` - uploaded document files.
 - conversation records, document metadata, knowledge base records, and user records inside the SQLite database.
 
-If a user saves a personal LLM API key in the app, the encrypted API key record is stored in the local application database. Treat the data directory as sensitive.
+If a user saves a personal LLM API key in the packaged Windows desktop app, the secret is stored through Windows Credential Manager and the local database stores only a credential reference. Development or non-desktop fallback modes may store an encrypted API key record in the local database. Treat the data directory as sensitive.
 
 ## What Leaves The Machine
 
@@ -49,7 +49,6 @@ Do not upload private or regulated documents unless the selected provider and ac
 
 Before enterprise or public customer release, these items should be reviewed:
 
-- Move saved API keys from database encryption to an OS credential store or equivalent secure storage.
 - Define backup and restore behavior.
 - Define uninstall behavior for local documents and database files.
 - Add a clear privacy notice in the installed app.
@@ -66,7 +65,7 @@ Before uninstalling, reinstalling, or moving to another machine, back up:
 This preserves:
 
 - local accounts,
-- the local app secret required to read encrypted saved API key records,
+- the local app secret required to read encrypted fallback API key records,
 - saved API key records,
 - knowledge bases,
 - uploaded documents,

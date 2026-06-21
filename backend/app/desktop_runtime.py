@@ -40,5 +40,6 @@ def configure_desktop_environment() -> Path:
     os.environ.setdefault("UPLOAD_DIR", str(upload_dir))
     os.environ.setdefault("JWT_SECRET_KEY", secret)
     os.environ.setdefault("API_KEY_ENCRYPTION_SECRET", os.environ["JWT_SECRET_KEY"])
+    os.environ.setdefault("API_KEY_STORAGE_BACKEND", "windows-credential")
 
     return data_dir

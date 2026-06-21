@@ -17,3 +17,14 @@ def test_resolve_llm_accepts_legacy_plaintext_user_api_key():
     config = _resolve_llm(user)
 
     assert config["api_key"] == "legacy-secret"
+
+
+def test_resolve_llm_reads_credential_reference(monkeypatch):
+    from app.services import secret_store
+
+    monkeypatch.setattr(secret_store, "read_secret", lambda target: "sk-customer-secret")
+    user = User(api_key="cred:v1:KnowBase:test-user:llm-api-key", api_provider="openai")
+
+    config = _resolve_llm(user)
+
+    assert config["api_key"] == "sk-customer-secret"

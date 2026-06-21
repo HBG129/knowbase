@@ -1,12 +1,12 @@
 """Multi-provider LLM service: user key → system Zhipu fallback → OpenAI fallback."""
 from openai import OpenAI
 from app.config import settings
-from app.core.security import decrypt_api_key
 from app.models.user import User
+from app.services.secret_store import resolve_api_key
 
 
 def _user_api_key(user: User) -> str:
-    return decrypt_api_key(user.api_key or "")
+    return resolve_api_key(user.api_key or "")
 
 
 def _resolve_llm(user: User | None = None) -> dict:
