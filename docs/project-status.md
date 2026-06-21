@@ -38,6 +38,7 @@ This document tracks the practical delivery status of KnowBase.
 - Support info script exists for non-sensitive installation and startup triage reports.
 - Customer troubleshooting, customer beta test plan, and privacy notice draft are documented.
 - Packaged Windows desktop runtime stores saved provider API keys through Windows Credential Manager; the database stores only a credential reference.
+- Local Windows Credential Manager smoke passed with a fake `KnowBase:smoke:*` secret: write, read, and delete succeeded.
 - Non-desktop fallback modes encrypt saved provider API keys before storage in the local application database, with legacy plaintext compatibility for existing local data.
 - Packaged desktop runtime creates and reuses a per-install `app.secret` for local tokens and saved API key encryption.
 - Tauri bundle includes a branded KnowBase app icon.
