@@ -5,6 +5,7 @@
 .env
 app.secret
 *.egg-info/
+/*.exe
 backend/*.spec
 backend/build/
 backend/dist/

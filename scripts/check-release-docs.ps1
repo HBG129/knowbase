@@ -39,6 +39,8 @@ $requiredPaths = @(
   "docs\release-process.md",
   "docs\release-readiness-checklist.md",
   "docs\support-runbook.md",
+  "frontend\next.config.js",
+  "frontend\src-tauri\tauri.conf.json",
   "scripts\backup-local-data.ps1",
   "scripts\check-desktop-artifacts.ps1",
   "scripts\check-code-signature.ps1",
@@ -142,6 +144,18 @@ $contentChecks = @(
   @{
     Path = "docs\release-readiness-checklist.md"
     Needle = "docs\clean-machine-validation.md"
+  },
+  @{
+    Path = "frontend\next.config.js"
+    Needle = 'output: "export"'
+  },
+  @{
+    Path = "frontend\next.config.js"
+    Needle = "trailingSlash: true"
+  },
+  @{
+    Path = "frontend\src-tauri\tauri.conf.json"
+    Needle = '"frontendDist": "../out"'
   },
   @{
     Path = ".github\PULL_REQUEST_TEMPLATE.md"

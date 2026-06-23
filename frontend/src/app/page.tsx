@@ -10,6 +10,7 @@ import { KBCreateDialog } from "@/components/kb/kb-create-dialog";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
+import { kbChatPath } from "@/lib/routes";
 import {
   ArrowRight,
   CircleDot,
@@ -322,7 +323,7 @@ export default function Home() {
                   {recent.map((conversation) => (
                     <Link
                       key={conversation.id}
-                      href={`/kb/${conversation.kb_id}/chat`}
+                      href={kbChatPath(conversation.kb_id)}
                       className="group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-canvas-soft"
                     >
                       <MessageSquare className="h-4 w-4 shrink-0 text-ink-muted group-hover:text-accent" />

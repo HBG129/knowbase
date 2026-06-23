@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { BookOpen, Trash2, X } from "lucide-react";
 import { useKBStore } from "@/stores/kb-store";
+import { kbDetailPath } from "@/lib/routes";
 
 interface Props { id: string; name: string; description: string | null; doc_count?: number; conversation_count?: number; }
 
@@ -22,7 +23,7 @@ export function KBCard({ id, name, description, doc_count = 0, conversation_coun
 
   return (
     <Link
-      href={"/kb/" + id}
+      href={kbDetailPath(id)}
       className="group relative flex flex-col rounded-xl border border-hairline bg-canvas p-6 hover:border-hairline-strong hover:shadow-md transition-all duration-200 hover:-translate-y-0.5"
     >
       <div className="mb-3 h-10 w-10 rounded-lg bg-accent-soft flex items-center justify-center">

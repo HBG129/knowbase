@@ -6,6 +6,7 @@ import { Upload, File, FileText, X, Loader2, CheckCircle2, AlertCircle, MessageS
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { apiPostForm } from "@/lib/api";
+import { kbChatPath } from "@/lib/routes";
 
 interface UploadingFile {
   name: string;
@@ -164,7 +165,7 @@ export function DocumentUpload({ kbId, onUploadComplete }: DocumentUploadProps) 
             if (doneCount > 0 && !files.some((f) => f.status === "uploading" || f.status === "processing")) {
               return (
                 <button
-                  onClick={() => router.push("/kb/" + kbId + "/chat")}
+                  onClick={() => router.push(kbChatPath(kbId))}
                   className="w-full inline-flex items-center justify-center gap-2 h-10 rounded-xl bg-ink text-canvas text-sm font-medium hover:bg-ink-soft transition-all active:scale-[0.98]"
                 >
                   <MessageSquare className="h-4 w-4" />

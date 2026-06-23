@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Plus, X, Library } from "lucide-react";
 import { useKBStore } from "@/stores/kb-store";
 import { Button } from "@/components/ui/button";
+import { kbDetailPath } from "@/lib/routes";
 
 interface KBCreateDialogProps {
   children?: React.ReactNode;
@@ -33,7 +34,7 @@ export function KBCreateDialog({ children }: KBCreateDialogProps) {
     const kb = await createKB(name.trim(), desc.trim() || undefined);
     await fetchKBs();
     setName(""); setDesc(""); setLoading(false); setOpen(false);
-    router.push("/kb/" + kb.id);
+    router.push(kbDetailPath(kb.id));
   }
 
   return (

@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { ChatMessage } from "@/components/chat/chat-message";
 import { ChatInput } from "@/components/chat/chat-input";
@@ -9,6 +9,7 @@ import { CitationPanel } from "@/components/chat/citation-panel";
 import { ApiKeyDialog } from "@/components/auth/api-key-dialog";
 import { ArrowLeft, Plus, MessageSquare, Bot, PanelRightClose, PanelRightOpen, Trash2, Eraser, Upload, AlertTriangle, Key } from "lucide-react";
 import { api, apiStream } from "@/lib/api";
+import { kbDetailPath } from "@/lib/routes";
 
 interface Citation { doc_id: string; chunk_index: number; snippet: string; }
 interface Message {
@@ -37,9 +38,9 @@ function formatChatError(message: string) {
 }
 
 export default function ChatPage() {
-  const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { user } = useAuthStore();
+  const [id, setId] = useState<string | null>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -58,6 +59,10 @@ export default function ChatPage() {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const msgRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    setId(new URLSearchParams(window.location.search).get("id") || "");
+  }, []);
 
   // When citation clicked, scroll to the message that contains it
   function handleCitationClick(docId: string, chunkIndex: number) {
@@ -88,6 +93,7 @@ export default function ChatPage() {
   }
 
   const fetchConversations = useCallback(async () => {
+    if (!id) return;
     try {
       const data = await api.get<Conversation[]>(`/api/kb/${id}/conversations`);
       setConversations(data);
@@ -95,6 +101,7 @@ export default function ChatPage() {
   }, [id]);
 
   const fetchMessages = useCallback(async (convId: string) => {
+    if (!id) return;
     try {
       const data = await api.get<Message[]>(`/api/kb/${id}/conversations/${convId}/messages`);
       setMessages(data);
@@ -102,6 +109,7 @@ export default function ChatPage() {
   }, [id]);
 
   const fetchDocs = useCallback(async () => {
+    if (!id) return;
     try {
       const data = await api.get<Document[]>(`/api/kb/${id}/documents`);
       setDocs(data);
@@ -112,7 +120,12 @@ export default function ChatPage() {
     }
   }, [id]);
 
-  useEffect(() => { if (user && loading) { fetchConversations().finally(() => setLoading(false)); } }, [user, loading, fetchConversations]);
+  useEffect(() => {
+    if (user && id) {
+      setLoading(true);
+      fetchConversations().finally(() => setLoading(false));
+    }
+  }, [user, id, fetchConversations]);
   useEffect(() => { if (user) fetchDocs(); }, [user, fetchDocs]);
   useEffect(() => { if (activeConvId) fetchMessages(activeConvId); else setMessages([]); }, [activeConvId, fetchMessages]);
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, streamingContent]);
@@ -302,12 +315,21 @@ export default function ChatPage() {
     });
 
   return (
+    id === null ? (
+      <div className="flex items-center justify-center h-full py-32"><div className="h-8 w-8 animate-spin rounded-full border-2 border-ink border-t-transparent" /></div>
+    ) : !id ? (
+      <div className="flex h-full items-center justify-center">
+        <button onClick={() => router.push("/")} className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink transition-colors">
+          <ArrowLeft className="h-3.5 w-3.5" /> Back to Knowledge Bases
+        </button>
+      </div>
+    ) : (
     <div className="flex h-[calc(100vh-0px)]">
       {/* Left: Conversation List */}
       <div className="w-64 shrink-0 border-r border-hairline bg-canvas-soft flex flex-col">
         <div className="p-4 border-b border-hairline space-y-2">
           <button
-            onClick={() => router.push("/kb/" + id)}
+            onClick={() => router.push(kbDetailPath(id))}
             className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" /> KB Details
@@ -439,7 +461,7 @@ export default function ChatPage() {
             </p>
             {readyDocCount === 0 && (
               <button
-                onClick={() => router.push("/kb/" + id)}
+                onClick={() => router.push(kbDetailPath(id))}
                 className="mt-6 inline-flex h-10 items-center gap-2 rounded-lg bg-ink px-4 text-sm font-medium text-canvas transition-all hover:bg-ink-soft active:scale-[0.98]"
               >
                 <Upload className="h-4 w-4" />
@@ -551,5 +573,6 @@ export default function ChatPage() {
       )}
       <ApiKeyDialog open={apiKeyOpen} onClose={() => setApiKeyOpen(false)} />
     </div>
+    )
   );
 }

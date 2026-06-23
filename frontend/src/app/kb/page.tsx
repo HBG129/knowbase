@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,18 +10,24 @@ import { DocumentUpload } from "@/components/kb/document-upload";
 import { DocumentList } from "@/components/kb/document-list";
 import { BookOpen, MessageSquare, Trash2, ArrowLeft, Settings, FileText, Upload } from "lucide-react";
 import { api } from "@/lib/api";
+import { kbChatPath } from "@/lib/routes";
 
 interface KBInfo { id: string; name: string; description: string | null; owner_id: string; created_at: string; updated_at: string; }
 
 export default function KBDetailPage() {
-  const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { user } = useAuthStore();
+  const [id, setId] = useState<string | null>(null);
   const [kb, setKb] = useState<KBInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"documents" | "settings">("documents");
 
+  useEffect(() => {
+    setId(new URLSearchParams(window.location.search).get("id") || "");
+  }, []);
+
   const fetchKB = useCallback(async () => {
+    if (!id) return;
     try {
       const data = await api.get<KBInfo>("/api/kb/" + id);
       setKb(data);
@@ -30,6 +36,8 @@ export default function KBDetailPage() {
 
   useEffect(() => { if (user) fetchKB(); }, [user, fetchKB]);
 
+  if (id === null) return <div className="flex items-center justify-center h-full py-32"><div className="h-8 w-8 animate-spin rounded-full border-2 border-ink border-t-transparent" /></div>;
+  if (!id) return <div className="max-w-5xl mx-auto px-8 py-8"><button onClick={() => router.push("/")} className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink transition-colors"><ArrowLeft className="h-3.5 w-3.5" /> Back to Knowledge Bases</button></div>;
   if (loading) return <div className="flex items-center justify-center h-full py-32"><div className="h-8 w-8 animate-spin rounded-full border-2 border-ink border-t-transparent" /></div>;
   if (!kb) return null;
 
@@ -47,7 +55,7 @@ export default function KBDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-2.5">
-          <Button variant="primary" onClick={() => router.push("/kb/" + id + "/chat")}><MessageSquare className="h-4 w-4" /> Chat</Button>
+          <Button variant="primary" onClick={() => router.push(kbChatPath(id))}><MessageSquare className="h-4 w-4" /> Chat</Button>
           <Button variant="secondary" onClick={() => setTab("settings")}><Settings className="h-4 w-4" /></Button>
         </div>
       </div>

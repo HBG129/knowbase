@@ -14,6 +14,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { ApiKeyDialog } from "@/components/auth/api-key-dialog";
 import { useThemeStore } from "@/stores/theme-store";
+import { kbDetailPath } from "@/lib/routes";
 
 interface NavItem { href: string; label: string; icon: React.ElementType; }
 
@@ -80,9 +81,9 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
               <span className="text-xs font-medium text-ink-muted uppercase tracking-wider">Knowledge Bases</span>
             </div>
             {kbs.slice(0, 8).map((kb) => (
-              <Link key={kb.id} href={"/kb/" + kb.id} onClick={onMobileClose} className={cn(
+              <Link key={kb.id} href={kbDetailPath(kb.id)} onClick={onMobileClose} className={cn(
                 "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all duration-150",
-                pathname.startsWith("/kb/" + kb.id) ? "bg-accent-soft text-accent font-medium" : "text-ink-body hover:bg-canvas-softer"
+                pathname === "/kb" ? "bg-accent-soft text-accent font-medium" : "text-ink-body hover:bg-canvas-softer"
               )}>
                 <Library className="h-3.5 w-3.5 flex-shrink-0" />
                 <span className="truncate">{kb.name}</span>
