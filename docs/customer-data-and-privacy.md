@@ -70,7 +70,19 @@ The backup ZIP preserves:
 
 Credential Manager API keys are not exported by the backup script. After restoring on a different Windows profile or machine, add the provider API key again from the app if needed.
 
-To restore data, close KnowBase, extract the ZIP, replace the target `%APPDATA%\KnowBase` directory with the backed-up `KnowBase` folder, then reopen the app.
+To preview a restore:
+
+```powershell
+.\scripts\restore-local-data.ps1 -ZipPath D:\path\to\knowbase-data-backup.zip
+```
+
+To restore data, close KnowBase, confirm no existing `%APPDATA%\KnowBase` directory is present, then run:
+
+```powershell
+.\scripts\restore-local-data.ps1 -ZipPath D:\path\to\knowbase-data-backup.zip -ConfirmRestore
+```
+
+The restore script refuses to overwrite an existing `KnowBase` data directory. Back up and remove the current data directory before restoring over it.
 
 Do not restore a production customer's data onto a shared or untrusted machine.
 

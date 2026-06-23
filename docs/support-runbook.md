@@ -113,6 +113,14 @@ If the customer may need their data later, ask them to create a local backup bef
 
 Remind the customer not to share the backup ZIP with support.
 
+For customer-owned restore workflows, preview the restore first:
+
+```powershell
+.\scripts\restore-local-data.ps1 -ZipPath D:\path\to\knowbase-data-backup.zip
+```
+
+Only restore after the customer confirms the target data directory does not already exist.
+
 Only ask them to run confirmed removal after they understand that local accounts, uploaded documents, conversations, the local database, and KnowBase credential targets will be deleted:
 
 ```powershell
