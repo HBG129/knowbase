@@ -84,6 +84,9 @@ Expected local data directory:
 - TXT upload and chat: [passed/failed/not tested]
 - CSV upload and chat: [passed/failed/not tested]
 - App close process cleanup: [passed/failed/not tested]
+- Local data backup dry-run: [passed/failed/not tested]
+- Local data restore dry-run: [passed/failed/not tested]
+- Local data removal dry-run: [passed/failed/not tested]
 
 ## Known Limitations
 

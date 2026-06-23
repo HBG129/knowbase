@@ -124,6 +124,7 @@ Before public release, confirm:
 - README explains customer API key requirements and first-run setup.
 - The app shows useful errors when no LLM API key is configured.
 - Local data location is documented in `docs\customer-data-and-privacy.md`.
+- Backup and restore scripts are documented in `docs\customer-data-and-privacy.md`.
 - Uninstall behavior and manual data removal are documented in `docs\customer-data-and-privacy.md`.
 - Known limitations are listed in `docs\known-limitations.md`.
 - Release notes use `docs\release-notes-template.md`.
@@ -139,6 +140,7 @@ Before release, confirm:
 - API keys are stored in a customer-controlled location.
 - CORS is not left open for public network exposure.
 - Logs do not expose API keys or document contents.
+- Backup, restore, and removal dry-runs do not expose local databases, uploaded documents, or API keys in shared support material.
 - Support workflow is documented in `docs\support-runbook.md`.
 - Support privacy boundaries are documented in `docs\privacy-notice-draft.md`.
 

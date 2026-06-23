@@ -87,6 +87,9 @@ body:
         - label: No API key appears in visible logs.
         - label: No document content appears in visible logs.
         - label: No `.env`, database, uploaded document, or `%APPDATA%\KnowBase` folder is attached to this issue.
+        - label: Local data backup dry-run was reviewed without sharing the backup ZIP.
+        - label: Local data restore dry-run was reviewed when reinstall or migration was tested.
+        - label: Local data removal dry-run was reviewed before any confirmed deletion.
 
   - type: textarea
     id: failures

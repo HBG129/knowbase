@@ -137,6 +137,10 @@ $contentChecks = @(
   },
   @{
     Path = "docs\release-readiness-checklist.md"
+    Needle = "Backup and restore scripts"
+  },
+  @{
+    Path = "docs\release-readiness-checklist.md"
     Needle = "docs\clean-machine-validation.md"
   },
   @{
@@ -160,12 +164,36 @@ $contentChecks = @(
     Needle = ".\scripts\restore-local-data.ps1"
   },
   @{
+    Path = "docs\release-notes-template.md"
+    Needle = "Local data backup dry-run"
+  },
+  @{
+    Path = "docs\release-notes-template.md"
+    Needle = "Local data restore dry-run"
+  },
+  @{
+    Path = "docs\release-notes-template.md"
+    Needle = "Local data removal dry-run"
+  },
+  @{
     Path = ".github\ISSUE_TEMPLATE\bug_report.yml"
     Needle = ".\scripts\collect-support-info.ps1"
   },
   @{
     Path = ".github\ISSUE_TEMPLATE\release_validation.yml"
     Needle = "collect-support-info.ps1"
+  },
+  @{
+    Path = ".github\ISSUE_TEMPLATE\release_validation.yml"
+    Needle = "Local data backup dry-run"
+  },
+  @{
+    Path = ".github\ISSUE_TEMPLATE\release_validation.yml"
+    Needle = "Local data restore dry-run"
+  },
+  @{
+    Path = ".github\ISSUE_TEMPLATE\release_validation.yml"
+    Needle = "Local data removal dry-run"
   }
 )
 
