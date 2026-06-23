@@ -2,7 +2,9 @@ param(
   [Parameter(Mandatory = $true)]
   [string]$ZipPath,
 
-  [string]$ExpectedSha256 = ""
+  [string]$ExpectedSha256 = "",
+
+  [int64]$MinInstallerBytes = 50000000
 )
 
 $ErrorActionPreference = "Stop"
@@ -43,7 +45,7 @@ try {
   }
 
   $installer = $installers[0]
-  if ($installer.Length -lt 50000000) {
+  if ($installer.Length -lt $MinInstallerBytes) {
     Fail "Installer looks too small: $($installer.Length) bytes."
   }
 
