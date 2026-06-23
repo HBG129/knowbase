@@ -36,6 +36,7 @@ This document tracks the practical delivery status of KnowBase.
 - GitHub issue form exists for structured beta feedback.
 - Installed app check script exists for clean-machine evidence capture.
 - Support info script exists for non-sensitive installation and startup triage reports.
+- Local data backup script exists with dry-run by default and explicit `-ConfirmBackup` for customer-owned backup workflows.
 - Local data removal script exists with dry-run by default and explicit `-ConfirmDelete` for uninstall, reinstall, or privacy cleanup workflows.
 - Customer troubleshooting, customer beta test plan, and privacy notice draft are documented.
 - Packaged Windows desktop runtime stores saved provider API keys through Windows Credential Manager; the database stores only a credential reference.

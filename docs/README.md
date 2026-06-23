@@ -30,6 +30,7 @@ Use this index to find the right document quickly.
 
 - `support-runbook.md` - safe support workflow for customer issues without collecting secrets or private data.
 - `..\scripts\collect-support-info.ps1` - local support report script for installation and startup triage.
+- `..\scripts\backup-local-data.ps1` - dry-run-first local data backup script for reinstall, migration, or customer-owned backup.
 - `..\scripts\remove-local-data.ps1` - dry-run-first local data removal script for uninstall, reinstall, or privacy cleanup.
 
 ## Design And Planning Records

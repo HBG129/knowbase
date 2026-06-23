@@ -47,23 +47,30 @@ Do not upload private or regulated documents unless the selected provider and ac
 
 ## Backup And Restore
 
-Before uninstalling, reinstalling, or moving to another machine, back up:
+Before uninstalling, reinstalling, or moving to another machine, preview a local backup:
 
-```text
-%APPDATA%\KnowBase
+```powershell
+.\scripts\backup-local-data.ps1
 ```
 
-This preserves:
+Create a local ZIP backup only after confirming the output path:
+
+```powershell
+.\scripts\backup-local-data.ps1 -ConfirmBackup
+```
+
+The backup ZIP preserves:
 
 - local accounts,
 - the local app secret required to read encrypted fallback API key records,
-- saved API key records,
 - knowledge bases,
 - uploaded documents,
 - conversation history,
 - document processing metadata.
 
-To restore data, close KnowBase, replace the target `%APPDATA%\KnowBase` directory with the backed-up copy, then reopen the app.
+Credential Manager API keys are not exported by the backup script. After restoring on a different Windows profile or machine, add the provider API key again from the app if needed.
+
+To restore data, close KnowBase, extract the ZIP, replace the target `%APPDATA%\KnowBase` directory with the backed-up `KnowBase` folder, then reopen the app.
 
 Do not restore a production customer's data onto a shared or untrusted machine.
 

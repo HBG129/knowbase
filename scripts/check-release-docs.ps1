@@ -39,6 +39,7 @@ $requiredPaths = @(
   "docs\release-process.md",
   "docs\release-readiness-checklist.md",
   "docs\support-runbook.md",
+  "scripts\backup-local-data.ps1",
   "scripts\check-desktop-artifacts.ps1",
   "scripts\check-code-signature.ps1",
   "scripts\check-installed-app.ps1",
@@ -144,6 +145,10 @@ $contentChecks = @(
   @{
     Path = "docs\support-runbook.md"
     Needle = ".\scripts\collect-support-info.ps1"
+  },
+  @{
+    Path = "docs\customer-data-and-privacy.md"
+    Needle = ".\scripts\backup-local-data.ps1"
   },
   @{
     Path = "docs\customer-data-and-privacy.md"

@@ -104,6 +104,15 @@ For uninstall, reinstall, or privacy cleanup cases, ask the customer to preview 
 .\scripts\remove-local-data.ps1
 ```
 
+If the customer may need their data later, ask them to create a local backup before confirmed removal:
+
+```powershell
+.\scripts\backup-local-data.ps1
+.\scripts\backup-local-data.ps1 -ConfirmBackup
+```
+
+Remind the customer not to share the backup ZIP with support.
+
 Only ask them to run confirmed removal after they understand that local accounts, uploaded documents, conversations, the local database, and KnowBase credential targets will be deleted:
 
 ```powershell
