@@ -2,6 +2,17 @@
 from pydantic_settings import BaseSettings
 
 
+DESKTOP_CORS_ORIGINS = [
+    "tauri://localhost",
+    "http://tauri.localhost",
+    "https://tauri.localhost",
+]
+
+
+def include_desktop_cors_origins(origins: list[str]) -> list[str]:
+    return list(dict.fromkeys([*origins, *DESKTOP_CORS_ORIGINS]))
+
+
 class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "sqlite+aiosqlite:///./data/knowbase.db"
@@ -56,3 +67,4 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+settings.CORS_ORIGINS = include_desktop_cors_origins(settings.CORS_ORIGINS)

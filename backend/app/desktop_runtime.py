@@ -1,7 +1,10 @@
 """Desktop runtime environment defaults."""
+import json
 import os
 import secrets
 from pathlib import Path
+
+from app.config import include_desktop_cors_origins
 
 
 def get_desktop_data_dir() -> Path:
@@ -41,5 +44,9 @@ def configure_desktop_environment() -> Path:
     os.environ.setdefault("JWT_SECRET_KEY", secret)
     os.environ.setdefault("API_KEY_ENCRYPTION_SECRET", os.environ["JWT_SECRET_KEY"])
     os.environ.setdefault("API_KEY_STORAGE_BACKEND", "windows-credential")
+    os.environ.setdefault(
+        "CORS_ORIGINS",
+        json.dumps(include_desktop_cors_origins(["http://localhost:3000"])),
+    )
 
     return data_dir

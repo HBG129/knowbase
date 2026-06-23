@@ -11,6 +11,7 @@ def test_configure_desktop_environment_uses_override(monkeypatch, tmp_path):
     monkeypatch.delenv("JWT_SECRET_KEY", raising=False)
     monkeypatch.delenv("API_KEY_ENCRYPTION_SECRET", raising=False)
     monkeypatch.delenv("API_KEY_STORAGE_BACKEND", raising=False)
+    monkeypatch.delenv("CORS_ORIGINS", raising=False)
 
     configure_desktop_environment()
 
@@ -22,6 +23,7 @@ def test_configure_desktop_environment_uses_override(monkeypatch, tmp_path):
     assert __import__("os").environ["JWT_SECRET_KEY"]
     assert __import__("os").environ["API_KEY_ENCRYPTION_SECRET"] == __import__("os").environ["JWT_SECRET_KEY"]
     assert __import__("os").environ["API_KEY_STORAGE_BACKEND"] == "windows-credential"
+    assert "tauri://localhost" in __import__("os").environ["CORS_ORIGINS"]
 
 
 def test_configure_desktop_environment_does_not_override_existing_values(monkeypatch, tmp_path):
@@ -32,6 +34,7 @@ def test_configure_desktop_environment_does_not_override_existing_values(monkeyp
     monkeypatch.setenv("JWT_SECRET_KEY", "existing-jwt-secret")
     monkeypatch.setenv("API_KEY_ENCRYPTION_SECRET", "existing-api-secret")
     monkeypatch.setenv("API_KEY_STORAGE_BACKEND", "database")
+    monkeypatch.setenv("CORS_ORIGINS", '["http://custom.example"]')
 
     configure_desktop_environment()
 
@@ -40,6 +43,7 @@ def test_configure_desktop_environment_does_not_override_existing_values(monkeyp
     assert __import__("os").environ["JWT_SECRET_KEY"] == "existing-jwt-secret"
     assert __import__("os").environ["API_KEY_ENCRYPTION_SECRET"] == "existing-api-secret"
     assert __import__("os").environ["API_KEY_STORAGE_BACKEND"] == "database"
+    assert __import__("os").environ["CORS_ORIGINS"] == '["http://custom.example"]'
 
 
 def test_configure_desktop_environment_reuses_generated_secret(monkeypatch, tmp_path):

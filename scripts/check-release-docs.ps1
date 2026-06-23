@@ -39,7 +39,9 @@ $requiredPaths = @(
   "docs\release-process.md",
   "docs\release-readiness-checklist.md",
   "docs\support-runbook.md",
+  "backend\app\config.py",
   "frontend\next.config.js",
+  "frontend\src-tauri\src\backend_runtime.rs",
   "frontend\src-tauri\tauri.conf.json",
   "scripts\backup-local-data.ps1",
   "scripts\check-desktop-artifacts.ps1",
@@ -152,6 +154,14 @@ $contentChecks = @(
   @{
     Path = "frontend\next.config.js"
     Needle = "trailingSlash: true"
+  },
+  @{
+    Path = "backend\app\config.py"
+    Needle = "tauri://localhost"
+  },
+  @{
+    Path = "frontend\src-tauri\src\backend_runtime.rs"
+    Needle = "CORS_ORIGINS"
   },
   @{
     Path = "frontend\src-tauri\tauri.conf.json"

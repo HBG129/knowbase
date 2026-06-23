@@ -8,3 +8,18 @@ def test_api_routes_are_registered():
     assert "/api/auth/login" in paths
     assert "/api/kb/{kb_id}/documents" in paths
     assert "/api/kb/{kb_id}/chat" in paths
+
+
+def test_desktop_webview_origins_are_allowed(client):
+    for origin in ("tauri://localhost", "http://tauri.localhost", "https://tauri.localhost"):
+        response = client.options(
+            "/api/auth/register",
+            headers={
+                "Origin": origin,
+                "Access-Control-Request-Method": "POST",
+                "Access-Control-Request-Headers": "content-type",
+            },
+        )
+
+        assert response.status_code == 200
+        assert response.headers["access-control-allow-origin"] == origin

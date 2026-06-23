@@ -8,6 +8,8 @@ use std::{
 const BACKEND_EXE_NAME: &str = "KnowBaseBackend.exe";
 const BACKEND_HOST: &str = "127.0.0.1";
 const BACKEND_PORT: &str = "8000";
+const DESKTOP_CORS_ORIGINS: &str =
+    r#"["http://localhost:3000","tauri://localhost","http://tauri.localhost","https://tauri.localhost"]"#;
 
 pub struct BackendProcess {
     child: Mutex<Option<Child>>,
@@ -32,6 +34,7 @@ impl BackendProcess {
             match Command::new(&candidate)
                 .env("KNOWBASE_BACKEND_HOST", BACKEND_HOST)
                 .env("KNOWBASE_BACKEND_PORT", BACKEND_PORT)
+                .env("CORS_ORIGINS", DESKTOP_CORS_ORIGINS)
                 .stdin(Stdio::null())
                 .stdout(Stdio::null())
                 .stderr(Stdio::null())
