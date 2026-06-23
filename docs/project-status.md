@@ -45,6 +45,7 @@ This document tracks the practical delivery status of KnowBase.
 - Tauri bundle includes a branded KnowBase app icon.
 - Tauri bundle metadata includes publisher, homepage, copyright, category, and installer descriptions.
 - Code signature check script exists and release package drafts record installer signature status.
+- Desktop packaging workflow records installer code signature status after NSIS bundle generation.
 - CI checks PowerShell script syntax to catch release-script parse errors.
 - CI checks backend, desktop app, and release-draft version consistency.
 - CI blocks tracked `.env`, local databases, uploads, artifacts, and desktop build outputs.

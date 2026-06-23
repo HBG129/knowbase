@@ -9,6 +9,7 @@ on:
       - ".github/workflows/desktop-package.yml"
       - "backend/**"
       - "frontend/**"
+      - "scripts/check-code-signature.ps1"
       - "scripts/check-desktop-artifacts.ps1"
       - "check-desktop-prereqs.bat"
       - "package-backend.bat"
@@ -76,6 +77,15 @@ jobs:
       - name: Verify desktop artifacts
         shell: pwsh
         run: .\scripts\check-desktop-artifacts.ps1
+
+      - name: Check installer code signature status
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem -LiteralPath frontend\src-tauri\target\release\bundle\nsis -Filter "*.exe" -File | Select-Object -First 1
+          if (-not $installer) {
+            throw "No NSIS installer found for code signature check."
+          }
+          .\scripts\check-code-signature.ps1 -Path $installer.FullName -AllowUnsigned
 
       - name: Upload backend executable
         uses: actions/upload-artifact@v4
