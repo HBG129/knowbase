@@ -98,6 +98,18 @@ Desktop runtime data is stored under:
 
 Do not request the full directory. If data inspection is unavoidable, ask the customer to reproduce with a test account and non-sensitive files.
 
+For uninstall, reinstall, or privacy cleanup cases, ask the customer to preview the local data removal plan first:
+
+```powershell
+.\scripts\remove-local-data.ps1
+```
+
+Only ask them to run confirmed removal after they understand that local accounts, uploaded documents, conversations, the local database, and KnowBase credential targets will be deleted:
+
+```powershell
+.\scripts\remove-local-data.ps1 -ConfirmDelete
+```
+
 ## Escalation Notes
 
 Escalate internally when:

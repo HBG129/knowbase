@@ -49,6 +49,7 @@ $requiredPaths = @(
   "scripts\check-sensitive-files.ps1",
   "scripts\check-version-consistency.ps1",
   "scripts\collect-support-info.ps1",
+  "scripts\remove-local-data.ps1",
   "scripts\prepare-release-package.ps1"
 )
 
@@ -143,6 +144,10 @@ $contentChecks = @(
   @{
     Path = "docs\support-runbook.md"
     Needle = ".\scripts\collect-support-info.ps1"
+  },
+  @{
+    Path = "docs\customer-data-and-privacy.md"
+    Needle = ".\scripts\remove-local-data.ps1"
   },
   @{
     Path = ".github\ISSUE_TEMPLATE\bug_report.yml"

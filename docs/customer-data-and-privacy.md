@@ -45,15 +45,6 @@ Depending on the provider key configured by the user, requests may go to:
 
 Do not upload private or regulated documents unless the selected provider and account terms are acceptable for that use case.
 
-## What Is Not Ready For Enterprise Release
-
-Before enterprise or public customer release, these items should be reviewed:
-
-- Define backup and restore behavior.
-- Define uninstall behavior for local documents and database files.
-- Add a clear privacy notice in the installed app.
-- Review logs to ensure API keys and document contents are not written accidentally.
-
 ## Backup And Restore
 
 Before uninstalling, reinstalling, or moving to another machine, back up:
@@ -91,11 +82,21 @@ To remove local KnowBase data manually:
 1. Close KnowBase.
 2. Confirm no `KnowBaseBackend.exe` process is still running.
 3. Back up `%APPDATA%\KnowBase` if the customer may need the data later.
-4. Delete `%APPDATA%\KnowBase`.
+4. Preview the removal plan:
 
-Manual deletion removes uploaded documents, local accounts, conversation history, saved API key records, and the local SQLite database.
+```powershell
+.\scripts\remove-local-data.ps1
+```
 
-Do not delete this directory during support unless the customer understands the data loss.
+5. Remove the local data directory and KnowBase Windows Credential Manager targets:
+
+```powershell
+.\scripts\remove-local-data.ps1 -ConfirmDelete
+```
+
+Confirmed removal deletes uploaded documents, local accounts, conversation history, saved API key records, the local SQLite database, and KnowBase credential targets.
+
+Do not run confirmed removal during support unless the customer understands the data loss.
 
 ## Safe Support Instructions
 
