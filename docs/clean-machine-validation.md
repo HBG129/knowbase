@@ -28,12 +28,18 @@ Not allowed:
 
 Download the latest `KnowBaseDesktop-Windows-<run number>` artifact from GitHub Actions.
 
+For the latest prepared release package on the development machine, read:
+
+```text
+D:\Codex_AI_Workspace\artifacts\knowbase-release\SHA256SUMS.txt
+```
+
 Before installing, verify the ZIP from the development machine:
 
 ```powershell
 .\scripts\check-release-artifact.ps1 `
-  -ZipPath D:\Codex_AI_Workspace\artifacts\KnowBaseDesktop-Windows-3.zip `
-  -ExpectedSha256 552E81842025B52D0B9C106257D2B2D08E69CA52BCD9169DF5F87A31F699FB26
+  -ZipPath D:\Codex_AI_Workspace\knowbase\data\downloaded-artifacts\KnowBaseDesktop-Windows-<run number>.zip `
+  -ExpectedSha256 <zip sha256 from SHA256SUMS.txt>
 ```
 
 Expected result:
@@ -72,6 +78,7 @@ Validate:
 - Backend starts automatically when the desktop app opens.
 - App data is stored under `%APPDATA%\KnowBase`.
 - Closing the app stops the backend process.
+- Installing or uninstalling while KnowBase is still running stops `KnowBase.exe` and `KnowBaseBackend.exe` before overwriting files.
 - Relaunching the app keeps existing account, knowledge base, documents, and conversations.
 - No API key or document content appears in visible logs.
 

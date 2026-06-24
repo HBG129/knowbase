@@ -46,7 +46,10 @@ $requiredPaths = @(
   "scripts\backup-local-data.ps1",
   "scripts\check-desktop-artifacts.ps1",
   "scripts\check-code-signature.ps1",
+  "scripts\check-frontend-dialogs.ps1",
+  "scripts\check-frontend-text.ps1",
   "scripts\check-installed-app.ps1",
+  "scripts\check-installer-hooks.ps1",
   "scripts\check-powershell-scripts.ps1",
   "scripts\check-release-artifact.ps1",
   "scripts\check-release-docs.ps1",
@@ -120,6 +123,14 @@ $contentChecks = @(
     Needle = "docs\customer-troubleshooting.md"
   },
   @{
+    Path = "docs\clean-machine-validation.md"
+    Needle = "KnowBaseDesktop-Windows-<run number>.zip"
+  },
+  @{
+    Path = "docs\clean-machine-validation.md"
+    Needle = "Installing or uninstalling while KnowBase is still running"
+  },
+  @{
     Path = "docs\release-process.md"
     Needle = ".\scripts\check-release-preflight.ps1"
   },
@@ -166,6 +177,10 @@ $contentChecks = @(
   @{
     Path = "frontend\src-tauri\tauri.conf.json"
     Needle = '"frontendDist": "../out"'
+  },
+  @{
+    Path = "frontend\src-tauri\tauri.conf.json"
+    Needle = '"installerHooks": "nsis/installer-hooks.nsh"'
   },
   @{
     Path = ".github\PULL_REQUEST_TEMPLATE.md"
@@ -221,6 +236,17 @@ $contentChecks = @(
   }
 )
 
+$forbiddenContentChecks = @(
+  @{
+    Path = "docs\clean-machine-validation.md"
+    Needle = "KnowBaseDesktop-Windows-3.zip"
+  },
+  @{
+    Path = "docs\clean-machine-validation.md"
+    Needle = "552E81842025B52D0B9C106257D2B2D08E69CA52BCD9169DF5F87A31F699FB26"
+  }
+)
+
 foreach ($check in $contentChecks) {
   $fullPath = Join-Path $repoRoot $check.Path
   if (-not (Test-Path -LiteralPath $fullPath)) {
@@ -231,6 +257,19 @@ foreach ($check in $contentChecks) {
   $content = Get-Content -LiteralPath $fullPath -Raw
   if (-not $content.Contains($check.Needle)) {
     $errors.Add("$($check.Path) does not mention required text: $($check.Needle)")
+  }
+}
+
+foreach ($check in $forbiddenContentChecks) {
+  $fullPath = Join-Path $repoRoot $check.Path
+  if (-not (Test-Path -LiteralPath $fullPath)) {
+    $errors.Add("Cannot check missing file: $($check.Path)")
+    continue
+  }
+
+  $content = Get-Content -LiteralPath $fullPath -Raw
+  if ($content.Contains($check.Needle)) {
+    $errors.Add("$($check.Path) contains stale release text: $($check.Needle)")
   }
 }
 
