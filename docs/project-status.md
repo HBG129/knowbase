@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-06-22
+Last updated: 2026-06-24
 
 This document tracks the practical delivery status of KnowBase.
 
@@ -10,21 +10,21 @@ This document tracks the practical delivery status of KnowBase.
 | --- | ---: | --- |
 | Resume and interview showcase | 96% | Strong project story, architecture, RAG workflow, packaging path, release process, CI history, customer-readiness narrative, and beta testing workflow are present. |
 | GitHub portfolio completeness | 97% | README, architecture, roadmap, changelog, support, security, release docs, demo data, CI, release gates, issue templates, and desktop artifacts are in place. |
-| Customer-installable software | 97% | Windows installer artifact is produced and locally verified; release preflight, validation, troubleshooting, beta, privacy, support workflows, Windows Credential Manager API key storage, encrypted fallback API key storage, per-install desktop secrets, a branded app icon, and installer metadata are ready, but real clean-machine validation is still required before customer release. |
+| Customer-installable software | 98% | Windows installer artifact is produced and locally verified; release preflight, validation, troubleshooting, beta, privacy, support workflows, Windows Credential Manager API key storage, encrypted fallback API key storage, per-install desktop secrets, a branded app icon, installer metadata, and installer preinstall process cleanup are ready, but real clean-machine validation and code signing are still required before customer release. |
 
 ## Verified
 
-- Backend test suite passes locally: 49 tests.
+- Backend test suite passes locally and in CI: 50 tests.
 - Frontend production build passes in GitHub Actions.
 - Backend executable packaging foundation exists with PyInstaller.
 - Tauri desktop shell exists and is configured for Windows bundle builds.
 - Desktop package workflow runs automatically on relevant `main` pushes.
-- Desktop package workflow succeeded on run `27772144566` for commit `41e6c84`.
+- Desktop package workflow succeeded on run `28096654769` for commit `4fb8149`.
 - Uploaded CI artifacts:
-  - `KnowBaseDesktop-Windows-3`
-  - `KnowBaseBackend-3`
-- Downloaded artifact `KnowBaseDesktop-Windows-3.zip` verified locally:
-  - ZIP SHA256: `552E81842025B52D0B9C106257D2B2D08E69CA52BCD9169DF5F87A31F699FB26`
+  - `KnowBaseDesktop-Windows-13`
+  - `KnowBaseBackend-13`
+- Downloaded artifact `KnowBaseDesktop-Windows-13.zip` verified locally:
+  - ZIP SHA256: `0B3DD0A211BB87736CAF7DDB5DDAEDE01DFBFE8F4F73AE48FAC2EB88BDF2A182`
   - Installer inside ZIP: `KnowBase_0.1.0_x64-setup.exe`
 - Release package preparation script generates:
   - installer copy for GitHub Release upload,
@@ -46,6 +46,7 @@ This document tracks the practical delivery status of KnowBase.
 - Packaged desktop runtime creates and reuses a per-install `app.secret` for local tokens and saved API key encryption.
 - Tauri bundle includes a branded KnowBase app icon.
 - Tauri bundle metadata includes publisher, homepage, copyright, category, and installer descriptions.
+- NSIS installer hooks stop `KnowBase.exe` and `KnowBaseBackend.exe` before install or uninstall file operations.
 - Code signature check script exists and release package drafts record installer signature status.
 - Desktop packaging workflow records installer code signature status after NSIS bundle generation.
 - CI checks PowerShell script syntax to catch release-script parse errors.
@@ -53,7 +54,7 @@ This document tracks the practical delivery status of KnowBase.
 - CI blocks tracked `.env`, local databases, uploads, artifacts, and desktop build outputs.
 - CI checks required release documentation paths and references.
 - CI runs the release preflight script that aggregates repository checks before packaging or publishing.
-- Last confirmed full CI run before this update: run `27832480404` for commit `251b489`.
+- Last confirmed CI run: run `28097216496` for commit `9f9c5dd`.
 - Desktop artifact verification script checks for:
   - `backend\dist\KnowBaseBackend.exe`
   - NSIS installer under `frontend\src-tauri\target\release\bundle\nsis`
