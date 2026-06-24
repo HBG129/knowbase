@@ -30,8 +30,26 @@ function Add-Check($Name, $Passed, $Details) {
   $script:results.Add("- [$status] $Name - $Details")
 }
 
+function Get-ShortcutTarget($Path) {
+  if (-not (Test-Path -LiteralPath $Path)) {
+    return $null
+  }
+
+  try {
+    $shell = New-Object -ComObject WScript.Shell
+    $shortcut = $shell.CreateShortcut($Path)
+    if ($shortcut.TargetPath) {
+      return $shortcut.TargetPath
+    }
+  } catch {
+    return $null
+  }
+
+  return $null
+}
+
 $appDataDir = Join-Path $env:APPDATA "KnowBase"
-$candidateExePaths = @(
+$commonExePaths = @(
   (Join-Path $env:LOCALAPPDATA "Programs\KnowBase\KnowBase.exe"),
   (Join-Path $env:ProgramFiles "KnowBase\KnowBase.exe"),
   (Join-Path ${env:ProgramFiles(x86)} "KnowBase\KnowBase.exe")
@@ -42,6 +60,15 @@ $candidateShortcutPaths = @(
   (Join-Path $env:ProgramData "Microsoft\Windows\Start Menu\Programs\KnowBase.lnk"),
   (Join-Path ([Environment]::GetFolderPath("Desktop")) "KnowBase.lnk")
 ) | Where-Object { $_ -and $_.Trim() }
+
+$shortcutTargets = @(
+  $candidateShortcutPaths | ForEach-Object { Get-ShortcutTarget $_ }
+) | Where-Object { $_ -and $_.Trim() }
+
+$candidateExePaths = @(
+  $commonExePaths
+  $shortcutTargets
+) | Select-Object -Unique
 
 $existingExe = @($candidateExePaths | Where-Object { Test-Path -LiteralPath $_ })
 $existingShortcuts = @($candidateShortcutPaths | Where-Object { Test-Path -LiteralPath $_ })
