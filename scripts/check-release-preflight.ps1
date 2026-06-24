@@ -62,6 +62,7 @@ function Run-ReleaseArtifactSmokeCheck {
 Run-Check "PowerShell script syntax" (Join-Path $PSScriptRoot "check-powershell-scripts.ps1")
 Run-Check "Version consistency" (Join-Path $PSScriptRoot "check-version-consistency.ps1")
 Run-Check "Sensitive tracked files" (Join-Path $PSScriptRoot "check-sensitive-files.ps1")
+Run-Check "Installer hooks" (Join-Path $PSScriptRoot "check-installer-hooks.ps1")
 Run-Check "Frontend dialogs" (Join-Path $PSScriptRoot "check-frontend-dialogs.ps1")
 Run-Check "Frontend localized text" (Join-Path $PSScriptRoot "check-frontend-text.ps1")
 Run-Check "Release documentation" (Join-Path $PSScriptRoot "check-release-docs.ps1")

@@ -37,6 +37,11 @@
     "resources": {
       "../../backend/dist/KnowBaseBackend.exe": "KnowBaseBackend.exe"
     },
-    "icon": ["icons/icon.ico"]
+    "icon": ["icons/icon.ico"],
+    "windows": {
+      "nsis": {
+        "installerHooks": "nsis/installer-hooks.nsh"
+      }
+    }
   }
 }
