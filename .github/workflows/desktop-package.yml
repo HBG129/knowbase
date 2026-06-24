@@ -88,7 +88,7 @@ jobs:
           .\scripts\check-code-signature.ps1 -Path $installer.FullName -AllowUnsigned
 
       - name: Upload backend executable
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: KnowBaseBackend-${{ github.run_number }}
           path: backend/dist/KnowBaseBackend.exe
@@ -96,7 +96,7 @@ jobs:
           retention-days: 14
 
       - name: Upload desktop installer bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: KnowBaseDesktop-Windows-${{ github.run_number }}
           path: |
