@@ -1,6 +1,7 @@
 param(
   [string]$OutputDir = "",
-  [string]$HealthUrl = "http://127.0.0.1:8000/api/health"
+  [string]$HealthUrl = "http://127.0.0.1:8000/api/health",
+  [switch]$AllowFailures
 )
 
 $ErrorActionPreference = "Stop"
@@ -19,9 +20,13 @@ New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
 $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $reportPath = Join-Path $OutputDir "knowbase-installed-check-$timestamp.md"
 $results = New-Object System.Collections.Generic.List[string]
+$failedChecks = 0
 
 function Add-Check($Name, $Passed, $Details) {
   $status = if ($Passed) { "PASS" } else { "FAIL" }
+  if (-not $Passed) {
+    $script:failedChecks += 1
+  }
   $script:results.Add("- [$status] $Name - $Details")
 }
 
@@ -84,3 +89,8 @@ Write-Output "Installed app check report written:"
 Write-Output $reportPath
 Write-Output ""
 $results | ForEach-Object { Write-Output $_ }
+
+if ($failedChecks -gt 0 -and -not $AllowFailures) {
+  Write-Error "Installed app check failed: $failedChecks check(s) failed. Report: $reportPath"
+  exit 1
+}

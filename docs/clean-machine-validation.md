@@ -94,6 +94,8 @@ The script writes a local Markdown report to the current user's Desktop under:
 KnowBaseValidation
 ```
 
+If any check fails, the script exits with a non-zero status. Use `-AllowFailures` only when you need a report for investigation without blocking the current shell session.
+
 Use the report as supporting evidence for the GitHub `Release validation` issue. Do not attach local databases, uploaded documents, API keys, or `%APPDATA%\KnowBase` contents.
 
 If any install, launch, backend, or health check fails, also generate a non-sensitive support report:
