@@ -84,6 +84,7 @@ Expected local data directory:
 - TXT upload and chat: [passed/failed/not tested]
 - CSV upload and chat: [passed/failed/not tested]
 - App close process cleanup: [passed/failed/not tested]
+- Installer preinstall process cleanup: [passed/failed/not tested]
 - Local data backup dry-run: [passed/failed/not tested]
 - Local data restore dry-run: [passed/failed/not tested]
 - Local data removal dry-run: [passed/failed/not tested]
@@ -94,6 +95,7 @@ Expected local data directory:
 - Auto-update is not configured yet.
 - Enterprise deployment policy is not finalized.
 - Local desktop packaging requires Microsoft C++ Build Tools when building outside GitHub Actions.
+- Installer hooks are configured to stop `KnowBase.exe` and `KnowBaseBackend.exe` before overwrite, but upgrade behavior must still be validated on a clean Windows machine or VM.
 
 ## Security And Privacy
 
