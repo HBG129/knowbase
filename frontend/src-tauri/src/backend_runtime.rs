@@ -8,8 +8,7 @@ use std::{
 const BACKEND_EXE_NAME: &str = "KnowBaseBackend.exe";
 const BACKEND_HOST: &str = "127.0.0.1";
 const BACKEND_PORT: &str = "8000";
-const DESKTOP_CORS_ORIGINS: &str =
-    r#"["http://localhost:3000","tauri://localhost","http://tauri.localhost","https://tauri.localhost"]"#;
+const DESKTOP_CORS_ORIGINS: &str = r#"["http://localhost:3000","tauri://localhost","http://tauri.localhost","https://tauri.localhost"]"#;
 
 pub struct BackendProcess {
     child: Mutex<Option<Child>>,
@@ -62,18 +61,21 @@ impl BackendProcess {
             child: Mutex::new(None),
         }
     }
-}
 
-impl Drop for BackendProcess {
-    fn drop(&mut self) {
+    pub fn stop(&self) {
         let Ok(mut child) = self.child.lock() else {
             return;
         };
 
         if let Some(mut child) = child.take() {
-            let _ = child.kill();
-            let _ = child.wait();
+            stop_child(&mut child);
         }
+    }
+}
+
+impl Drop for BackendProcess {
+    fn drop(&mut self) {
+        self.stop();
     }
 }
 
@@ -124,6 +126,35 @@ fn dev_backend_path_from_manifest_dir(manifest_dir: &Path) -> Option<PathBuf> {
                 .join("dist")
                 .join(BACKEND_EXE_NAME)
         })
+}
+
+fn stop_child(child: &mut Child) {
+    #[cfg(windows)]
+    {
+        let _ = Command::new("taskkill")
+            .args(windows_taskkill_args(child.id()))
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .status();
+    }
+
+    #[cfg(not(windows))]
+    {
+        let _ = child.kill();
+    }
+
+    let _ = child.wait();
+}
+
+#[cfg(windows)]
+fn windows_taskkill_args(pid: u32) -> Vec<String> {
+    vec![
+        "/F".to_string(),
+        "/T".to_string(),
+        "/PID".to_string(),
+        pid.to_string(),
+    ]
 }
 
 #[cfg(test)]
@@ -186,6 +217,15 @@ mod tests {
         assert_eq!(
             candidates[1],
             PathBuf::from(r"D:\Apps\KnowBase\KnowBaseBackend.exe")
+        );
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn windows_taskkill_args_kill_process_tree() {
+        assert_eq!(
+            windows_taskkill_args(1234),
+            vec!["/F", "/T", "/PID", "1234"]
         );
     }
 }
