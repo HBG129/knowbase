@@ -18,6 +18,14 @@ pub fn run() {
                     .stop();
             }
         })
-        .run(tauri::generate_context!())
-        .expect("error while running KnowBase");
+        .build(tauri::generate_context!())
+        .expect("error while building KnowBase")
+        .run(|app_handle, event| {
+            if matches!(
+                event,
+                tauri::RunEvent::ExitRequested { .. } | tauri::RunEvent::Exit
+            ) {
+                app_handle.state::<backend_runtime::BackendProcess>().stop();
+            }
+        });
 }

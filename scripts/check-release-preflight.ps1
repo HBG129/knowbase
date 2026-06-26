@@ -63,6 +63,7 @@ Run-Check "PowerShell script syntax" (Join-Path $PSScriptRoot "check-powershell-
 Run-Check "Version consistency" (Join-Path $PSScriptRoot "check-version-consistency.ps1")
 Run-Check "Sensitive tracked files" (Join-Path $PSScriptRoot "check-sensitive-files.ps1")
 Run-Check "Installer hooks" (Join-Path $PSScriptRoot "check-installer-hooks.ps1")
+Run-Check "Tauri lifecycle" (Join-Path $PSScriptRoot "check-tauri-lifecycle.ps1")
 Run-Check "Frontend dialogs" (Join-Path $PSScriptRoot "check-frontend-dialogs.ps1")
 Run-Check "Frontend localized text" (Join-Path $PSScriptRoot "check-frontend-text.ps1")
 Run-Check "Auth UX" (Join-Path $PSScriptRoot "check-auth-ux.ps1")
