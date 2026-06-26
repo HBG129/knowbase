@@ -41,6 +41,8 @@
     --error-soft: 247 212 214;
     --warning: 245 166 35;
     --warning-soft: 255 239 207;
+    --selection-bg: 83 58 253;
+    --selection-ink: 255 255 255;
 
     /* ── Border ── */
     --hairline: 235 235 235;
@@ -95,6 +97,8 @@
     --error-soft: 40 20 24;
     --warning: 255 180 50;
     --warning-soft: 40 30 15;
+    --selection-bg: 137 117 255;
+    --selection-ink: 10 10 14;
     --hairline: 44 44 56;
     --hairline-strong: 60 60 76;
     --hairline-focus: 137 117 255;
@@ -134,8 +138,14 @@
 
   /* ── Selection ── */
   ::selection {
-    background: rgba(var(--ink), 0.08);
-    color: rgb(var(--ink));
+    background: rgba(var(--selection-bg), 0.58);
+    color: rgb(var(--selection-ink));
+  }
+
+  input::selection,
+  textarea::selection {
+    background: rgba(var(--selection-bg), 0.72);
+    color: rgb(var(--selection-ink));
   }
 
   /* ── Scrollbar ── */

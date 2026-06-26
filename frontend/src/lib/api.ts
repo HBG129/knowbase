@@ -1,10 +1,19 @@
-﻿const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const NETWORK_ERROR_MESSAGE = "无法连接本地 KnowBase 后端，请关闭应用后重新打开，再重试当前操作。";
+
+async function fetchWithNetworkMessage(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  try {
+    return await fetch(input, init);
+  } catch (error) {
+    throw new Error(NETWORK_ERROR_MESSAGE);
+  }
+}
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const token = typeof window !== "undefined"
     ? localStorage.getItem("access_token")
     : null;
-  const res = await fetch(BASE_URL + path, {
+  const res = await fetchWithNetworkMessage(BASE_URL + path, {
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -32,7 +41,7 @@ export const api = {
 
 export async function apiPostForm<T>(path: string, formData: FormData): Promise<T> {
   const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
-  const res = await fetch(BASE_URL + path, {
+  const res = await fetchWithNetworkMessage(BASE_URL + path, {
     method: "POST",
     headers: token ? { Authorization: "Bearer " + token } : {},
     body: formData,
@@ -47,7 +56,7 @@ export async function apiPostForm<T>(path: string, formData: FormData): Promise<
 /** SSE streaming — returns raw Response for ReadableStream consumption */
 export function apiStream(path: string, body: unknown, signal?: AbortSignal): Promise<Response> {
   const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
-  return fetch(BASE_URL + path, {
+  return fetchWithNetworkMessage(BASE_URL + path, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
