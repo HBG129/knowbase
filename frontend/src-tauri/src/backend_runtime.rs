@@ -5,10 +5,15 @@ use std::{
     sync::Mutex,
 };
 
+#[cfg(windows)]
+use std::os::windows::process::CommandExt;
+
 const BACKEND_EXE_NAME: &str = "KnowBaseBackend.exe";
 const BACKEND_HOST: &str = "127.0.0.1";
 const BACKEND_PORT: &str = "8000";
 const DESKTOP_CORS_ORIGINS: &str = r#"["http://localhost:3000","tauri://localhost","http://tauri.localhost","https://tauri.localhost"]"#;
+#[cfg(windows)]
+const CREATE_NO_WINDOW: u32 = 0x08000000;
 
 pub struct BackendProcess {
     child: Mutex<Option<Child>>,
@@ -30,15 +35,21 @@ impl BackendProcess {
                 continue;
             }
 
-            match Command::new(&candidate)
+            let mut command = Command::new(&candidate);
+            command
                 .env("KNOWBASE_BACKEND_HOST", BACKEND_HOST)
                 .env("KNOWBASE_BACKEND_PORT", BACKEND_PORT)
                 .env("CORS_ORIGINS", DESKTOP_CORS_ORIGINS)
                 .stdin(Stdio::null())
                 .stdout(Stdio::null())
-                .stderr(Stdio::null())
-                .spawn()
+                .stderr(Stdio::null());
+
+            #[cfg(windows)]
             {
+                command.creation_flags(CREATE_NO_WINDOW);
+            }
+
+            match command.spawn() {
                 Ok(child) => {
                     eprintln!("KnowBase backend started: {}", candidate.display());
                     return Self {
@@ -227,5 +238,11 @@ mod tests {
             windows_taskkill_args(1234),
             vec!["/F", "/T", "/PID", "1234"]
         );
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn windows_backend_process_uses_no_console_flag() {
+        assert_eq!(CREATE_NO_WINDOW, 0x08000000);
     }
 }

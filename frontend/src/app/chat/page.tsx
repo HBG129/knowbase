@@ -278,9 +278,12 @@ export default function ChatPage() {
   async function confirmDeleteConversation(convId: string) {
     try {
       await api.delete("/api/kb/" + id + "/conversations/" + convId);
+      setConversations((prev) => prev.filter((conv) => conv.id !== convId));
       if (activeConvId === convId) { setActiveConvId(null); setMessages([]); }
-      fetchConversations();
-    } catch { /* ignore */ }
+      await fetchConversations();
+    } catch {
+      await fetchConversations();
+    }
   }
 
   async function handleClearMessages() {
