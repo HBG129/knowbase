@@ -1,0 +1,37 @@
+﻿<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>KnowBase desktop app icon</title>
+  <desc>A geometric K mark with a connected knowledge path for the KnowBase AI knowledge base app.</desc>
+  <defs>
+    <linearGradient id="bg" x1="78" y1="46" x2="448" y2="466" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0A0F1F"/>
+      <stop offset="0.48" stop-color="#060910"/>
+      <stop offset="1" stop-color="#101726"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="146" y1="124" x2="367" y2="377" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5EF2FF"/>
+      <stop offset="0.52" stop-color="#7C5CFF"/>
+      <stop offset="1" stop-color="#B7FF5A"/>
+    </linearGradient>
+    <filter id="glow" x="80" y="76" width="352" height="360" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.36 0 0 0 0 0.8 0 0 0 0 1 0 0 0 0.55 0"/>
+      <feBlend in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <rect x="32" y="32" width="448" height="448" rx="108" fill="url(#bg)"/>
+  <rect x="41" y="41" width="430" height="430" rx="100" stroke="white" stroke-opacity="0.10" stroke-width="18"/>
+  <path d="M146 166C188 129 256 114 326 134C345 139 362 146 378 155" stroke="white" stroke-opacity="0.12" stroke-width="22" stroke-linecap="round"/>
+  <path d="M138 339C184 384 261 400 340 373C355 368 369 361 383 353" stroke="white" stroke-opacity="0.10" stroke-width="22" stroke-linecap="round"/>
+  <g filter="url(#glow)">
+    <path d="M178 142V370" stroke="#F7FBFF" stroke-width="48" stroke-linecap="round"/>
+    <path d="M213 256L335 151" stroke="#F7FBFF" stroke-width="48" stroke-linecap="round"/>
+    <path d="M216 258L348 366" stroke="#F7FBFF" stroke-width="48" stroke-linecap="round"/>
+    <path d="M214 255C256 237 301 230 356 246" stroke="url(#accent)" stroke-width="16" stroke-linecap="round"/>
+    <circle cx="214" cy="255" r="19" fill="#5EF2FF"/>
+    <circle cx="294" cy="234" r="15" fill="#7C5CFF"/>
+    <circle cx="356" cy="246" r="18" fill="#B7FF5A"/>
+  </g>
+  <path d="M178 142V370" stroke="#06101A" stroke-opacity="0.18" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="384" cy="128" r="8" fill="white" fill-opacity="0.28"/>
+  <circle cx="118" cy="384" r="6" fill="white" fill-opacity="0.20"/>
+</svg>
