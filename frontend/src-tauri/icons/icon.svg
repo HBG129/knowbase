@@ -1,37 +1,46 @@
 ﻿<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
   <title>KnowBase desktop app icon</title>
-  <desc>A geometric K mark with a connected knowledge path for the KnowBase AI knowledge base app.</desc>
+  <desc>A luminous knowledge cube with document layers and connected AI nodes for the KnowBase app.</desc>
   <defs>
-    <linearGradient id="bg" x1="78" y1="46" x2="448" y2="466" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#0A0F1F"/>
-      <stop offset="0.48" stop-color="#060910"/>
-      <stop offset="1" stop-color="#101726"/>
+    <linearGradient id="bg" x1="54" y1="40" x2="454" y2="474" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#101827"/>
+      <stop offset="0.5" stop-color="#060A12"/>
+      <stop offset="1" stop-color="#0F1726"/>
     </linearGradient>
-    <linearGradient id="accent" x1="146" y1="124" x2="367" y2="377" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#5EF2FF"/>
-      <stop offset="0.52" stop-color="#7C5CFF"/>
-      <stop offset="1" stop-color="#B7FF5A"/>
+    <linearGradient id="cubeTop" x1="166" y1="116" x2="360" y2="246" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EAFBFF" stop-opacity="0.98"/>
+      <stop offset="1" stop-color="#5EF2FF" stop-opacity="0.72"/>
     </linearGradient>
-    <filter id="glow" x="80" y="76" width="352" height="360" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-      <feGaussianBlur stdDeviation="10" result="blur"/>
-      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.36 0 0 0 0 0.8 0 0 0 0 1 0 0 0 0.55 0"/>
-      <feBlend in="SourceGraphic"/>
+    <linearGradient id="cubeLeft" x1="145" y1="189" x2="256" y2="377" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6D7CFF" stop-opacity="0.78"/>
+      <stop offset="1" stop-color="#141C3B" stop-opacity="0.82"/>
+    </linearGradient>
+    <linearGradient id="cubeRight" x1="360" y1="188" x2="255" y2="376" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B8FF6A" stop-opacity="0.74"/>
+      <stop offset="1" stop-color="#132B30" stop-opacity="0.78"/>
+    </linearGradient>
+    <filter id="softGlow" x="80" y="80" width="352" height="352" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="18"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.24 0 0 0 0 0.78 0 0 0 0 1 0 0 0 0.42 0"/>
     </filter>
   </defs>
   <rect x="32" y="32" width="448" height="448" rx="108" fill="url(#bg)"/>
-  <rect x="41" y="41" width="430" height="430" rx="100" stroke="white" stroke-opacity="0.10" stroke-width="18"/>
-  <path d="M146 166C188 129 256 114 326 134C345 139 362 146 378 155" stroke="white" stroke-opacity="0.12" stroke-width="22" stroke-linecap="round"/>
-  <path d="M138 339C184 384 261 400 340 373C355 368 369 361 383 353" stroke="white" stroke-opacity="0.10" stroke-width="22" stroke-linecap="round"/>
-  <g filter="url(#glow)">
-    <path d="M178 142V370" stroke="#F7FBFF" stroke-width="48" stroke-linecap="round"/>
-    <path d="M213 256L335 151" stroke="#F7FBFF" stroke-width="48" stroke-linecap="round"/>
-    <path d="M216 258L348 366" stroke="#F7FBFF" stroke-width="48" stroke-linecap="round"/>
-    <path d="M214 255C256 237 301 230 356 246" stroke="url(#accent)" stroke-width="16" stroke-linecap="round"/>
-    <circle cx="214" cy="255" r="19" fill="#5EF2FF"/>
-    <circle cx="294" cy="234" r="15" fill="#7C5CFF"/>
-    <circle cx="356" cy="246" r="18" fill="#B7FF5A"/>
-  </g>
-  <path d="M178 142V370" stroke="#06101A" stroke-opacity="0.18" stroke-width="12" stroke-linecap="round"/>
-  <circle cx="384" cy="128" r="8" fill="white" fill-opacity="0.28"/>
-  <circle cx="118" cy="384" r="6" fill="white" fill-opacity="0.20"/>
+  <rect x="43" y="43" width="426" height="426" rx="98" stroke="white" stroke-opacity="0.10" stroke-width="18"/>
+  <circle cx="256" cy="254" r="132" fill="#5EF2FF" opacity="0.14" filter="url(#softGlow)"/>
+  <path d="M146 256C146 198 195 151 256 151C317 151 366 198 366 256C366 314 317 361 256 361C195 361 146 314 146 256Z" stroke="white" stroke-opacity="0.10" stroke-width="10"/>
+  <path d="M256 118L372 188L256 258L140 188L256 118Z" fill="url(#cubeTop)" stroke="#EAFBFF" stroke-opacity="0.70" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M140 188L256 258V388L140 318V188Z" fill="url(#cubeLeft)" stroke="#A7B0FF" stroke-opacity="0.52" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M372 188L256 258V388L372 318V188Z" fill="url(#cubeRight)" stroke="#C8FF90" stroke-opacity="0.48" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M179 207L256 252L333 207" stroke="#06101A" stroke-opacity="0.34" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M181 242L256 286L331 242" stroke="#EAFBFF" stroke-opacity="0.60" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M181 279L256 323L331 279" stroke="#EAFBFF" stroke-opacity="0.42" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M178 318L256 364L334 318" stroke="#EAFBFF" stroke-opacity="0.28" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M133 291C184 247 251 236 363 252" stroke="#5EF2FF" stroke-width="15" stroke-linecap="round"/>
+  <path d="M151 292C205 331 281 344 361 304" stroke="#B8FF6A" stroke-opacity="0.50" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="151" cy="292" r="20" fill="#5EF2FF"/>
+  <circle cx="252" cy="238" r="17" fill="#EAFBFF"/>
+  <circle cx="363" cy="252" r="20" fill="#6D7CFF"/>
+  <circle cx="361" cy="304" r="15" fill="#B8FF6A"/>
+  <circle cx="382" cy="136" r="7" fill="white" fill-opacity="0.34"/>
+  <circle cx="122" cy="382" r="6" fill="white" fill-opacity="0.20"/>
 </svg>

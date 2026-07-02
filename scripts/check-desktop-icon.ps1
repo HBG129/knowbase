@@ -19,7 +19,7 @@ foreach ($path in @($svgPath, $pngPath, $icoPath, $tauriConfigPath)) {
 }
 
 $svg = Get-Content -LiteralPath $svgPath -Raw -Encoding UTF8
-foreach ($token in @("KnowBase", "url(#accent)", "#5EF2FF", "#7C5CFF", "#B7FF5A")) {
+foreach ($token in @("KnowBase", "knowledge cube", "cubeTop", "#5EF2FF", "#6D7CFF", "#B8FF6A")) {
   if (-not $svg.Contains($token)) {
     Fail "Desktop icon SVG does not contain expected brand token: $token"
   }

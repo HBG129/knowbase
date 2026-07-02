@@ -11,40 +11,49 @@ $icoPath = Join-Path $iconDir "icon.ico"
 $svg = @'
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
   <title>KnowBase desktop app icon</title>
-  <desc>A geometric K mark with a connected knowledge path for the KnowBase AI knowledge base app.</desc>
+  <desc>A luminous knowledge cube with document layers and connected AI nodes for the KnowBase app.</desc>
   <defs>
-    <linearGradient id="bg" x1="78" y1="46" x2="448" y2="466" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#0A0F1F"/>
-      <stop offset="0.48" stop-color="#060910"/>
-      <stop offset="1" stop-color="#101726"/>
+    <linearGradient id="bg" x1="54" y1="40" x2="454" y2="474" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#101827"/>
+      <stop offset="0.5" stop-color="#060A12"/>
+      <stop offset="1" stop-color="#0F1726"/>
     </linearGradient>
-    <linearGradient id="accent" x1="146" y1="124" x2="367" y2="377" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#5EF2FF"/>
-      <stop offset="0.52" stop-color="#7C5CFF"/>
-      <stop offset="1" stop-color="#B7FF5A"/>
+    <linearGradient id="cubeTop" x1="166" y1="116" x2="360" y2="246" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EAFBFF" stop-opacity="0.98"/>
+      <stop offset="1" stop-color="#5EF2FF" stop-opacity="0.72"/>
     </linearGradient>
-    <filter id="glow" x="80" y="76" width="352" height="360" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-      <feGaussianBlur stdDeviation="10" result="blur"/>
-      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.36 0 0 0 0 0.8 0 0 0 0 1 0 0 0 0.55 0"/>
-      <feBlend in="SourceGraphic"/>
+    <linearGradient id="cubeLeft" x1="145" y1="189" x2="256" y2="377" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6D7CFF" stop-opacity="0.78"/>
+      <stop offset="1" stop-color="#141C3B" stop-opacity="0.82"/>
+    </linearGradient>
+    <linearGradient id="cubeRight" x1="360" y1="188" x2="255" y2="376" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B8FF6A" stop-opacity="0.74"/>
+      <stop offset="1" stop-color="#132B30" stop-opacity="0.78"/>
+    </linearGradient>
+    <filter id="softGlow" x="80" y="80" width="352" height="352" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="18"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.24 0 0 0 0 0.78 0 0 0 0 1 0 0 0 0.42 0"/>
     </filter>
   </defs>
   <rect x="32" y="32" width="448" height="448" rx="108" fill="url(#bg)"/>
-  <rect x="41" y="41" width="430" height="430" rx="100" stroke="white" stroke-opacity="0.10" stroke-width="18"/>
-  <path d="M146 166C188 129 256 114 326 134C345 139 362 146 378 155" stroke="white" stroke-opacity="0.12" stroke-width="22" stroke-linecap="round"/>
-  <path d="M138 339C184 384 261 400 340 373C355 368 369 361 383 353" stroke="white" stroke-opacity="0.10" stroke-width="22" stroke-linecap="round"/>
-  <g filter="url(#glow)">
-    <path d="M178 142V370" stroke="#F7FBFF" stroke-width="48" stroke-linecap="round"/>
-    <path d="M213 256L335 151" stroke="#F7FBFF" stroke-width="48" stroke-linecap="round"/>
-    <path d="M216 258L348 366" stroke="#F7FBFF" stroke-width="48" stroke-linecap="round"/>
-    <path d="M214 255C256 237 301 230 356 246" stroke="url(#accent)" stroke-width="16" stroke-linecap="round"/>
-    <circle cx="214" cy="255" r="19" fill="#5EF2FF"/>
-    <circle cx="294" cy="234" r="15" fill="#7C5CFF"/>
-    <circle cx="356" cy="246" r="18" fill="#B7FF5A"/>
-  </g>
-  <path d="M178 142V370" stroke="#06101A" stroke-opacity="0.18" stroke-width="12" stroke-linecap="round"/>
-  <circle cx="384" cy="128" r="8" fill="white" fill-opacity="0.28"/>
-  <circle cx="118" cy="384" r="6" fill="white" fill-opacity="0.20"/>
+  <rect x="43" y="43" width="426" height="426" rx="98" stroke="white" stroke-opacity="0.10" stroke-width="18"/>
+  <circle cx="256" cy="254" r="132" fill="#5EF2FF" opacity="0.14" filter="url(#softGlow)"/>
+  <path d="M146 256C146 198 195 151 256 151C317 151 366 198 366 256C366 314 317 361 256 361C195 361 146 314 146 256Z" stroke="white" stroke-opacity="0.10" stroke-width="10"/>
+  <path d="M256 118L372 188L256 258L140 188L256 118Z" fill="url(#cubeTop)" stroke="#EAFBFF" stroke-opacity="0.70" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M140 188L256 258V388L140 318V188Z" fill="url(#cubeLeft)" stroke="#A7B0FF" stroke-opacity="0.52" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M372 188L256 258V388L372 318V188Z" fill="url(#cubeRight)" stroke="#C8FF90" stroke-opacity="0.48" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M179 207L256 252L333 207" stroke="#06101A" stroke-opacity="0.34" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M181 242L256 286L331 242" stroke="#EAFBFF" stroke-opacity="0.60" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M181 279L256 323L331 279" stroke="#EAFBFF" stroke-opacity="0.42" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M178 318L256 364L334 318" stroke="#EAFBFF" stroke-opacity="0.28" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M133 291C184 247 251 236 363 252" stroke="#5EF2FF" stroke-width="15" stroke-linecap="round"/>
+  <path d="M151 292C205 331 281 344 361 304" stroke="#B8FF6A" stroke-opacity="0.50" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="151" cy="292" r="20" fill="#5EF2FF"/>
+  <circle cx="252" cy="238" r="17" fill="#EAFBFF"/>
+  <circle cx="363" cy="252" r="20" fill="#6D7CFF"/>
+  <circle cx="361" cy="304" r="15" fill="#B8FF6A"/>
+  <circle cx="382" cy="136" r="7" fill="white" fill-opacity="0.34"/>
+  <circle cx="122" cy="382" r="6" fill="white" fill-opacity="0.20"/>
 </svg>
 '@
 
@@ -63,6 +72,55 @@ function New-RoundedRectanglePath([float]$x, [float]$y, [float]$w, [float]$h, [f
   return $path
 }
 
+function New-Point([double]$x, [double]$y, [double]$scale) {
+  return New-Object System.Drawing.PointF ([float]($x * $scale)), ([float]($y * $scale))
+}
+
+function New-Points([double[][]]$Values, [double]$Scale) {
+  $points = New-Object 'System.Drawing.PointF[]' $Values.Count
+  for ($i = 0; $i -lt $Values.Count; $i++) {
+    $points[$i] = New-Point $Values[$i][0] $Values[$i][1] $Scale
+  }
+  return $points
+}
+
+function New-SolidBrush([int]$a, [int]$r, [int]$g, [int]$b) {
+  return New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb($a, $r, $g, $b))
+}
+
+function New-Pen([int]$a, [int]$r, [int]$g, [int]$b, [float]$width) {
+  $pen = New-Object System.Drawing.Pen ([System.Drawing.Color]::FromArgb($a, $r, $g, $b)), $width
+  $pen.StartCap = [System.Drawing.Drawing2D.LineCap]::Round
+  $pen.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
+  $pen.LineJoin = [System.Drawing.Drawing2D.LineJoin]::Round
+  return $pen
+}
+
+function Fill-Polygon([System.Drawing.Graphics]$Graphics, [System.Drawing.Brush]$Brush, [double[][]]$Points, [double]$Scale) {
+  $Graphics.FillPolygon($Brush, (New-Points $Points $Scale))
+}
+
+function Draw-Polygon([System.Drawing.Graphics]$Graphics, [System.Drawing.Pen]$Pen, [double[][]]$Points, [double]$Scale) {
+  $Graphics.DrawPolygon($Pen, (New-Points $Points $Scale))
+}
+
+function Draw-PathLine([System.Drawing.Graphics]$Graphics, [System.Drawing.Pen]$Pen, [double[][]]$Points, [double]$Scale) {
+  $path = New-Object System.Drawing.Drawing2D.GraphicsPath
+  $path.AddCurve((New-Points $Points $Scale), 0.45)
+  $Graphics.DrawPath($Pen, $path)
+  $path.Dispose()
+}
+
+function Fill-Circle([System.Drawing.Graphics]$Graphics, [int]$a, [int]$r, [int]$g, [int]$b, [double]$cx, [double]$cy, [double]$radius, [double]$scale) {
+  $brush = New-SolidBrush $a $r $g $b
+  try {
+    $Graphics.FillEllipse($brush, [float](($cx - $radius) * $scale), [float](($cy - $radius) * $scale), [float](($radius * 2) * $scale), [float](($radius * 2) * $scale))
+  }
+  finally {
+    $brush.Dispose()
+  }
+}
+
 function New-IconBitmap([int]$Size) {
   $bitmap = New-Object System.Drawing.Bitmap $Size, $Size, ([System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
   $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
@@ -73,55 +131,57 @@ function New-IconBitmap([int]$Size) {
   $scale = $Size / 512.0
   $rect = New-Object System.Drawing.RectangleF (32 * $scale), (32 * $scale), (448 * $scale), (448 * $scale)
   $bgPath = New-RoundedRectanglePath $rect.X $rect.Y $rect.Width $rect.Height (108 * $scale)
-  $bgBrush = New-Object System.Drawing.Drawing2D.LinearGradientBrush $rect, ([System.Drawing.Color]::FromArgb(255, 10, 15, 31)), ([System.Drawing.Color]::FromArgb(255, 16, 23, 38)), 135
+  $bgBrush = New-Object System.Drawing.Drawing2D.LinearGradientBrush $rect, ([System.Drawing.Color]::FromArgb(255, 16, 24, 39)), ([System.Drawing.Color]::FromArgb(255, 6, 10, 18)), 135
   $graphics.FillPath($bgBrush, $bgPath)
 
-  $borderPen = New-Object System.Drawing.Pen ([System.Drawing.Color]::FromArgb(28, 255, 255, 255)), ([Math]::Max(1, 16 * $scale))
+  $borderPen = New-Pen 28 255 255 255 ([Math]::Max(1, 16 * $scale))
   $graphics.DrawPath($borderPen, $bgPath)
 
-  $cardPen = New-Object System.Drawing.Pen ([System.Drawing.Color]::FromArgb(34, 255, 255, 255)), ([Math]::Max(1, 18 * $scale))
-  $cardPen.StartCap = [System.Drawing.Drawing2D.LineCap]::Round
-  $cardPen.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
-  $graphics.DrawBezier($cardPen, 146*$scale,166*$scale, 194*$scale,126*$scale, 292*$scale,118*$scale, 378*$scale,155*$scale)
-  $graphics.DrawBezier($cardPen, 138*$scale,339*$scale, 196*$scale,395*$scale, 293*$scale,395*$scale, 383*$scale,353*$scale)
+  $glowBrush = New-SolidBrush 32 94 242 255
+  $graphics.FillEllipse($glowBrush, 108*$scale, 104*$scale, 296*$scale, 296*$scale)
 
-  $whitePen = New-Object System.Drawing.Pen ([System.Drawing.Color]::FromArgb(248, 247, 251, 255)), ([Math]::Max(2, 48 * $scale))
-  $whitePen.StartCap = [System.Drawing.Drawing2D.LineCap]::Round
-  $whitePen.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
-  $whitePen.LineJoin = [System.Drawing.Drawing2D.LineJoin]::Round
-  $graphics.DrawLine($whitePen, 178*$scale,142*$scale, 178*$scale,370*$scale)
-  $graphics.DrawLine($whitePen, 213*$scale,256*$scale, 335*$scale,151*$scale)
-  $graphics.DrawLine($whitePen, 216*$scale,258*$scale, 348*$scale,366*$scale)
+  $orbitPen = New-Pen 34 255 255 255 ([Math]::Max(1, 10 * $scale))
+  $graphics.DrawEllipse($orbitPen, 146*$scale, 151*$scale, 220*$scale, 210*$scale)
 
-  $accentPen = New-Object System.Drawing.Pen ([System.Drawing.Color]::FromArgb(255, 94, 242, 255)), ([Math]::Max(2, 16 * $scale))
-  $accentPen.StartCap = [System.Drawing.Drawing2D.LineCap]::Round
-  $accentPen.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
-  $graphics.DrawBezier($accentPen, 214*$scale,255*$scale, 251*$scale,239*$scale, 305*$scale,231*$scale, 356*$scale,246*$scale)
+  $topBrush = New-Object System.Drawing.Drawing2D.LinearGradientBrush (New-Object System.Drawing.RectangleF (140*$scale), (118*$scale), (232*$scale), (140*$scale)), ([System.Drawing.Color]::FromArgb(248, 234, 251, 255)), ([System.Drawing.Color]::FromArgb(184, 94, 242, 255)), 35
+  $leftBrush = New-Object System.Drawing.Drawing2D.LinearGradientBrush (New-Object System.Drawing.RectangleF (140*$scale), (188*$scale), (116*$scale), (200*$scale)), ([System.Drawing.Color]::FromArgb(196, 109, 124, 255)), ([System.Drawing.Color]::FromArgb(210, 20, 28, 59)), 90
+  $rightBrush = New-Object System.Drawing.Drawing2D.LinearGradientBrush (New-Object System.Drawing.RectangleF (256*$scale), (188*$scale), (116*$scale), (200*$scale)), ([System.Drawing.Color]::FromArgb(190, 184, 255, 106)), ([System.Drawing.Color]::FromArgb(200, 19, 43, 48)), 90
 
-  $nodeColors = @(
-    [System.Drawing.Color]::FromArgb(255, 94, 242, 255),
-    [System.Drawing.Color]::FromArgb(255, 124, 92, 255),
-    [System.Drawing.Color]::FromArgb(255, 183, 255, 90)
-  )
-  $nodes = @(
-    @(214,255,19),
-    @(294,234,15),
-    @(356,246,18)
-  )
-  for ($i = 0; $i -lt $nodes.Count; $i++) {
-    $node = $nodes[$i]
-    $brush = New-Object System.Drawing.SolidBrush $nodeColors[$i]
-    $x = ($node[0] - $node[2]) * $scale
-    $y = ($node[1] - $node[2]) * $scale
-    $d = ($node[2] * 2) * $scale
-    $graphics.FillEllipse($brush, $x, $y, $d, $d)
-    $brush.Dispose()
-  }
+  $top = @(@(256,118), @(372,188), @(256,258), @(140,188))
+  $left = @(@(140,188), @(256,258), @(256,388), @(140,318))
+  $right = @(@(372,188), @(256,258), @(256,388), @(372,318))
+  Fill-Polygon $graphics $topBrush $top $scale
+  Fill-Polygon $graphics $leftBrush $left $scale
+  Fill-Polygon $graphics $rightBrush $right $scale
 
-  $innerCut = New-Object System.Drawing.Pen ([System.Drawing.Color]::FromArgb(38, 6, 16, 26)), ([Math]::Max(1, 12 * $scale))
-  $innerCut.StartCap = [System.Drawing.Drawing2D.LineCap]::Round
-  $innerCut.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
-  $graphics.DrawLine($innerCut, 178*$scale,142*$scale, 178*$scale,370*$scale)
+  $topEdge = New-Pen 178 234 251 255 ([Math]::Max(1, 5 * $scale))
+  $leftEdge = New-Pen 116 167 176 255 ([Math]::Max(1, 5 * $scale))
+  $rightEdge = New-Pen 108 200 255 144 ([Math]::Max(1, 5 * $scale))
+  Draw-Polygon $graphics $topEdge $top $scale
+  Draw-Polygon $graphics $leftEdge $left $scale
+  Draw-Polygon $graphics $rightEdge $right $scale
+
+  $shadowPen = New-Pen 72 6 16 26 ([Math]::Max(1, 10 * $scale))
+  $graphics.DrawLines($shadowPen, (New-Points @(@(179,207), @(256,252), @(333,207)) $scale))
+
+  $layerPen1 = New-Pen 150 234 251 255 ([Math]::Max(1, 8 * $scale))
+  $layerPen2 = New-Pen 106 234 251 255 ([Math]::Max(1, 8 * $scale))
+  $layerPen3 = New-Pen 72 234 251 255 ([Math]::Max(1, 8 * $scale))
+  $graphics.DrawLines($layerPen1, (New-Points @(@(181,242), @(256,286), @(331,242)) $scale))
+  $graphics.DrawLines($layerPen2, (New-Points @(@(181,279), @(256,323), @(331,279)) $scale))
+  $graphics.DrawLines($layerPen3, (New-Points @(@(178,318), @(256,364), @(334,318)) $scale))
+
+  $cyanPath = New-Pen 255 94 242 255 ([Math]::Max(2, 15 * $scale))
+  Draw-PathLine $graphics $cyanPath @(@(133,291), @(193,247), @(260,239), @(363,252)) $scale
+  $limePath = New-Pen 130 184 255 106 ([Math]::Max(1, 10 * $scale))
+  Draw-PathLine $graphics $limePath @(@(151,292), @(211,329), @(290,344), @(361,304)) $scale
+
+  Fill-Circle $graphics 255 94 242 255 151 292 20 $scale
+  Fill-Circle $graphics 255 234 251 255 252 238 17 $scale
+  Fill-Circle $graphics 255 109 124 255 363 252 20 $scale
+  Fill-Circle $graphics 255 184 255 106 361 304 15 $scale
+  Fill-Circle $graphics 84 255 255 255 382 136 7 $scale
+  Fill-Circle $graphics 52 255 255 255 122 382 6 $scale
 
   $graphics.Dispose()
   return $bitmap
