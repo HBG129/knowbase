@@ -72,8 +72,12 @@ $candidateExePaths = @(
 
 $existingExe = @($candidateExePaths | Where-Object { Test-Path -LiteralPath $_ })
 $existingShortcuts = @($candidateShortcutPaths | Where-Object { Test-Path -LiteralPath $_ })
-$knowBaseProcesses = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -like "KnowBase*" })
+$knowBaseProcesses = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -ieq "knowbase" })
 $backendProcesses = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -eq "KnowBaseBackend" })
+$backendListeners = @(
+  Get-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue |
+    Where-Object { $_.LocalAddress -eq "127.0.0.1" -and $_.State.ToString() -eq "Listen" }
+)
 $healthUrlLine = "Health URL: ``$HealthUrl``"
 $appDataDirLine = "Expected data directory: ``$appDataDir``"
 
@@ -82,6 +86,7 @@ Add-Check "Shortcut" ($existingShortcuts.Count -gt 0) ($(if ($existingShortcuts.
 Add-Check "App data directory" (Test-Path -LiteralPath $appDataDir) $appDataDir
 Add-Check "KnowBase process" ($knowBaseProcesses.Count -gt 0) ($(if ($knowBaseProcesses.Count -gt 0) { ($knowBaseProcesses | Select-Object -ExpandProperty Id) -join ", " } else { "No KnowBase process is currently running." }))
 Add-Check "Backend process" ($backendProcesses.Count -gt 0) ($(if ($backendProcesses.Count -gt 0) { ($backendProcesses | Select-Object -ExpandProperty Id) -join ", " } else { "No KnowBaseBackend process is currently running." }))
+Add-Check "Backend listener" ($backendListeners.Count -eq 1) ($(if ($backendListeners.Count -eq 1) { "127.0.0.1:8000 is listening in process $($backendListeners[0].OwningProcess)." } else { "Expected one 127.0.0.1:8000 listener, found $($backendListeners.Count)." }))
 
 try {
   $health = Invoke-RestMethod -Uri $HealthUrl -TimeoutSec 5
