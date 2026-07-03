@@ -34,6 +34,14 @@ This document tracks the practical delivery status of KnowBase.
   - `KnowBaseBackend.exe` starts automatically,
   - exactly one backend process listens on `127.0.0.1:8000`,
   - health endpoint returns `{"status":"ok"}`.
+- Packaged backend core API smoke passed with isolated data on `127.0.0.1:8765`:
+  - health endpoint returned `{"status":"ok"}`,
+  - user registration and login succeeded,
+  - authenticated `/api/auth/me` succeeded,
+  - knowledge base creation and listing succeeded,
+  - demo Markdown upload completed with `2` chunks,
+  - document listing returned the uploaded document,
+  - temporary backend process tree was stopped after validation.
 - Release package preparation script generates:
   - installer copy for GitHub Release upload,
   - `SHA256SUMS.txt`,
