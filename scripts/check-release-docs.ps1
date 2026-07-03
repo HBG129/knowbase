@@ -116,7 +116,23 @@ $contentChecks = @(
   },
   @{
     Path = "docs\clean-machine-validation.md"
-    Needle = ".\scripts\collect-support-info.ps1"
+    Needle = "collect-support-info.ps1"
+  },
+  @{
+    Path = "docs\clean-machine-validation.md"
+    Needle = "KnowBaseSupportTools.zip"
+  },
+  @{
+    Path = "docs\clean-machine-validation.md"
+    Needle = "powershell -ExecutionPolicy Bypass -File .\check-installed-app.ps1"
+  },
+  @{
+    Path = "scripts\prepare-release-package.ps1"
+    Needle = "KnowBaseSupportTools.zip"
+  },
+  @{
+    Path = "scripts\prepare-release-package.ps1"
+    Needle = "support-tools"
   },
   @{
     Path = "docs\clean-machine-validation.md"
