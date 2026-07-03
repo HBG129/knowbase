@@ -48,6 +48,23 @@ function Get-ShortcutTarget($Path) {
   return $null
 }
 
+function Wait-BackendListeners {
+  for ($attempt = 0; $attempt -lt 10; $attempt++) {
+    $listeners = @(
+      Get-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue |
+        Where-Object { $_.LocalAddress -eq "127.0.0.1" -and "$($_.State)" -eq "Listen" }
+    )
+
+    if ($listeners.Count -gt 0) {
+      return $listeners
+    }
+
+    Start-Sleep -Milliseconds 500
+  }
+
+  return @()
+}
+
 $appDataDir = Join-Path $env:APPDATA "KnowBase"
 $commonExePaths = @(
   (Join-Path $env:LOCALAPPDATA "Programs\KnowBase\KnowBase.exe"),
@@ -74,10 +91,7 @@ $existingExe = @($candidateExePaths | Where-Object { Test-Path -LiteralPath $_ }
 $existingShortcuts = @($candidateShortcutPaths | Where-Object { Test-Path -LiteralPath $_ })
 $knowBaseProcesses = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -ieq "knowbase" })
 $backendProcesses = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -eq "KnowBaseBackend" })
-$backendListeners = @(
-  Get-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue |
-    Where-Object { $_.LocalAddress -eq "127.0.0.1" -and $_.State.ToString() -eq "Listen" }
-)
+$backendListeners = @(Wait-BackendListeners)
 $healthUrlLine = "Health URL: ``$HealthUrl``"
 $appDataDirLine = "Expected data directory: ``$appDataDir``"
 
