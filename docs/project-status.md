@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-07-03
+Last updated: 2026-07-04
 
 This document tracks the practical delivery status of KnowBase.
 
@@ -57,6 +57,9 @@ This document tracks the practical delivery status of KnowBase.
 - Extracted `KnowBaseSupportTools.zip` was smoke-tested locally:
   - `collect-support-info.ps1` generated a non-sensitive support report,
   - `check-installed-app.ps1 -AllowFailures` generated an installed-app report.
+- Frontend API client handles successful empty responses such as `204 No Content`, preventing successful conversation delete or clear-message actions from being reported as failed JSON parsing.
+- API key saving falls back to encrypted local database storage if Windows Credential Manager is unavailable or rejects a credential write, preventing the API key settings flow from failing solely because the OS credential store is unavailable.
+- Release preflight now includes a frontend empty-response API check.
 - GitHub issue form exists for release validation tracking.
 - GitHub issue form exists for structured beta feedback.
 - Installed app check script exists for clean-machine evidence capture.

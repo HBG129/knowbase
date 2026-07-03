@@ -194,6 +194,37 @@ def test_api_key_uses_credential_reference_when_enabled(client, monkeypatch):
     assert written[user.api_key.removeprefix("cred:v1:")] == "sk-customer-secret"
 
 
+def test_api_key_falls_back_to_encrypted_storage_when_credential_write_fails(client, monkeypatch):
+    from app.services import secret_store
+
+    def fail_write_secret(target, value):
+        raise secret_store.CredentialError("credential manager unavailable")
+
+    monkeypatch.setattr(settings, "API_KEY_STORAGE_BACKEND", "windows-credential")
+    monkeypatch.setattr(secret_store, "_is_windows", lambda: True)
+    monkeypatch.setattr(secret_store, "write_secret", fail_write_secret)
+
+    register_user(client)
+    headers = auth_headers(login_user(client))
+
+    response = client.put(
+        "/api/auth/me/api-key",
+        json={"api_key": "sk-customer-secret", "api_provider": "openai"},
+        headers=headers,
+    )
+
+    assert response.status_code == 200, response.text
+    assert response.json()["has_api_key"] is True
+
+    SessionLocal = client.app.state.testing_session_factory
+    with SessionLocal() as db:
+        user = db.execute(select(User).where(User.email == "owner@example.com")).scalar_one()
+
+    assert not user.api_key.startswith("cred:v1:")
+    assert user.api_key != "sk-customer-secret"
+    assert user.api_key
+
+
 def test_clear_api_key_deletes_credential_reference(client, monkeypatch):
     from app.services import secret_store
 

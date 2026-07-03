@@ -21,11 +21,23 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
       ...options?.headers,
     },
   });
+  const text = await res.text();
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: "Request failed" }));
+    const err = text
+      ? (() => {
+          try {
+            return JSON.parse(text);
+          } catch {
+            return { detail: text };
+          }
+        })()
+      : { detail: "Request failed" };
     throw new Error(err.detail || "HTTP " + res.status);
   }
-  return res.json();
+  if (res.status === 204 || !text) {
+    return undefined as T;
+  }
+  return JSON.parse(text) as T;
 }
 
 export const api = {

@@ -46,6 +46,7 @@ $requiredPaths = @(
   "scripts\backup-local-data.ps1",
   "scripts\check-desktop-artifacts.ps1",
   "scripts\check-code-signature.ps1",
+  "scripts\check-frontend-api-empty-response.ps1",
   "scripts\check-frontend-dialogs.ps1",
   "scripts\check-frontend-text.ps1",
   "scripts\check-installed-app.ps1",

@@ -82,8 +82,11 @@ def delete_secret(target: str) -> None:
 def store_api_key(user_id: str, api_key: str) -> str:
     if _use_windows_credential_store():
         target = _credential_target(user_id)
-        write_secret(target, api_key)
-        return CREDENTIAL_PREFIX + target
+        try:
+            write_secret(target, api_key)
+            return CREDENTIAL_PREFIX + target
+        except CredentialError:
+            return encrypt_api_key(api_key)
     return encrypt_api_key(api_key)
 
 

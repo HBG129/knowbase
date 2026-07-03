@@ -68,6 +68,7 @@ Run-Check "Desktop windowing" (Join-Path $PSScriptRoot "check-desktop-windowing.
 Run-Check "Desktop icon" (Join-Path $PSScriptRoot "check-desktop-icon.ps1")
 Run-Check "Frontend dialogs" (Join-Path $PSScriptRoot "check-frontend-dialogs.ps1")
 Run-Check "Frontend localized text" (Join-Path $PSScriptRoot "check-frontend-text.ps1")
+Run-Check "Frontend API empty responses" (Join-Path $PSScriptRoot "check-frontend-api-empty-response.ps1")
 Run-Check "Auth UX" (Join-Path $PSScriptRoot "check-auth-ux.ps1")
 Run-Check "Chat delete UX" (Join-Path $PSScriptRoot "check-chat-delete-ux.ps1")
 Run-Check "Release documentation" (Join-Path $PSScriptRoot "check-release-docs.ps1")
