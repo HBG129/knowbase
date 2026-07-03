@@ -44,10 +44,19 @@ This document tracks the practical delivery status of KnowBase.
   - temporary backend process tree was stopped after validation.
 - Release package preparation script generates:
   - installer copy for GitHub Release upload,
+  - `KnowBaseSupportTools.zip` for customer/tester validation reports,
   - `SHA256SUMS.txt`,
   - `RELEASE_ARTIFACTS.md`,
   - `RELEASE_NOTES_DRAFT.md`,
   - `RELEASE_VALIDATION_ISSUE_DRAFT.md`.
+- Prepared B20 release package includes support tools:
+  - `support-tools\check-installed-app.ps1`,
+  - `support-tools\collect-support-info.ps1`,
+  - `support-tools\README.txt`,
+  - `KnowBaseSupportTools.zip`.
+- Extracted `KnowBaseSupportTools.zip` was smoke-tested locally:
+  - `collect-support-info.ps1` generated a non-sensitive support report,
+  - `check-installed-app.ps1 -AllowFailures` generated an installed-app report.
 - GitHub issue form exists for release validation tracking.
 - GitHub issue form exists for structured beta feedback.
 - Installed app check script exists for clean-machine evidence capture.
