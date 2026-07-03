@@ -28,6 +28,24 @@ function Add-Line($Line) {
   $script:report.Add($Line)
 }
 
+function Get-ShortcutTarget($Path) {
+  if (-not (Test-Path -LiteralPath $Path)) {
+    return $null
+  }
+
+  try {
+    $shell = New-Object -ComObject WScript.Shell
+    $shortcut = $shell.CreateShortcut($Path)
+    if ($shortcut.TargetPath) {
+      return $shortcut.TargetPath
+    }
+  } catch {
+    return $null
+  }
+
+  return $null
+}
+
 if (-not $OutputDir) {
   $desktop = [Environment]::GetFolderPath("Desktop")
   if ($desktop) {
@@ -56,9 +74,18 @@ $candidateShortcutPaths = @(
   (Join-Path ([Environment]::GetFolderPath("Desktop")) "KnowBase.lnk")
 ) | Where-Object { $_ -and $_.Trim() }
 
+$shortcutTargets = @(
+  $candidateShortcutPaths | ForEach-Object { Get-ShortcutTarget $_ }
+) | Where-Object { $_ -and $_.Trim() }
+
+$candidateExePaths = @(
+  $candidateExePaths
+  $shortcutTargets
+) | Select-Object -Unique
+
 $existingExe = @($candidateExePaths | Where-Object { Test-Path -LiteralPath $_ })
 $existingShortcuts = @($candidateShortcutPaths | Where-Object { Test-Path -LiteralPath $_ })
-$knowBaseProcesses = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -like "KnowBase*" })
+$knowBaseProcesses = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -ieq "knowbase" })
 $backendProcesses = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -eq "KnowBaseBackend" })
 
 Add-Line "# KnowBase Support Info"
