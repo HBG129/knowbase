@@ -52,9 +52,10 @@ Release artifact verified.
 
 1. Extract the artifact ZIP.
 2. Run the `KnowBase_0.1.0_x64-setup.exe` installer.
-3. Launch KnowBase from the Start Menu or desktop shortcut.
-4. Confirm the app opens without a developer terminal.
-5. Confirm no Python, Node.js, Rust, Git, or source-code path is required.
+3. Extract `KnowBaseSupportTools.zip` from the prepared release package.
+4. Launch KnowBase from the Start Menu or desktop shortcut.
+5. Confirm the app opens without a developer terminal.
+6. Confirm no Python, Node.js, Rust, Git, or source-code path is required.
 
 ## First-Run Flow
 
@@ -85,7 +86,8 @@ Validate:
 After installing and launching KnowBase, run the installed app check script:
 
 ```powershell
-.\scripts\check-installed-app.ps1
+cd .\support-tools
+powershell -ExecutionPolicy Bypass -File .\check-installed-app.ps1
 ```
 
 The script writes a local Markdown report to the current user's Desktop under:
@@ -101,7 +103,7 @@ Use the report as supporting evidence for the GitHub `Release validation` issue.
 If any install, launch, backend, or health check fails, also generate a non-sensitive support report:
 
 ```powershell
-.\scripts\collect-support-info.ps1
+powershell -ExecutionPolicy Bypass -File .\collect-support-info.ps1
 ```
 
 Use `docs\customer-troubleshooting.md` to classify the failure before deciding whether to block the release.
