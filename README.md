@@ -14,12 +14,12 @@ KnowBase turns PDFs, Word documents, Markdown notes, text files, and CSVs into s
 | Web app | Usable for local development |
 | Backend API | Working |
 | Backend executable | Working with PyInstaller |
-| Desktop shell | Tauri Windows packaging verified in CI |
+| Desktop shell | Tauri Windows packaging verified in CI and local install smoke |
 | Desktop package workflow | Passing and uploading artifacts |
 | Release preflight | CI checks scripts, versions, sensitive files, and release documentation |
-| Customer installer | CI artifact available, not publicly released yet |
+| Customer installer | CI artifact available and locally install-verified, not publicly released yet |
 
-The current repository is ready for development and packaging work. A Windows installer artifact is produced by GitHub Actions and guarded by release preflight checks, but it still needs clean-machine validation before customer release.
+The current repository is ready for development and packaging work. A Windows installer artifact is produced by GitHub Actions, guarded by release preflight checks, and locally install-verified. It still needs clean-machine validation and code signing before customer release.
 
 ## Why KnowBase
 
@@ -409,6 +409,8 @@ Recent local verification:
 - Backend tests: 42 passed
 - Frontend production build: passed
 - Backend executable health check: `{"status":"ok"}`
+- Windows desktop installer artifact: `KnowBaseDesktop-Windows-20`
+- Installed desktop smoke: installer ran, shortcuts exist, app starts, backend auto-starts, one backend process listens on `127.0.0.1:8000`, and health returns `{"status":"ok"}`
 - Rust toolchain: installed under `D:\Codex_AI_Workspace\.tools`
 - Desktop prerequisite check: available through `.\check-desktop-prereqs.bat`
 - Desktop packaging pipeline: available through `.\package-desktop.bat`
