@@ -58,12 +58,52 @@ $checksumPath = Join-Path $OutputDir "SHA256SUMS.txt"
 $summaryPath = Join-Path $OutputDir "RELEASE_ARTIFACTS.md"
 $releaseNotesPath = Join-Path $OutputDir "RELEASE_NOTES_DRAFT.md"
 $validationIssuePath = Join-Path $OutputDir "RELEASE_VALIDATION_ISSUE_DRAFT.md"
+$supportToolsDir = Join-Path $OutputDir "support-tools"
+$supportToolsZipPath = Join-Path $OutputDir "KnowBaseSupportTools.zip"
 $installerName = Split-Path -Leaf $installerPath
 $zipName = Split-Path -Leaf $zip.Path
+
+if (Test-Path -LiteralPath $supportToolsDir) {
+  Remove-Item -LiteralPath $supportToolsDir -Recurse -Force
+}
+if (Test-Path -LiteralPath $supportToolsZipPath) {
+  Remove-Item -LiteralPath $supportToolsZipPath -Force
+}
+
+New-Item -ItemType Directory -Force -Path $supportToolsDir | Out-Null
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot "check-installed-app.ps1") -Destination (Join-Path $supportToolsDir "check-installed-app.ps1") -Force
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot "collect-support-info.ps1") -Destination (Join-Path $supportToolsDir "collect-support-info.ps1") -Force
+
+$supportToolsReadmePath = Join-Path $supportToolsDir "README.txt"
+$supportToolsReadme = @(
+  'KnowBase Support Tools'
+  ''
+  'Use these scripts after installing and launching KnowBase on Windows.'
+  ''
+  'Installed app validation:'
+  ''
+  '  powershell -ExecutionPolicy Bypass -File .\check-installed-app.ps1'
+  ''
+  'Support report for install/startup issues:'
+  ''
+  '  powershell -ExecutionPolicy Bypass -File .\collect-support-info.ps1'
+  ''
+  'Safe sharing rules:'
+  ''
+  '- Review generated Markdown reports before sharing.'
+  '- Do not share API keys, databases, uploaded documents, or %APPDATA%\KnowBase.'
+  '- Do not share backup ZIP files unless a secure support channel exists.'
+)
+Set-Content -LiteralPath $supportToolsReadmePath -Value $supportToolsReadme -Encoding ASCII
+Compress-Archive -Path (Join-Path $supportToolsDir "*") -DestinationPath $supportToolsZipPath -Force
+
+$supportToolsHash = Get-FileHash -Algorithm SHA256 -LiteralPath $supportToolsZipPath
+$supportToolsZipName = Split-Path -Leaf $supportToolsZipPath
 
 $checksums = @(
   "$($installerHash.Hash)  $installerName"
   "$($zipHash.Hash)  $zipName"
+  "$($supportToolsHash.Hash)  $supportToolsZipName"
 )
 Set-Content -LiteralPath $checksumPath -Value $checksums -Encoding ASCII
 
@@ -76,6 +116,7 @@ $summary = @(
   ''
   "- Installer: ``$installerName``"
   "- Source ZIP artifact: ``$zipName``"
+  "- Support tools ZIP: ``$supportToolsZipName``"
   '- Checksums: `SHA256SUMS.txt`'
   ''
   '## SHA256'
@@ -91,7 +132,7 @@ $summary = @(
   ''
   '## Next Step'
   ''
-  'Install the setup executable on a clean Windows machine and follow `docs\clean-machine-validation.md`.'
+  'Install the setup executable on a clean Windows machine, extract `KnowBaseSupportTools.zip`, and follow `docs\clean-machine-validation.md`.'
 )
 Set-Content -LiteralPath $summaryPath -Value $summary -Encoding ASCII
 
@@ -160,6 +201,12 @@ $releaseNotes = @(
   '%APPDATA%\KnowBase'
   '```'
   ''
+  'Support tools:'
+  ''
+  '```text'
+  $supportToolsZipName
+  '```'
+  ''
   '## First Run'
   ''
   '1. Install and launch KnowBase.'
@@ -205,6 +252,7 @@ $releaseNotes = @(
   '- `docs\known-limitations.md`'
   '- `docs\release-process.md`'
   '- `docs\release-readiness-checklist.md`'
+  '- `KnowBaseSupportTools.zip`'
 )
 Set-Content -LiteralPath $releaseNotesPath -Value $releaseNotes -Encoding ASCII
 
@@ -255,7 +303,8 @@ $validationIssue = @(
   '- [ ] Desktop app starts the backend automatically.'
   '- [ ] App opens without a developer terminal.'
   '- [ ] App stores runtime data under `%APPDATA%\KnowBase`.'
-  '- [ ] `scripts\check-installed-app.ps1` report was generated and reviewed.'
+  '- [ ] `KnowBaseSupportTools.zip` was extracted on the test machine.'
+  '- [ ] `check-installed-app.ps1` report was generated and reviewed.'
   ''
   '## First-Run Flow'
   ''
@@ -279,6 +328,7 @@ $validationIssue = @(
   '- [ ] No API key appears in visible logs.'
   '- [ ] No document content appears in visible logs.'
   '- [ ] No `.env`, database, uploaded document, or `%APPDATA%\KnowBase` folder is attached to the issue.'
+  '- [ ] `collect-support-info.ps1` report was generated for any install or startup failure.'
   '- [ ] Local data backup dry-run was reviewed without sharing the backup ZIP.'
   '- [ ] Local data restore dry-run was reviewed when reinstall or migration was tested.'
   '- [ ] Local data removal dry-run was reviewed before any confirmed deletion.'
