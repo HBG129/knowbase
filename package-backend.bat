@@ -67,6 +67,21 @@ echo Cleaning previous backend package output...
 if exist "build\KnowBaseBackend" rmdir /s /q "build\KnowBaseBackend"
 if exist "dist\KnowBaseBackend.exe" del /q "dist\KnowBaseBackend.exe"
 if exist "KnowBaseBackend.spec" del /q "KnowBaseBackend.spec"
+if exist "build\KnowBaseBackend" (
+  echo Failed to remove previous backend build directory. Close running build tools and try again.
+  if not "%KNOWBASE_NO_PAUSE%"=="1" pause
+  exit /b 1
+)
+if exist "dist\KnowBaseBackend.exe" (
+  echo Failed to remove previous backend executable. Close KnowBaseBackend.exe and try again.
+  if not "%KNOWBASE_NO_PAUSE%"=="1" pause
+  exit /b 1
+)
+if exist "KnowBaseBackend.spec" (
+  echo Failed to remove previous backend spec file. Close editors or build tools and try again.
+  if not "%KNOWBASE_NO_PAUSE%"=="1" pause
+  exit /b 1
+)
 
 echo Building backend executable...
 "%PY%" -m PyInstaller ^
@@ -83,6 +98,7 @@ echo Building backend executable...
   --add-binary "%CONDA_DLL_DIR%\ffi.dll;." ^
   --add-binary "%CONDA_DLL_DIR%\sqlite3.dll;." ^
   --hidden-import passlib.handlers.bcrypt ^
+  --hidden-import duckdb ^
   desktop_server.py
 
 if errorlevel 1 (

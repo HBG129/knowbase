@@ -263,17 +263,13 @@ Output:
 backend\dist\KnowBaseBackend.exe
 ```
 
-The packaged backend stores desktop runtime data under `%APPDATA%\KnowBase` by default. For testing, set `KNOWBASE_DATA_DIR` before starting the executable.
-
-Example health-check run:
+The packaged backend stores desktop runtime data under `%APPDATA%\KnowBase` by default. For testing, run the packaged backend health check, which uses an isolated local data directory and verifies `/api/health`:
 
 ```powershell
-$env:KNOWBASE_DATA_DIR = "D:\Codex_AI_Workspace\knowbase\backend\data\desktop-test"
-$env:KNOWBASE_BACKEND_PORT = "8765"
-.\backend\dist\KnowBaseBackend.exe
+.\scripts\check-packaged-backend-health.ps1
 ```
 
-Then check:
+The script starts `backend\dist\KnowBaseBackend.exe` with `KNOWBASE_BACKEND_PORT=8765`, checks:
 
 ```text
 http://127.0.0.1:8765/api/health
@@ -390,23 +386,14 @@ Backend tests:
 
 ```powershell
 cd backend
-.\.venv\Scripts\python.exe -m pytest tests -q
+.\.venv\Scripts\python.exe -m pytest
 ```
 
-Stable Windows backend test command:
-
-```powershell
-cd backend
-$tmp = "D:\Codex_AI_Workspace\knowbase\backend\data\pytest-tmp"
-New-Item -ItemType Directory -Force -Path $tmp | Out-Null
-$env:TEMP = $tmp
-$env:TMP = $tmp
-.\.venv\Scripts\python.exe -m pytest tests -q --basetemp $tmp -p no:cacheprovider
-```
+The backend pytest configuration limits discovery to `backend\tests`, so runtime data under `backend\data` is not collected as tests.
 
 Recent local verification:
 
-- Backend tests: 42 passed
+- Backend tests: 95 passed
 - Frontend production build: passed
 - Backend executable health check: `{"status":"ok"}`
 - Windows desktop installer artifact: `KnowBaseDesktop-Windows-20`

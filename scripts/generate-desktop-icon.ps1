@@ -11,7 +11,7 @@ $icoPath = Join-Path $iconDir "icon.ico"
 $svg = @'
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
   <title>KnowBase desktop app icon</title>
-  <desc>A luminous knowledge cube with document layers and connected AI nodes for the KnowBase app.</desc>
+  <desc>A luminous knowledge cube with document layers for the KnowBase app.</desc>
   <defs>
     <linearGradient id="bg" x1="54" y1="40" x2="454" y2="474" gradientUnits="userSpaceOnUse">
       <stop stop-color="#101827"/>
@@ -38,7 +38,6 @@ $svg = @'
   <rect x="32" y="32" width="448" height="448" rx="108" fill="url(#bg)"/>
   <rect x="43" y="43" width="426" height="426" rx="98" stroke="white" stroke-opacity="0.10" stroke-width="18"/>
   <circle cx="256" cy="254" r="132" fill="#5EF2FF" opacity="0.14" filter="url(#softGlow)"/>
-  <path d="M146 256C146 198 195 151 256 151C317 151 366 198 366 256C366 314 317 361 256 361C195 361 146 314 146 256Z" stroke="white" stroke-opacity="0.10" stroke-width="10"/>
   <path d="M256 118L372 188L256 258L140 188L256 118Z" fill="url(#cubeTop)" stroke="#EAFBFF" stroke-opacity="0.70" stroke-width="5" stroke-linejoin="round"/>
   <path d="M140 188L256 258V388L140 318V188Z" fill="url(#cubeLeft)" stroke="#A7B0FF" stroke-opacity="0.52" stroke-width="5" stroke-linejoin="round"/>
   <path d="M372 188L256 258V388L372 318V188Z" fill="url(#cubeRight)" stroke="#C8FF90" stroke-opacity="0.48" stroke-width="5" stroke-linejoin="round"/>
@@ -46,14 +45,6 @@ $svg = @'
   <path d="M181 242L256 286L331 242" stroke="#EAFBFF" stroke-opacity="0.60" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
   <path d="M181 279L256 323L331 279" stroke="#EAFBFF" stroke-opacity="0.42" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
   <path d="M178 318L256 364L334 318" stroke="#EAFBFF" stroke-opacity="0.28" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M133 291C184 247 251 236 363 252" stroke="#5EF2FF" stroke-width="15" stroke-linecap="round"/>
-  <path d="M151 292C205 331 281 344 361 304" stroke="#B8FF6A" stroke-opacity="0.50" stroke-width="10" stroke-linecap="round"/>
-  <circle cx="151" cy="292" r="20" fill="#5EF2FF"/>
-  <circle cx="252" cy="238" r="17" fill="#EAFBFF"/>
-  <circle cx="363" cy="252" r="20" fill="#6D7CFF"/>
-  <circle cx="361" cy="304" r="15" fill="#B8FF6A"/>
-  <circle cx="382" cy="136" r="7" fill="white" fill-opacity="0.34"/>
-  <circle cx="122" cy="382" r="6" fill="white" fill-opacity="0.20"/>
 </svg>
 '@
 
@@ -104,23 +95,6 @@ function Draw-Polygon([System.Drawing.Graphics]$Graphics, [System.Drawing.Pen]$P
   $Graphics.DrawPolygon($Pen, (New-Points $Points $Scale))
 }
 
-function Draw-PathLine([System.Drawing.Graphics]$Graphics, [System.Drawing.Pen]$Pen, [double[][]]$Points, [double]$Scale) {
-  $path = New-Object System.Drawing.Drawing2D.GraphicsPath
-  $path.AddCurve((New-Points $Points $Scale), 0.45)
-  $Graphics.DrawPath($Pen, $path)
-  $path.Dispose()
-}
-
-function Fill-Circle([System.Drawing.Graphics]$Graphics, [int]$a, [int]$r, [int]$g, [int]$b, [double]$cx, [double]$cy, [double]$radius, [double]$scale) {
-  $brush = New-SolidBrush $a $r $g $b
-  try {
-    $Graphics.FillEllipse($brush, [float](($cx - $radius) * $scale), [float](($cy - $radius) * $scale), [float](($radius * 2) * $scale), [float](($radius * 2) * $scale))
-  }
-  finally {
-    $brush.Dispose()
-  }
-}
-
 function New-IconBitmap([int]$Size) {
   $bitmap = New-Object System.Drawing.Bitmap $Size, $Size, ([System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
   $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
@@ -139,9 +113,6 @@ function New-IconBitmap([int]$Size) {
 
   $glowBrush = New-SolidBrush 32 94 242 255
   $graphics.FillEllipse($glowBrush, 108*$scale, 104*$scale, 296*$scale, 296*$scale)
-
-  $orbitPen = New-Pen 34 255 255 255 ([Math]::Max(1, 10 * $scale))
-  $graphics.DrawEllipse($orbitPen, 146*$scale, 151*$scale, 220*$scale, 210*$scale)
 
   $topBrush = New-Object System.Drawing.Drawing2D.LinearGradientBrush (New-Object System.Drawing.RectangleF (140*$scale), (118*$scale), (232*$scale), (140*$scale)), ([System.Drawing.Color]::FromArgb(248, 234, 251, 255)), ([System.Drawing.Color]::FromArgb(184, 94, 242, 255)), 35
   $leftBrush = New-Object System.Drawing.Drawing2D.LinearGradientBrush (New-Object System.Drawing.RectangleF (140*$scale), (188*$scale), (116*$scale), (200*$scale)), ([System.Drawing.Color]::FromArgb(196, 109, 124, 255)), ([System.Drawing.Color]::FromArgb(210, 20, 28, 59)), 90
@@ -170,18 +141,6 @@ function New-IconBitmap([int]$Size) {
   $graphics.DrawLines($layerPen1, (New-Points @(@(181,242), @(256,286), @(331,242)) $scale))
   $graphics.DrawLines($layerPen2, (New-Points @(@(181,279), @(256,323), @(331,279)) $scale))
   $graphics.DrawLines($layerPen3, (New-Points @(@(178,318), @(256,364), @(334,318)) $scale))
-
-  $cyanPath = New-Pen 255 94 242 255 ([Math]::Max(2, 15 * $scale))
-  Draw-PathLine $graphics $cyanPath @(@(133,291), @(193,247), @(260,239), @(363,252)) $scale
-  $limePath = New-Pen 130 184 255 106 ([Math]::Max(1, 10 * $scale))
-  Draw-PathLine $graphics $limePath @(@(151,292), @(211,329), @(290,344), @(361,304)) $scale
-
-  Fill-Circle $graphics 255 94 242 255 151 292 20 $scale
-  Fill-Circle $graphics 255 234 251 255 252 238 17 $scale
-  Fill-Circle $graphics 255 109 124 255 363 252 20 $scale
-  Fill-Circle $graphics 255 184 255 106 361 304 15 $scale
-  Fill-Circle $graphics 84 255 255 255 382 136 7 $scale
-  Fill-Circle $graphics 52 255 255 255 122 382 6 $scale
 
   $graphics.Dispose()
   return $bitmap

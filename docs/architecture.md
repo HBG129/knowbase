@@ -1,6 +1,6 @@
 # KnowBase Architecture
 
-KnowBase is a desktop-first AI knowledge base. The product goal is simple: let a customer install a Windows app, upload private documents, and ask cited questions without installing Python, Node.js, Rust, or Git.
+KnowBase is a desktop-first AI knowledge and data workspace. The product goal is simple: let a customer install a Windows app, upload private documents or CSV files, ask cited questions, and run local CSV analysis without installing Python, Node.js, Rust, or Git.
 
 This document explains how the current system is organized and where the desktop packaging work fits.
 
@@ -79,7 +79,7 @@ KnowBase
 
 ### Frontend
 
-The frontend provides the app shell, authentication screens, knowledge base management, document upload flow, chat interface, recent conversations, empty states, and API key prompts.
+The frontend provides the app shell, authentication screens, knowledge base management, document upload flow, chat interface, CSV Analysis tab, recent conversations, empty states, and API key prompts.
 
 Key responsibilities:
 
@@ -87,11 +87,12 @@ Key responsibilities:
 - call backend APIs
 - stream chat responses
 - display citations and document readiness states
+- preview CSV datasets, analysis results, generated SQL, summaries, charts, and analysis history
 - keep destructive actions behind in-app confirmations
 
 ### Backend
 
-The backend owns authentication, data persistence, document ingestion, retrieval, and LLM orchestration.
+The backend owns authentication, data persistence, document ingestion, retrieval, CSV analysis, and LLM orchestration.
 
 Key responsibilities:
 
@@ -100,6 +101,9 @@ Key responsibilities:
 - parse uploaded PDF, Word, Markdown, TXT, and CSV files
 - chunk and embed document content
 - retrieve relevant context for a chat request
+- profile completed CSV documents for structured analysis
+- validate LLM-generated SQL before DuckDB execution
+- save analysis history independently from chat history
 - call the configured LLM provider
 - stream model responses back to the frontend
 
@@ -152,6 +156,22 @@ User asks a question
 ```
 
 The expected product behavior is that users receive cited answers grounded in uploaded documents, not unsupported free-form chat responses.
+
+### CSV Analysis
+
+```text
+User opens Analysis tab
+-> frontend lists completed CSV datasets for the current knowledge base
+-> backend profiles CSV columns and previews rows
+-> user asks a natural-language analysis question
+-> backend asks the LLM for strict JSON containing a SQL plan
+-> backend validates a single read-only SELECT or WITH query
+-> DuckDB executes the query against the registered dataset relation
+-> backend returns limited rows, chart spec, summary, insights, and run history
+-> frontend renders the table, lightweight SVG chart, SQL, summary, and history item
+```
+
+The expected product behavior is that CSV analysis stays scoped to completed CSV files the user can already access in the current knowledge base.
 
 ## LLM Provider Resolution
 
@@ -236,7 +256,8 @@ Do not commit:
 
 Current release-sensitive areas:
 
-- API key storage should move toward OS credential storage before a broad customer release.
+- CSV analysis SQL must remain read-only, single-statement, and scoped to the uploaded dataset relation.
+- API key storage should remain backed by Windows Credential Manager in packaged desktop mode, with encrypted database fallback outside desktop mode.
 - Logs must not include private document text or tokens.
 - Public web deployment requires production CORS, storage, database, and secret-management hardening.
 
@@ -263,7 +284,7 @@ Backend:
 
 ```powershell
 cd backend
-.\.venv\Scripts\python.exe -m pytest tests -q
+.\.venv\Scripts\python.exe -m pytest
 ```
 
 Desktop prerequisites:

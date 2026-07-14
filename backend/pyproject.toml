@@ -28,6 +28,7 @@ dependencies = [
     "redis>=5.2.0",
     "minio>=7.2.0",
     "slowapi>=0.1.9",
+    "duckdb>=1.1.0",
 ]
 
 [project.optional-dependencies]
@@ -38,6 +39,10 @@ dev = [
 packaging = [
     "pyinstaller>=6.0.0",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-p no:cacheprovider"
 
 [build-system]
 requires = ["hatchling"]

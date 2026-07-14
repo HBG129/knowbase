@@ -6,7 +6,11 @@ param(
 
   [string]$Version = "0.1.0-rc.1",
 
-  [string]$OutputDir = ""
+  [string]$OutputDir = "",
+
+  [int64]$MinInstallerBytes = 50000000,
+
+  [switch]$AllowUnsigned
 )
 
 $ErrorActionPreference = "Stop"
@@ -17,8 +21,9 @@ function Fail($Message) {
 }
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
+$workspaceRoot = Split-Path -Parent $repoRoot
+$workspaceTempRoot = Join-Path $workspaceRoot ".tmp"
 if (-not $OutputDir) {
-  $workspaceRoot = Split-Path -Parent $repoRoot
   $OutputDir = Join-Path $workspaceRoot "artifacts\knowbase-release"
 }
 
@@ -27,32 +32,64 @@ if (-not $zip) {
   Fail "Release artifact ZIP was not found: $ZipPath"
 }
 
-& (Join-Path $PSScriptRoot "check-release-artifact.ps1") -ZipPath $zip.Path -ExpectedSha256 $ExpectedSha256
-
-New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
+& (Join-Path $PSScriptRoot "check-release-artifact.ps1") -ZipPath $zip.Path -ExpectedSha256 $ExpectedSha256 -MinInstallerBytes $MinInstallerBytes
 
 Add-Type -AssemblyName System.IO.Compression.FileSystem
-$archive = [System.IO.Compression.ZipFile]::OpenRead($zip.Path)
+$stagingPath = Join-Path $workspaceTempRoot "knowbase-release-package-stage-$([guid]::NewGuid().ToString('N'))"
+New-Item -ItemType Directory -Force -Path $stagingPath | Out-Null
+$signatureFailure = ""
 try {
-  $installer = @(
-    $archive.Entries |
-      Where-Object { $_.FullName -match '(^|/|\\)KnowBase_.*_x64-setup\.exe$' -and $_.Length -gt 0 }
-  )[0]
+  $archive = [System.IO.Compression.ZipFile]::OpenRead($zip.Path)
+  try {
+    $installer = @(
+      $archive.Entries |
+        Where-Object { $_.FullName -match '(^|/|\\)KnowBase_.*_x64-setup\.exe$' -and $_.Length -gt 0 }
+    )[0]
 
-  $installerPath = Join-Path $OutputDir (Split-Path -Leaf $installer.FullName)
-  [System.IO.Compression.ZipFileExtensions]::ExtractToFile($installer, $installerPath, $true)
+    $installerName = Split-Path -Leaf $installer.FullName
+    $stagedInstallerPath = Join-Path $stagingPath $installerName
+    [System.IO.Compression.ZipFileExtensions]::ExtractToFile($installer, $stagedInstallerPath, $true)
+  }
+  finally {
+    $archive.Dispose()
+  }
+
+  $zipHash = Get-FileHash -Algorithm SHA256 -LiteralPath $zip.Path
+  $installerHash = Get-FileHash -Algorithm SHA256 -LiteralPath $stagedInstallerPath
+  $installerSignature = Get-AuthenticodeSignature -LiteralPath $stagedInstallerPath
+  $signatureStatus = [string]$installerSignature.Status
+  $signatureSigner = ""
+  $signatureThumbprint = ""
+  if ($installerSignature.SignerCertificate) {
+    $signatureSigner = [string]$installerSignature.SignerCertificate.Subject
+    $signatureThumbprint = [string]$installerSignature.SignerCertificate.Thumbprint
+  }
+
+  $approvedUnsigned = $signatureStatus -eq "NotSigned" -and $AllowUnsigned
+  if ($signatureStatus -ne "Valid" -and -not $approvedUnsigned) {
+    $signatureFailure = "Installer code signature is not acceptable. Status: $signatureStatus. -AllowUnsigned permits only explicitly approved unsigned builds with status NotSigned; invalid or untrusted signatures always fail."
+  } else {
+    New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
+    Get-ChildItem -LiteralPath $OutputDir -Filter "KnowBase_*_x64-setup.exe" -File -ErrorAction SilentlyContinue |
+      ForEach-Object { Remove-Item -LiteralPath $_.FullName -Force }
+    $installerPath = Join-Path $OutputDir $installerName
+    Copy-Item -LiteralPath $stagedInstallerPath -Destination $installerPath -Force
+  }
 }
 finally {
-  $archive.Dispose()
+  if (Test-Path -LiteralPath $stagingPath) {
+    $resolvedTempRoot = Resolve-Path -LiteralPath $workspaceTempRoot
+    $resolvedStagingPath = Resolve-Path -LiteralPath $stagingPath
+    $tempPrefix = $resolvedTempRoot.Path.TrimEnd('\') + '\'
+    if (-not $resolvedStagingPath.Path.StartsWith($tempPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+      Fail "Refusing to remove release staging directory outside workspace temp directory: $($resolvedStagingPath.Path)"
+    }
+    Remove-Item -LiteralPath $resolvedStagingPath.Path -Recurse -Force
+  }
 }
 
-$zipHash = Get-FileHash -Algorithm SHA256 -LiteralPath $zip.Path
-$installerHash = Get-FileHash -Algorithm SHA256 -LiteralPath $installerPath
-$installerSignature = Get-AuthenticodeSignature -LiteralPath $installerPath
-$signatureStatus = [string]$installerSignature.Status
-$signatureSigner = ""
-if ($installerSignature.SignerCertificate) {
-  $signatureSigner = [string]$installerSignature.SignerCertificate.Subject
+if ($signatureFailure) {
+  Fail $signatureFailure
 }
 $checksumPath = Join-Path $OutputDir "SHA256SUMS.txt"
 $summaryPath = Join-Path $OutputDir "RELEASE_ARTIFACTS.md"
@@ -83,6 +120,9 @@ $supportToolsReadme = @(
   'Installed app validation:'
   ''
   '  powershell -ExecutionPolicy Bypass -File .\check-installed-app.ps1'
+  ''
+  'The installed app report is written to Desktop\KnowBaseValidation by default.'
+  'It records ProductVersion, signature status, installed executable path, and backend process path when available.'
   ''
   'Support report for install/startup issues:'
   ''
@@ -129,6 +169,7 @@ $summary = @(
   ''
   "- Status: ``$signatureStatus``"
   "- Signer: ``$signatureSigner``"
+  "- Thumbprint: ``$signatureThumbprint``"
   ''
   '## Next Step'
   ''
@@ -146,6 +187,7 @@ $releaseNotes = @(
   '- Windows desktop app packaging milestone.'
   '- Local knowledge bases for PDF, Word, Markdown, TXT, and CSV files.'
   '- RAG answers with source citations.'
+  '- CSV data analysis with the Analysis tab.'
   '- Recent conversations, guided empty states, and in-app confirmations.'
   ''
   '## Who This Release Is For'
@@ -195,6 +237,12 @@ $releaseNotes = @(
   $signatureSigner
   '```'
   ''
+  'Certificate thumbprint:'
+  ''
+  '```text'
+  $signatureThumbprint
+  '```'
+  ''
   'Expected local data directory:'
   ''
   '```text'
@@ -226,6 +274,7 @@ $releaseNotes = @(
   '- Markdown upload and chat: not tested'
   '- TXT upload and chat: not tested'
   '- CSV upload and chat: not tested'
+  '- CSV data analysis in Analysis tab: not tested'
   '- App close process cleanup: not tested'
   '- Installer preinstall process cleanup: configured, not clean-machine tested'
   '- Local data backup dry-run: not tested'
@@ -286,6 +335,21 @@ $validationIssue = @(
   "Signer: $signatureSigner"
   '```'
   ''
+  '## Signature Policy Decision'
+  ''
+  '- [ ] Valid signature verified'
+  '- [ ] Unsigned build explicitly approved and disclosed'
+  '- [ ] Signature invalid or undecided - block release'
+  ''
+  '```text'
+  "Signature status: $signatureStatus"
+  "Signer: $signatureSigner"
+  "Thumbprint: $signatureThumbprint"
+  'Unsigned approver:'
+  'Approval date:'
+  'Release-notes disclosure:'
+  '```'
+  ''
   '## Clean Machine Baseline'
   ''
   '- [ ] Test machine does not have Python installed.'
@@ -317,6 +381,7 @@ $validationIssue = @(
   '- [ ] Markdown upload and cited chat answer work.'
   '- [ ] TXT upload and cited chat answer work.'
   '- [ ] CSV upload and cited chat answer work.'
+  '- [ ] CSV Analysis tab preview, query, chart, summary, and history work.'
   '- [ ] Recent conversations reopen correctly.'
   '- [ ] Conversation deletion uses in-app confirmation.'
   ''

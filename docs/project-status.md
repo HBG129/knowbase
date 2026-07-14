@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-07-04
+Last updated: 2026-07-13
 
 This document tracks the practical delivery status of KnowBase.
 
@@ -8,13 +8,14 @@ This document tracks the practical delivery status of KnowBase.
 
 | Area | Progress | Notes |
 | --- | ---: | --- |
-| Resume and interview showcase | 97% | Strong project story, architecture, RAG workflow, packaging path, release process, CI history, customer-readiness narrative, beta testing workflow, and installed-app evidence are present. |
-| GitHub portfolio completeness | 98% | README, architecture, roadmap, changelog, support, security, release docs, demo data, CI, release gates, issue templates, branded desktop icon, and desktop artifacts are in place. |
-| Customer-installable software | 98% | Windows installer artifact is produced by GitHub Actions and locally install-verified; release preflight, validation, troubleshooting, beta, privacy, support workflows, Windows Credential Manager API key storage, encrypted fallback API key storage, per-install desktop secrets, branded app icon, installer metadata, and installer process cleanup are ready, but clean-machine validation and code signing are still required before customer release. |
+| Resume and interview showcase | 98% | Strong project story, architecture, RAG workflow, CSV Analysis Agent, packaging path, release process, CI history, customer-readiness narrative, beta testing workflow, and installed-app evidence are present. |
+| GitHub portfolio completeness | 98% | README, architecture, roadmap, project plan, changelog, support, security, release docs, demo data, CI, release gates, issue templates, branded desktop icon, and desktop artifacts are in place. |
+| Limited tester readiness | 95% | Windows installer artifact is produced by GitHub Actions and locally install-verified; release preflight, validation, troubleshooting, beta, privacy, support workflows, Windows Credential Manager API key storage, encrypted fallback API key storage, per-install desktop secrets, branded app icon, installer metadata, installer process cleanup, and CSV analysis validation are ready for controlled testing. |
+| Public customer release readiness | 85% | Core workflows and release automation are strong, but clean-machine validation, final release notes, final version decision, and code signing or explicit unsigned-release disclosure are still required before public customer release. |
 
 ## Verified
 
-- Backend test suite passes locally and in CI: 50 tests.
+- Backend test suite passes locally.
 - Frontend production build passes in GitHub Actions.
 - Backend executable packaging foundation exists with PyInstaller.
 - Tauri desktop shell exists and is configured for Windows bundle builds.
@@ -34,6 +35,13 @@ This document tracks the practical delivery status of KnowBase.
   - `KnowBaseBackend.exe` starts automatically,
   - exactly one backend process listens on `127.0.0.1:8000`,
   - health endpoint returns `{"status":"ok"}`.
+- Existing `KnowBaseDesktop-Windows-21` installation was validated locally:
+  - installer SHA256 matches `23F82866D3A0F4AEFF6020A71B24C2B25B2ADBE748988B44D969602070531BEC`,
+  - desktop and Start Menu shortcuts resolve to the custom installation directory,
+  - the desktop app starts its packaged backend automatically,
+  - the `127.0.0.1:8000` listener belongs to a detected `KnowBaseBackend.exe` under the installation directory,
+  - the health endpoint returns `{"status":"ok"}`,
+  - closing the desktop window stops both the app and backend processes.
 - Packaged backend core API smoke passed with isolated data on `127.0.0.1:8765`:
   - health endpoint returned `{"status":"ok"}`,
   - user registration and login succeeded,
@@ -58,11 +66,21 @@ This document tracks the practical delivery status of KnowBase.
   - `collect-support-info.ps1` generated a non-sensitive support report,
   - `check-installed-app.ps1 -AllowFailures` generated an installed-app report.
 - Frontend API client handles successful empty responses such as `204 No Content`, preventing successful conversation delete or clear-message actions from being reported as failed JSON parsing.
+- CSV Analysis Agent is implemented for completed CSV documents:
+  - dataset listing, preview, profile, and recommended questions,
+  - LLM-generated read-only DuckDB SQL,
+  - SQL guard for writes, DDL, local file access, extension loading, generated table functions, and dataset relation shadowing,
+  - DuckDB execution with result limiting,
+  - lightweight chart spec, summary, insights, failed-run recording, and independent analysis history.
+- CSV Analysis Agent handles summary-generation failure after successful SQL execution by returning the computed rows, chart, SQL, and a fallback summary.
 - API key saving falls back to encrypted local database storage if Windows Credential Manager is unavailable or rejects a credential write, preventing the API key settings flow from failing solely because the OS credential store is unavailable.
 - Release preflight now includes a frontend empty-response API check.
+- Release preflight now keeps generated smoke artifacts outside the git working tree.
+- Release preflight now generates the release package and verifies the actual support tools ZIP entries, README contents, and checksum.
+- Packaged backend health check starts `KnowBaseBackend.exe` on an isolated port, verifies `/api/health`, cleans up its default temporary data directory, and stops the temporary backend process.
 - GitHub issue form exists for release validation tracking.
 - GitHub issue form exists for structured beta feedback.
-- Installed app check script exists for clean-machine evidence capture.
+- Installed app check script exists for clean-machine evidence capture and reports installed executable version, signature status, and backend process path when available.
 - Support info script exists for non-sensitive installation and startup triage reports.
 - Local data backup script exists with dry-run by default and explicit `-ConfirmBackup` for customer-owned backup workflows.
 - Local data removal script exists with dry-run by default and explicit `-ConfirmDelete` for uninstall, reinstall, or privacy cleanup workflows.
@@ -76,12 +94,15 @@ This document tracks the practical delivery status of KnowBase.
 - Tauri bundle metadata includes publisher, homepage, copyright, category, and installer descriptions.
 - NSIS installer hooks stop `KnowBase.exe` and `KnowBaseBackend.exe` before install or uninstall file operations.
 - Code signature check script exists and release package drafts record installer signature status.
+- Release package preparation blocks a non-`Valid` installer signature unless `-AllowUnsigned` is explicitly supplied for an approved build with release-note disclosure.
+- Release validation records the signature policy decision and requires valid signer evidence or the unsigned approver, approval date, and exact release-notes disclosure.
 - Desktop packaging workflow records installer code signature status after NSIS bundle generation.
 - CI checks PowerShell script syntax to catch release-script parse errors.
 - CI checks backend, desktop app, and release-draft version consistency.
 - CI blocks tracked `.env`, local databases, uploads, artifacts, and desktop build outputs.
 - CI checks required release documentation paths and references.
 - CI runs the release preflight script that aggregates repository checks before packaging or publishing.
+- Frontend production dependency audit is release-clean on Next.js 15.5.20 with Next's bundled PostCSS overridden to 8.5.10; `npm audit --omit=dev --audit-level=high` reports zero vulnerabilities.
 - Last confirmed CI run: run `28661323870` for commit `33de9e7`.
 - Desktop artifact verification script checks for:
   - `backend\dist\KnowBaseBackend.exe`

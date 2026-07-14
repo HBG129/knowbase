@@ -36,6 +36,7 @@ Use this index to find the right document quickly.
 
 ## Design And Planning Records
 
+- `..\AGENTS.md` - current project plan, active workstreams, blockers, verification gates, and engineering rules for future agents.
 - `superpowers\specs\` - design notes for larger changes.
 - `superpowers\plans\` - implementation plans and verification notes.
 

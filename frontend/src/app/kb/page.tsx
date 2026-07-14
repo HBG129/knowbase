@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DocumentUpload } from "@/components/kb/document-upload";
 import { DocumentList } from "@/components/kb/document-list";
-import { BookOpen, MessageSquare, Trash2, ArrowLeft, Settings, FileText, Upload } from "lucide-react";
+import { AnalysisPanel } from "@/components/kb/analysis-panel";
+import { BarChart3, BookOpen, MessageSquare, Trash2, ArrowLeft, Settings, FileText, Upload } from "lucide-react";
 import { api } from "@/lib/api";
 import { kbChatPath } from "@/lib/routes";
 
@@ -20,7 +21,7 @@ export default function KBDetailPage() {
   const [id, setId] = useState<string | null>(null);
   const [kb, setKb] = useState<KBInfo | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"documents" | "settings">("documents");
+  const [tab, setTab] = useState<"documents" | "analysis" | "settings">("documents");
 
   useEffect(() => {
     setId(new URLSearchParams(window.location.search).get("id") || "");
@@ -61,7 +62,7 @@ export default function KBDetailPage() {
       </div>
 
       <div className="flex gap-1 p-1 bg-canvas-soft rounded-xl w-fit">
-        {[{ id: "documents" as const, label: "Documents", icon: FileText }, { id: "settings" as const, label: "Settings", icon: Settings }].map((t) => (
+        {[{ id: "documents" as const, label: "Documents", icon: FileText }, { id: "analysis" as const, label: "Analysis", icon: BarChart3 }, { id: "settings" as const, label: "Settings", icon: Settings }].map((t) => (
           <button key={t.id} onClick={() => setTab(t.id)} className={"inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all " + (tab === t.id ? "bg-canvas text-ink shadow-sm" : "text-ink-muted hover:text-ink")}><t.icon className="h-4 w-4" /> {t.label}</button>
         ))}
       </div>
@@ -77,6 +78,8 @@ export default function KBDetailPage() {
           </Card>
         </div>
       )}
+
+      {tab === "analysis" && <AnalysisPanel kbId={id} />}
 
       {tab === "settings" && (
         <Card variant="default" padding="lg">

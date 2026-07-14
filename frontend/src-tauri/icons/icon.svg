@@ -1,6 +1,6 @@
-﻿<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
   <title>KnowBase desktop app icon</title>
-  <desc>A luminous knowledge cube with document layers and connected AI nodes for the KnowBase app.</desc>
+  <desc>A luminous knowledge cube with document layers for the KnowBase app.</desc>
   <defs>
     <linearGradient id="bg" x1="54" y1="40" x2="454" y2="474" gradientUnits="userSpaceOnUse">
       <stop stop-color="#101827"/>
@@ -27,7 +27,6 @@
   <rect x="32" y="32" width="448" height="448" rx="108" fill="url(#bg)"/>
   <rect x="43" y="43" width="426" height="426" rx="98" stroke="white" stroke-opacity="0.10" stroke-width="18"/>
   <circle cx="256" cy="254" r="132" fill="#5EF2FF" opacity="0.14" filter="url(#softGlow)"/>
-  <path d="M146 256C146 198 195 151 256 151C317 151 366 198 366 256C366 314 317 361 256 361C195 361 146 314 146 256Z" stroke="white" stroke-opacity="0.10" stroke-width="10"/>
   <path d="M256 118L372 188L256 258L140 188L256 118Z" fill="url(#cubeTop)" stroke="#EAFBFF" stroke-opacity="0.70" stroke-width="5" stroke-linejoin="round"/>
   <path d="M140 188L256 258V388L140 318V188Z" fill="url(#cubeLeft)" stroke="#A7B0FF" stroke-opacity="0.52" stroke-width="5" stroke-linejoin="round"/>
   <path d="M372 188L256 258V388L372 318V188Z" fill="url(#cubeRight)" stroke="#C8FF90" stroke-opacity="0.48" stroke-width="5" stroke-linejoin="round"/>
@@ -35,12 +34,4 @@
   <path d="M181 242L256 286L331 242" stroke="#EAFBFF" stroke-opacity="0.60" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
   <path d="M181 279L256 323L331 279" stroke="#EAFBFF" stroke-opacity="0.42" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
   <path d="M178 318L256 364L334 318" stroke="#EAFBFF" stroke-opacity="0.28" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M133 291C184 247 251 236 363 252" stroke="#5EF2FF" stroke-width="15" stroke-linecap="round"/>
-  <path d="M151 292C205 331 281 344 361 304" stroke="#B8FF6A" stroke-opacity="0.50" stroke-width="10" stroke-linecap="round"/>
-  <circle cx="151" cy="292" r="20" fill="#5EF2FF"/>
-  <circle cx="252" cy="238" r="17" fill="#EAFBFF"/>
-  <circle cx="363" cy="252" r="20" fill="#6D7CFF"/>
-  <circle cx="361" cy="304" r="15" fill="#B8FF6A"/>
-  <circle cx="382" cy="136" r="7" fill="white" fill-opacity="0.34"/>
-  <circle cx="122" cy="382" r="6" fill="white" fill-opacity="0.20"/>
 </svg>

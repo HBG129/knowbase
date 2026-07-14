@@ -9,6 +9,7 @@ from app.api.auth import router as auth_router
 from app.api.knowledge_base import router as kb_router
 from app.api.document import router as doc_router
 from app.api.chat import router as chat_router
+from app.api.analysis import router as analysis_router
 
 
 @asynccontextmanager
@@ -34,6 +35,7 @@ app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
 app.include_router(kb_router, prefix="/api/kb", tags=["knowledge_base"])
 app.include_router(doc_router, prefix="/api/kb", tags=["documents"])
 app.include_router(chat_router, prefix="/api/kb", tags=["chat"])
+app.include_router(analysis_router, prefix="/api/kb", tags=["analysis"])
 
 
 @app.get("/api/health")

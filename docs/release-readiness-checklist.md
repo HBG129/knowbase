@@ -9,7 +9,7 @@ KnowBase is not customer-release ready until all required items below pass on a 
 Required release target:
 
 ```text
-A customer can install KnowBase, launch it, create an account, create a knowledge base, upload a document, ask a question, and receive an answer without installing Python, Node.js, Rust, or Git.
+A customer can install KnowBase, launch it, create an account, create a knowledge base, upload documents and CSV files, ask cited questions, run CSV analysis, and receive useful results without installing Python, Node.js, Rust, or Git.
 ```
 
 ## Build Machine Requirements
@@ -30,6 +30,7 @@ Run:
 .\check-desktop-prereqs.bat
 .\package-desktop.bat
 .\scripts\check-desktop-artifacts.ps1
+.\scripts\check-packaged-backend-health.ps1
 ```
 
 The release build is blocked if `cl.exe` or `link.exe` is missing. See:
@@ -65,6 +66,10 @@ After extracting or preparing the installer, verify its Authenticode status:
 .\scripts\check-code-signature.ps1 -Path D:\Codex_AI_Workspace\artifacts\knowbase-release\KnowBase_0.1.0_x64-setup.exe
 ```
 
+`prepare-release-package.ps1` blocks a non-`Valid` signature by default. Use `-AllowUnsigned` only for an explicitly approved unsigned build whose release notes disclose that status.
+
+The release validation issue must record either the valid signer and certificate thumbprint, or the unsigned approver, approval date, and exact release-notes disclosure. An invalid or undecided signature blocks release.
+
 ## Functional Smoke Test
 
 Run these checks before publishing a build:
@@ -75,6 +80,7 @@ Run these checks before publishing a build:
 - User can register and log in.
 - User can create a knowledge base.
 - User can upload PDF, Word, Markdown, TXT, and CSV files.
+- User can use the CSV Analysis tab to preview data, ask a question, see a chart and summary, and reopen the analysis history.
 - Uploaded documents appear in the knowledge base document list.
 - Synthetic demo files from `docs\demo-data` upload and produce cited answers.
 - Chat input is enabled only when the selected knowledge base has usable documents.
@@ -114,7 +120,7 @@ Before public release, confirm:
 
 - App name and icon are final.
 - Installer name is clear and versioned.
-- Installer code signature is valid, or release notes clearly state that the build is unsigned.
+- Installer code signature is valid, or the release validation issue records explicit unsigned approval and the release notes clearly state that the build is unsigned.
 - README has a customer installation section.
 - Documentation index is available in `docs\README.md`.
 - Customer quick start is documented in `docs\customer-quick-start.md`.

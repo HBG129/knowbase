@@ -29,13 +29,15 @@ The desktop data directory contains:
 - `knowbase.db` - local SQLite database.
 - `app.secret` - per-install secret used for local tokens and encrypted fallback API key records.
 - `uploads\` - uploaded document files.
-- conversation records, document metadata, knowledge base records, and user records inside the SQLite database.
+- conversation records, document metadata, knowledge base records, user records, and saved CSV data analysis history inside the SQLite database.
 
 If a user saves a personal LLM API key in the packaged Windows desktop app, the secret is stored through Windows Credential Manager and the local database stores only a credential reference. Development or non-desktop fallback modes may store an encrypted API key record in the local database. Treat the data directory as sensitive.
 
 ## What Leaves The Machine
 
 KnowBase sends content to the configured LLM provider when the user asks questions or processes documents for embeddings.
+
+CSV data analysis also uses the configured LLM provider. For analysis requests, KnowBase may send the user's analysis question, CSV column names, column profile information, generated SQL instructions, and a limited sample of query results so the provider can generate SQL and summarize the result. The full uploaded CSV file remains in the local uploads directory unless the user asks questions or analyses that require sending derived context to the selected provider.
 
 Depending on the provider key configured by the user, requests may go to:
 

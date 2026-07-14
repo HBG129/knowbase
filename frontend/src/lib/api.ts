@@ -65,7 +65,7 @@ export async function apiPostForm<T>(path: string, formData: FormData): Promise<
   return res.json();
 }
 
-/** SSE streaming — returns raw Response for ReadableStream consumption */
+/** SSE streaming - returns raw Response for ReadableStream consumption */
 export function apiStream(path: string, body: unknown, signal?: AbortSignal): Promise<Response> {
   const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
   return fetchWithNetworkMessage(BASE_URL + path, {

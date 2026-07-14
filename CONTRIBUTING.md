@@ -69,7 +69,7 @@ Backend:
 
 ```powershell
 cd backend
-.\.venv\Scripts\python.exe -m pytest tests -q
+.\.venv\Scripts\python.exe -m pytest
 ```
 
 Desktop packaging prerequisites:

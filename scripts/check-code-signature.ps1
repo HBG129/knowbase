@@ -27,6 +27,7 @@ if ($signature.SignerCertificate) {
   Write-Output "Thumbprint: $($signature.SignerCertificate.Thumbprint)"
 }
 
-if ($signature.Status -ne "Valid" -and -not $AllowUnsigned) {
-  Fail "Code signature is not valid. Status: $($signature.Status). Use -AllowUnsigned only for internal validation builds."
+$approvedUnsigned = $signature.Status -eq "NotSigned" -and $AllowUnsigned
+if ($signature.Status -ne "Valid" -and -not $approvedUnsigned) {
+  Fail "Code signature is not acceptable. Status: $($signature.Status). -AllowUnsigned permits only files with no signature; invalid or untrusted signatures always fail."
 }

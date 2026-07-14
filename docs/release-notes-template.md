@@ -14,6 +14,7 @@ Private AI knowledge workspace for local documents.
 - Windows desktop app packaging milestone.
 - Local knowledge bases for PDF, Word, Markdown, TXT, and CSV files.
 - RAG answers with source citations.
+- CSV data analysis with the Analysis tab.
 - Recent conversations, guided empty states, and in-app confirmations.
 
 ## Who This Release Is For
@@ -56,6 +57,7 @@ Code signature:
 ```text
 Status: [Valid/NotSigned/Unknown]
 Signer: [signer subject or blank]
+Thumbprint: [certificate thumbprint or blank]
 ```
 
 Expected local data directory:
@@ -83,6 +85,7 @@ Expected local data directory:
 - Markdown upload and chat: [passed/failed/not tested]
 - TXT upload and chat: [passed/failed/not tested]
 - CSV upload and chat: [passed/failed/not tested]
+- CSV data analysis in Analysis tab: [passed/failed/not tested]
 - App close process cleanup: [passed/failed/not tested]
 - Installer preinstall process cleanup: [passed/failed/not tested]
 - Local data backup dry-run: [passed/failed/not tested]

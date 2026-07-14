@@ -28,6 +28,8 @@ This document lists current KnowBase limitations before a public customer releas
 - OAuth login is not implemented.
 - Knowledge base sharing links are not implemented.
 - Reranker-based retrieval reordering is not implemented.
+- CSV data analysis is limited to completed CSV uploads. Excel files, multi-table joins, scheduled reports, and offline analysis models are not implemented.
+- CSV data analysis uses generated read-only SQL and LLM-written summaries. Customers should review results before using them for business-critical decisions.
 - Team or enterprise administration workflows are not finalized.
 - Offline LLM inference is not included.
 
