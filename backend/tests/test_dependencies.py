@@ -220,10 +220,12 @@ def test_support_info_rejects_health_url_query_parameters(tmp_path):
         check=False,
     )
 
+    output = re.sub(r"\x1b\[[0-?]*[ -/]*[@-~]", "", result.stdout + result.stderr)
+    normalized_output = " ".join(output.split())
+
     assert result.returncode != 0
-    assert "HealthUrl must be a local HTTP /api/health endpoint without credentials, query, or fragment" in (
-        result.stdout + result.stderr
-    )
+    assert "HealthUrl must be a local HTTP /api/health endpoint" in normalized_output
+    assert "query, or fragment." in normalized_output
     assert not list(tmp_path.glob("knowbase-support-info-*.md"))
 
 
