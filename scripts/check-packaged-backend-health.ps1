@@ -33,12 +33,16 @@ $existingIds = @(
 $previousPort = $env:KNOWBASE_BACKEND_PORT
 $previousDataDir = $env:KNOWBASE_DATA_DIR
 $process = $null
+$logSuffix = "$PID-$Port"
+$stdoutPath = Join-Path $workspaceTempRoot "knowbase-packaged-backend-$logSuffix.stdout.log"
+$stderrPath = Join-Path $workspaceTempRoot "knowbase-packaged-backend-$logSuffix.stderr.log"
 
 try {
   $env:KNOWBASE_BACKEND_PORT = [string]$Port
   $env:KNOWBASE_DATA_DIR = $DataDir
 
-  $process = Start-Process -FilePath $backendExe -PassThru -WindowStyle Hidden
+  $process = Start-Process -FilePath $backendExe -PassThru -WindowStyle Hidden `
+    -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath
   $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
   $healthUrl = "http://127.0.0.1:$Port/api/health"
   $healthy = $false
@@ -59,7 +63,14 @@ try {
   }
 
   if (-not $healthy) {
-    throw "Packaged backend health check failed on port $Port."
+    if (-not $process.HasExited) {
+      Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+      $process.WaitForExit()
+    }
+    $exitCode = if ($process.HasExited) { $process.ExitCode } else { "unknown" }
+    $stdout = if (Test-Path -LiteralPath $stdoutPath) { Get-Content -LiteralPath $stdoutPath -Raw } else { "<none>" }
+    $stderr = if (Test-Path -LiteralPath $stderrPath) { Get-Content -LiteralPath $stderrPath -Raw } else { "<none>" }
+    throw "Packaged backend health check failed on port $Port with exit code $exitCode.`nPackaged backend stdout:`n$stdout`nPackaged backend stderr:`n$stderr"
   }
 
   $openApiUrl = "http://127.0.0.1:$Port/openapi.json"
@@ -100,6 +111,12 @@ try {
 
   $env:KNOWBASE_BACKEND_PORT = $previousPort
   $env:KNOWBASE_DATA_DIR = $previousDataDir
+
+  foreach ($logPath in @($stdoutPath, $stderrPath)) {
+    if (Test-Path -LiteralPath $logPath) {
+      Remove-Item -LiteralPath $logPath -Force
+    }
+  }
 
   if ($usingDefaultDataDir -and (Test-Path -LiteralPath $DataDir)) {
     $resolvedTempRoot = Resolve-Path -LiteralPath $workspaceTempRoot

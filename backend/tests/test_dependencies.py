@@ -63,6 +63,9 @@ def test_packaged_backend_health_check_uses_backend_port_env_and_cleans_up():
     assert "Invoke-RestMethod" in content
     assert "Stop-Process" in content
     assert "KnowBaseBackend" in content
+    assert "RedirectStandardOutput" in content
+    assert "RedirectStandardError" in content
+    assert "Packaged backend stderr" in content
     assert "data\\packaged-backend-health" not in content
     assert ".tmp" in content
     assert "Remove-Item" in content
