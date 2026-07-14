@@ -1,8 +1,11 @@
 from pathlib import Path
 import json
 import re
+import shutil
 import subprocess
 import tomllib
+
+import pytest
 
 
 def test_runtime_dependencies_include_lxml_for_docx_parser():
@@ -194,10 +197,13 @@ def test_support_info_rejects_health_url_query_parameters(tmp_path):
     repo_root = Path(__file__).resolve().parents[2]
     script = repo_root / "scripts" / "collect-support-info.ps1"
     health_url = "http://127.0.0.1:65534/api/health?token=secret"
+    powershell = shutil.which("powershell") or shutil.which("pwsh")
+    if powershell is None:
+        pytest.skip("PowerShell is required to exercise the support-info script")
 
     result = subprocess.run(
         [
-            "powershell",
+            powershell,
             "-NoProfile",
             "-ExecutionPolicy",
             "Bypass",
