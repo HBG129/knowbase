@@ -1,6 +1,37 @@
+import os
 from pathlib import Path
+import subprocess
+import sys
 
 from app.desktop_runtime import configure_desktop_environment
+
+
+def test_desktop_environment_is_configured_before_settings_load(tmp_path):
+    data_dir = tmp_path / "FreshDesktopData"
+    env = os.environ.copy()
+    env["KNOWBASE_DATA_DIR"] = str(data_dir)
+    for key in ("DATABASE_URL", "UPLOAD_DIR", "JWT_SECRET_KEY", "API_KEY_ENCRYPTION_SECRET"):
+        env.pop(key, None)
+
+    code = """
+from app.desktop_runtime import configure_desktop_environment
+configure_desktop_environment()
+from app.config import settings
+import os
+assert settings.DATABASE_URL == os.environ["DATABASE_URL"]
+assert settings.UPLOAD_DIR == os.environ["UPLOAD_DIR"]
+"""
+    result = subprocess.run(
+        [sys.executable, "-c", code],
+        cwd=Path(__file__).resolve().parents[1],
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=15,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 def test_configure_desktop_environment_uses_override(monkeypatch, tmp_path):
