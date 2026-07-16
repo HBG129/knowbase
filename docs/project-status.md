@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-07-13
+Last updated: 2026-07-16
 
 This document tracks the practical delivery status of KnowBase.
 
@@ -21,13 +21,25 @@ This document tracks the practical delivery status of KnowBase.
 - Tauri desktop shell exists and is configured for Windows bundle builds.
 - Desktop package workflow runs automatically on relevant `main` pushes.
 - Desktop package workflow succeeded on run `28660401375` for commit `27450da`.
+- Desktop package workflow succeeded on run `29498356330` for commit `b21b906` after verifying the packaged backend health and Analysis API contract on the GitHub-hosted Windows runner.
 - Uploaded CI artifacts:
-  - `KnowBaseDesktop-Windows-20`
-  - `KnowBaseBackend-20`
+  - `KnowBaseDesktop-Windows-24` (artifact SHA256 digest: `88eae540b31694bc954fe1e650d6d341fccfeccba8eb025944912a7a6c2206b5`)
+  - `KnowBaseBackend-24` (artifact SHA256 digest: `94a29469da9264aafc0d234467e6a969731ba51d8172315a5e1cd682a873a84f`)
 - Downloaded artifact `KnowBaseDesktop-Windows-20.zip` verified locally:
   - ZIP SHA256: `01EA38B6DB0773B106E1555EF304FAB17D3BBEDCE519A12DDA3D3F23B9CBC4BF`
   - Installer inside ZIP: `KnowBase_0.1.0_x64-setup.exe`
   - Installer size: `72109572` bytes
+- Downloaded artifact `KnowBaseDesktop-Windows-24.zip` from run `29498356330` verified locally:
+  - ZIP SHA256: `88EAE540B31694BC954FE1E650D6D341FCCFECCBA8EB025944912A7A6C2206B5`, matching the GitHub artifact digest,
+  - installer inside ZIP: `KnowBase_0.1.0_x64-setup.exe`,
+  - installer size: `85356036` bytes,
+  - installer SHA256: `5D7BF11DC28213A9AF9BBB7F82F641AF527A7226C28BAF8B7D2EA659B8102E32`,
+  - Authenticode status: `NotSigned`.
+- Release package prepared from `KnowBaseDesktop-Windows-24.zip`:
+  - output: `D:\Codex_AI_Workspace\artifacts\knowbase-release-pr16-run-29498356330`,
+  - support tools ZIP SHA256: `2A2260AE73214B88E83FBA8F66D5ADE68F6F88F7F993A9A8CCBBEAE924B02B63`,
+  - generated checksums match the installer, source ZIP, and support tools ZIP,
+  - support tools ZIP contains only `check-installed-app.ps1`, `collect-support-info.ps1`, and `README.txt`.
 - Local install verification for `KnowBaseDesktop-Windows-20` passed:
   - installer runs silently with exit code `0`,
   - desktop shortcut and Start Menu shortcut are present,
@@ -103,7 +115,7 @@ This document tracks the practical delivery status of KnowBase.
 - CI checks required release documentation paths and references.
 - CI runs the release preflight script that aggregates repository checks before packaging or publishing.
 - Frontend production dependency audit is release-clean on Next.js 15.5.20 with Next's bundled PostCSS overridden to 8.5.10; `npm audit --omit=dev --audit-level=high` reports zero vulnerabilities.
-- Last confirmed CI run: run `28661323870` for commit `33de9e7`.
+- Last confirmed CI run: run `29498231245` for commit `b21b906`; repository checks, backend tests, and frontend build passed.
 - Desktop artifact verification script checks for:
   - `backend\dist\KnowBaseBackend.exe`
   - NSIS installer under `frontend\src-tauri\target\release\bundle\nsis`
