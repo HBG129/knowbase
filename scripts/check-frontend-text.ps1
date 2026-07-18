@@ -20,19 +20,14 @@ if (-not $Root) {
 $repoRoot = Resolve-Path -LiteralPath $Root
 $checks = @(
   @{
-    Path = "frontend\src\components\auth\api-key-dialog.tsx"
+    Path = "frontend\src\lib\i18n.ts"
     Required = @(
       ("API Key " + (U @(0x8BBE, 0x7F6E))),
       (U @(0x667A, 0x8C31)),
       (U @(0x5DF2, 0x914D, 0x7F6E)),
       (U @(0x672A, 0x914D, 0x7F6E, 0x4E2A, 0x4EBA) + " API Key"),
       (U @(0x4FDD, 0x5B58, 0x5931, 0x8D25)),
-      (U @(0x53D6, 0x6D88))
-    )
-  },
-  @{
-    Path = "frontend\src\lib\api.ts"
-    Required = @(
+      (U @(0x53D6, 0x6D88)),
       (U @(0x65E0, 0x6CD5, 0x8FDE, 0x63A5, 0x672C, 0x5730) + " KnowBase " + (U @(0x540E, 0x7AEF))),
       (U @(0x8BF7, 0x5173, 0x95ED, 0x5E94, 0x7528, 0x540E, 0x91CD, 0x65B0, 0x6253, 0x5F00))
     )

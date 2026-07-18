@@ -6,6 +6,8 @@ import { ApiKeyDialog } from "@/components/auth/api-key-dialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { api } from "@/lib/api";
+import { useI18nStore } from "@/stores/i18n-store";
+import type { TranslationKey, TranslationValues } from "@/lib/i18n";
 
 interface ColumnProfile {
   name: string;
@@ -75,10 +77,11 @@ function numberValue(value: string | number | null | undefined) {
 }
 
 function MiniChart({ chart }: { chart?: ChartSpec }) {
+  const { lang, t } = useI18nStore();
   if (!chart || chart.type === "table" || chart.series.length === 0) {
     return (
       <div className="flex h-48 items-center justify-center rounded-lg border border-dashed border-hairline bg-canvas-soft text-sm text-ink-muted">
-        No chart for this result
+        {t("analysis.noChart")}
       </div>
     );
   }
@@ -128,7 +131,7 @@ function MiniChart({ chart }: { chart?: ChartSpec }) {
             {chart.series.slice(0, 6).map((row, index) => (
               <div key={index} className="flex items-center justify-between gap-3">
                 <span className="truncate text-ink-body">{String(row[0])}</span>
-                <span className="font-medium text-ink">{numberValue(row[1]).toLocaleString()}</span>
+                <span className="font-medium text-ink">{numberValue(row[1]).toLocaleString(lang === "zh" ? "zh-CN" : "en-US")}</span>
               </div>
             ))}
           </div>
@@ -210,7 +213,27 @@ function ResultTable({ columns, rows }: { columns: string[]; rows: (string | num
   );
 }
 
+type Translate = (key: TranslationKey, values?: TranslationValues) => string;
+
+function getRecommendedQuestions(dataset: Dataset, t: Translate): string[] {
+  const numeric = dataset.columns.find((column) => column.type === "number")?.name;
+  const text = dataset.columns.find((column) => column.type === "text")?.name;
+  const questions: string[] = [];
+
+  if (numeric && text) {
+    questions.push(t("analysis.recommend.group", { numeric, text }));
+  }
+  if (numeric) {
+    questions.push(t("analysis.recommend.anomalies", { numeric }));
+  }
+  if (dataset.column_count >= 2) {
+    questions.push(t("analysis.recommend.report"));
+  }
+  return questions.length > 0 ? questions : [t("analysis.recommend.summary")];
+}
+
 export function AnalysisPanel({ kbId }: AnalysisPanelProps) {
+  const { lang, t } = useI18nStore();
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [selectedDocId, setSelectedDocId] = useState("");
   const [preview, setPreview] = useState<Preview | null>(null);
@@ -236,11 +259,11 @@ export function AnalysisPanel({ kbId }: AnalysisPanelProps) {
       setDatasets(data);
       setSelectedDocId((current) => current || data[0]?.doc_id || "");
     } catch (err: any) {
-      setError(err.message || "Failed to load datasets");
+      setError(err.message || t("analysis.loadDatasetsFailed"));
     } finally {
       setLoading(false);
     }
-  }, [kbId]);
+  }, [kbId, t]);
 
   const fetchRuns = useCallback(async () => {
     try {
@@ -270,7 +293,7 @@ export function AnalysisPanel({ kbId }: AnalysisPanelProps) {
         if (!cancelled) setPreview(data);
       })
       .catch((err: any) => {
-        if (!cancelled) setError(err.message || "Failed to load preview");
+        if (!cancelled) setError(err.message || t("analysis.loadPreviewFailed"));
       })
       .finally(() => {
         if (!cancelled) setPreviewLoading(false);
@@ -278,7 +301,7 @@ export function AnalysisPanel({ kbId }: AnalysisPanelProps) {
     return () => {
       cancelled = true;
     };
-  }, [kbId, selectedDocId]);
+  }, [kbId, selectedDocId, t]);
 
   async function handleAnalyze() {
     if (!selectedDocId || !question.trim() || running) return;
@@ -292,7 +315,7 @@ export function AnalysisPanel({ kbId }: AnalysisPanelProps) {
       setActiveRun(run);
       setRuns((current) => [run, ...current.filter((item) => item.id !== run.id)]);
     } catch (err: any) {
-      const message = err.message || "Analysis failed";
+      const message = err.message || t("analysis.runFailed");
       setError(message);
       if (isApiKeyError(message)) setApiKeyOpen(true);
       void fetchRuns();
@@ -313,9 +336,9 @@ export function AnalysisPanel({ kbId }: AnalysisPanelProps) {
     return (
       <Card padding="lg" className="text-center">
         <AlertTriangle className="mx-auto h-6 w-6 text-error" />
-        <h2 className="mt-3 text-base font-semibold text-ink">Could not load CSV datasets</h2>
+        <h2 className="mt-3 text-base font-semibold text-ink">{t("analysis.datasetsLoadTitle")}</h2>
         <p className="mx-auto mt-2 max-w-md text-sm text-error">{error}</p>
-        <Button className="mt-4" variant="secondary" onClick={fetchDatasets}>Retry</Button>
+        <Button className="mt-4" variant="secondary" onClick={fetchDatasets}>{t("common.retry")}</Button>
       </Card>
     );
   }
@@ -326,9 +349,9 @@ export function AnalysisPanel({ kbId }: AnalysisPanelProps) {
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-hairline bg-canvas-soft">
           <Database className="h-5 w-5 text-ink-muted" />
         </div>
-        <h2 className="text-base font-semibold text-ink">No CSV datasets yet</h2>
+        <h2 className="text-base font-semibold text-ink">{t("analysis.noDatasets")}</h2>
         <p className="mx-auto mt-2 max-w-md text-sm text-ink-muted">
-          Upload a completed CSV document, then return here to preview the data and run AI analysis.
+          {t("analysis.noDatasetsHint")}
         </p>
       </Card>
     );
@@ -340,7 +363,7 @@ export function AnalysisPanel({ kbId }: AnalysisPanelProps) {
         <Card padding="none" className="overflow-hidden">
           <div className="border-b border-hairline px-4 py-3">
             <h2 className="flex items-center gap-2 text-sm font-semibold text-ink">
-              <Database className="h-4 w-4 text-ink-muted" /> Datasets
+              <Database className="h-4 w-4 text-ink-muted" /> {t("analysis.datasets")}
             </h2>
           </div>
           <div className="max-h-80 overflow-auto p-2">
@@ -358,7 +381,10 @@ export function AnalysisPanel({ kbId }: AnalysisPanelProps) {
               >
                 <span className="block truncate text-sm font-medium">{dataset.filename}</span>
                 <span className="mt-1 block text-xs text-ink-muted">
-                  {dataset.row_count.toLocaleString()} rows / {dataset.column_count} columns
+                  {t("analysis.datasetSize", {
+                    rows: dataset.row_count.toLocaleString(lang === "zh" ? "zh-CN" : "en-US"),
+                    columns: dataset.column_count,
+                  })}
                 </span>
               </button>
             ))}
@@ -368,12 +394,12 @@ export function AnalysisPanel({ kbId }: AnalysisPanelProps) {
         <Card padding="none" className="overflow-hidden">
           <div className="border-b border-hairline px-4 py-3">
             <h2 className="flex items-center gap-2 text-sm font-semibold text-ink">
-              <Clock className="h-4 w-4 text-ink-muted" /> History
+              <Clock className="h-4 w-4 text-ink-muted" /> {t("analysis.history")}
             </h2>
           </div>
           <div className="max-h-80 overflow-auto p-2">
             {runs.length === 0 ? (
-              <p className="px-2 py-3 text-xs text-ink-muted">No analysis runs yet.</p>
+              <p className="px-2 py-3 text-xs text-ink-muted">{t("analysis.noRuns")}</p>
             ) : (
               runs.map((run) => (
                 <button
@@ -388,11 +414,13 @@ export function AnalysisPanel({ kbId }: AnalysisPanelProps) {
                   <span className="line-clamp-2 text-sm font-medium">{run.question}</span>
                   {run.error_message && (
                     <span className="mt-1 flex items-center gap-1 text-xs text-error">
-                      <AlertTriangle className="h-3 w-3" /> Failed
+                      <AlertTriangle className="h-3 w-3" /> {t("common.failed")}
                     </span>
                   )}
                   <span className="mt-1 block text-xs text-ink-muted">
-                    {run.created_at ? new Date(run.created_at).toLocaleString() : "Saved run"}
+                    {run.created_at
+                      ? new Date(run.created_at).toLocaleString(lang === "zh" ? "zh-CN" : "en-US")
+                      : t("common.savedRun")}
                   </span>
                 </button>
               ))
@@ -406,10 +434,10 @@ export function AnalysisPanel({ kbId }: AnalysisPanelProps) {
           <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
             <div>
               <h2 className="flex items-center gap-2 text-base font-semibold text-ink">
-                <BarChart3 className="h-4 w-4 text-ink-muted" /> Ask your data
+                <BarChart3 className="h-4 w-4 text-ink-muted" /> {t("analysis.askData")}
               </h2>
               <p className="mt-1 text-sm text-ink-muted">
-                {selectedDataset?.filename || "Select a CSV dataset"}
+                {selectedDataset?.filename || t("analysis.selectDataset")}
               </p>
             </div>
             <Button variant="secondary" size="sm" onClick={() => setApiKeyOpen(true)}>
@@ -419,7 +447,7 @@ export function AnalysisPanel({ kbId }: AnalysisPanelProps) {
 
           {selectedDataset && (
             <div className="mb-4 flex flex-wrap gap-2">
-              {selectedDataset.recommended_questions.map((item) => (
+              {getRecommendedQuestions(selectedDataset, t).map((item) => (
                 <button
                   key={item}
                   onClick={() => setQuestion(item)}
@@ -436,11 +464,11 @@ export function AnalysisPanel({ kbId }: AnalysisPanelProps) {
               value={question}
               onChange={(event) => setQuestion(event.target.value)}
               rows={3}
-              placeholder="Ask for a trend, ranking, anomaly, or short business report..."
+              placeholder={t("analysis.questionPlaceholder")}
               className="min-h-24 flex-1 resize-none rounded-lg border border-hairline bg-canvas px-3 py-2 text-sm text-ink outline-none transition-colors placeholder:text-ink-placeholder focus:border-hairline-focus focus:ring-2 focus:ring-accent/10"
             />
             <Button className="md:self-end" loading={running} disabled={!question.trim() || !selectedDocId} onClick={handleAnalyze}>
-              <Play className="h-4 w-4" /> Analyze
+              <Play className="h-4 w-4" /> {t("analysis.analyze")}
             </Button>
           </div>
 
@@ -456,18 +484,18 @@ export function AnalysisPanel({ kbId }: AnalysisPanelProps) {
           <Card padding="none" className="overflow-hidden">
             <div className="flex items-center justify-between border-b border-hairline px-4 py-3">
               <h2 className="flex items-center gap-2 text-sm font-semibold text-ink">
-                <Table2 className="h-4 w-4 text-ink-muted" /> Data preview
+                <Table2 className="h-4 w-4 text-ink-muted" /> {t("analysis.preview")}
               </h2>
-              {previewLoading && <span className="text-xs text-ink-muted">Loading...</span>}
+              {previewLoading && <span className="text-xs text-ink-muted">{t("common.loading")}</span>}
             </div>
             <div className="grid gap-4 p-4 lg:grid-cols-[220px_minmax(0,1fr)]">
               <div className="space-y-2">
                 <div className="rounded-lg bg-canvas-soft p-3">
-                  <p className="text-xs text-ink-muted">Rows</p>
-                  <p className="text-lg font-semibold text-ink">{preview.profile.row_count.toLocaleString()}</p>
+                  <p className="text-xs text-ink-muted">{t("common.rows")}</p>
+                  <p className="text-lg font-semibold text-ink">{preview.profile.row_count.toLocaleString(lang === "zh" ? "zh-CN" : "en-US")}</p>
                 </div>
                 <div className="rounded-lg bg-canvas-soft p-3">
-                  <p className="text-xs text-ink-muted">Columns</p>
+                  <p className="text-xs text-ink-muted">{t("common.columns")}</p>
                   <p className="text-lg font-semibold text-ink">{preview.profile.column_count}</p>
                 </div>
                 <div className="space-y-1.5">
@@ -475,10 +503,12 @@ export function AnalysisPanel({ kbId }: AnalysisPanelProps) {
                     <div key={column.name} className="rounded-lg border border-hairline px-3 py-2">
                       <div className="flex items-center justify-between gap-2">
                         <span className="truncate text-xs font-medium text-ink">{column.name}</span>
-                        <span className="text-[11px] uppercase text-ink-muted">{column.type}</span>
+                        <span className="text-[11px] uppercase text-ink-muted">
+                          {t(column.type === "number" ? "analysis.columnType.number" : "analysis.columnType.text")}
+                        </span>
                       </div>
                       {column.missing_count > 0 && (
-                        <p className="mt-1 text-[11px] text-warning">{column.missing_count} missing</p>
+                        <p className="mt-1 text-[11px] text-warning">{t("analysis.missingCount", { count: column.missing_count })}</p>
                       )}
                     </div>
                   ))}
@@ -494,15 +524,15 @@ export function AnalysisPanel({ kbId }: AnalysisPanelProps) {
             {activeRun.error_message ? (
               <Card padding="lg" className="border-error/20 bg-error/5">
                 <h2 className="mb-2 flex items-center gap-2 text-base font-semibold text-error">
-                  <AlertTriangle className="h-4 w-4" /> Analysis failed
+                  <AlertTriangle className="h-4 w-4" /> {t("analysis.runFailed")}
                 </h2>
                 <p className="text-sm leading-6 text-error">{activeRun.error_message}</p>
               </Card>
             ) : (
               <>
                 <Card padding="lg">
-                  <h2 className="mb-2 text-base font-semibold text-ink">Analysis summary</h2>
-                  <p className="text-sm leading-6 text-ink-body">{activeRun.summary || "No summary returned."}</p>
+                  <h2 className="mb-2 text-base font-semibold text-ink">{t("analysis.summary")}</h2>
+                  <p className="text-sm leading-6 text-ink-body">{activeRun.summary || t("analysis.noSummary")}</p>
                   {activeRun.insights.length > 0 && (
                     <div className="mt-4 flex flex-wrap gap-2">
                       {activeRun.insights.map((insight) => (
@@ -520,15 +550,15 @@ export function AnalysisPanel({ kbId }: AnalysisPanelProps) {
 
             <Card padding="none" className="overflow-hidden">
               <div className="border-b border-hairline px-4 py-3">
-                <h2 className="text-sm font-semibold text-ink">Generated SQL</h2>
+                <h2 className="text-sm font-semibold text-ink">{t("analysis.generatedSql")}</h2>
               </div>
-              <pre className="overflow-x-auto bg-ink p-4 text-xs leading-5 text-canvas">{activeRun.sql || "No SQL saved."}</pre>
+              <pre className="overflow-x-auto bg-ink p-4 text-xs leading-5 text-canvas">{activeRun.sql || t("analysis.noSql")}</pre>
             </Card>
 
             {!activeRun.error_message && (
               <Card padding="none" className="overflow-hidden">
                 <div className="border-b border-hairline px-4 py-3">
-                  <h2 className="text-sm font-semibold text-ink">Result rows</h2>
+                  <h2 className="text-sm font-semibold text-ink">{t("analysis.resultRows")}</h2>
                 </div>
                 <div className="p-4">
                   <ResultTable columns={activeRun.columns} rows={activeRun.rows} />

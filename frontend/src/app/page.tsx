@@ -106,12 +106,12 @@ export default function Home() {
 
   const nextStep =
     totals.kbs === 0
-      ? "Create your first knowledge base"
+      ? t("home.next.createKb")
       : totals.docs === 0
-        ? "Upload source documents"
+        ? t("home.next.uploadDocs")
         : totals.chats === 0
-          ? "Start your first cited conversation"
-          : "Continue from recent conversations";
+          ? t("home.next.startChat")
+          : t("home.next.continueChat");
 
   return (
     <div className="min-h-screen bg-canvas">
@@ -123,14 +123,13 @@ export default function Home() {
             <div className="max-w-2xl">
               <div className="mb-4 inline-flex items-center gap-2 rounded-lg border border-hairline bg-canvas/70 px-3 py-1.5 text-xs font-medium text-ink-muted backdrop-blur">
                 <CircleDot className="h-3.5 w-3.5 text-success" />
-                Knowledge workspace online
+                {t("home.workspaceOnline")}
               </div>
               <h1 className="text-4xl font-semibold leading-tight tracking-[-0.035em] text-ink md:text-5xl">
-                Build, search, and question your private knowledge base.
+                {t("home.hero.title")}
               </h1>
               <p className="mt-4 max-w-xl text-sm leading-6 text-ink-body md:text-base">
-                A focused workspace for document ingestion, cited answers, and
-                reusable knowledge operations.
+                {t("home.hero.description")}
               </p>
             </div>
 
@@ -210,9 +209,7 @@ export default function Home() {
                     {t("home.noKbs")}
                   </h3>
                   <p className="mt-2 max-w-lg text-sm leading-6 text-ink-body">
-                    Create a workspace, upload source files, then ask questions
-                    with traceable citations. The first knowledge base usually
-                    takes less than a minute to set up.
+                    {t("home.noKbsDescription")}
                   </p>
                   <KBCreateDialog>
                     <button className="mt-6 inline-flex h-10 items-center gap-2 rounded-lg bg-ink px-4 text-sm font-medium text-canvas transition-all hover:bg-ink-soft active:scale-[0.98]">
@@ -224,9 +221,9 @@ export default function Home() {
 
                 <div className="space-y-3 rounded-xl border border-hairline bg-canvas p-4">
                   {[
-                    { icon: Library, label: "Create KB" },
-                    { icon: Upload, label: "Upload files" },
-                    { icon: MessageSquare, label: "Ask with sources" },
+                    { icon: Library, label: t("home.step.createKb") },
+                    { icon: Upload, label: t("home.step.uploadFiles") },
+                    { icon: MessageSquare, label: t("home.step.askSources") },
                   ].map((step, index) => (
                     <div key={step.label} className="flex items-center gap-3">
                       <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-canvas-soft">
@@ -234,7 +231,7 @@ export default function Home() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-ink">{step.label}</p>
-                        <p className="text-xs text-ink-muted">Step {index + 1}</p>
+                        <p className="text-xs text-ink-muted">{t("home.step.number", { number: index + 1 })}</p>
                       </div>
                     </div>
                   ))}
@@ -261,24 +258,24 @@ export default function Home() {
           <Card variant="default" padding="md" className="bg-canvas-soft/70">
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-accent" />
-              <h2 className="text-sm font-semibold text-ink">Activation path</h2>
+              <h2 className="text-sm font-semibold text-ink">{t("home.activation.title")}</h2>
             </div>
             <div className="mt-4 space-y-3">
               {[
                 {
                   done: totals.kbs > 0,
-                  label: "Create a knowledge base",
-                  helper: "Group documents by project or team.",
+                  label: t("home.activation.createKb"),
+                  helper: t("home.activation.createKbHint"),
                 },
                 {
                   done: totals.docs > 0,
-                  label: "Upload source documents",
-                  helper: "PDF, Word, Markdown, TXT, and CSV.",
+                  label: t("home.activation.uploadDocs"),
+                  helper: t("home.activation.uploadDocsHint"),
                 },
                 {
                   done: totals.chats > 0,
-                  label: "Start a cited conversation",
-                  helper: "Answers stay connected to sources.",
+                  label: t("home.activation.startChat"),
+                  helper: t("home.activation.startChatHint"),
                 },
               ].map((step) => (
                 <div key={step.label} className="flex gap-3">
@@ -303,7 +300,7 @@ export default function Home() {
             <div className="flex items-center justify-between border-b border-hairline p-4">
               <div className="flex items-center gap-2">
                 <Clock3 className="h-4 w-4 text-accent" />
-                <h2 className="text-sm font-semibold text-ink">Recent conversations</h2>
+                <h2 className="text-sm font-semibold text-ink">{t("home.recent.title")}</h2>
               </div>
             </div>
             <div className="p-2">
@@ -315,8 +312,7 @@ export default function Home() {
                 </div>
               ) : recent.length === 0 ? (
                 <div className="p-4 text-sm leading-6 text-ink-muted">
-                  Conversations will appear here after you ask your first
-                  question.
+                  {t("home.recent.empty")}
                 </div>
               ) : (
                 <div className="space-y-1">

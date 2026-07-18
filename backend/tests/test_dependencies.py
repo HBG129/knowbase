@@ -98,6 +98,25 @@ def test_release_preflight_smoke_artifact_uses_temp_directory():
     assert "ProductVersion, signature status, installed executable path" in content
 
 
+def test_complete_bilingual_localization_is_enforced_by_ci_and_release_preflight():
+    repo_root = Path(__file__).resolve().parents[2]
+    checker = repo_root / "scripts" / "check-i18n-coverage.ps1"
+    preflight = (repo_root / "scripts" / "check-release-preflight.ps1").read_text(
+        encoding="utf-8"
+    )
+    workflow = (repo_root / ".github" / "workflows" / "ci.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert checker.is_file()
+    checker_content = checker.read_text(encoding="utf-8")
+    assert "Dictionary key parity" in checker_content
+    assert "Translation usage keys" in checker_content
+    assert "Hardcoded customer-facing copy" in checker_content
+    assert 'check-i18n-coverage.ps1' in preflight
+    assert 'check-i18n-coverage.ps1' in workflow
+
+
 def test_release_package_passes_installer_size_threshold_to_artifact_check():
     repo_root = Path(__file__).resolve().parents[2]
     script = repo_root / "scripts" / "prepare-release-package.ps1"

@@ -31,6 +31,10 @@ jobs:
         shell: pwsh
         run: .\scripts\check-release-docs.ps1
 
+      - name: Check complete bilingual localization
+        shell: pwsh
+        run: .\scripts\check-i18n-coverage.ps1
+
       - name: Check release preflight
         shell: pwsh
         run: .\scripts\check-release-preflight.ps1 -SkipGitStatus

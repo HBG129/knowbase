@@ -1,11 +1,50 @@
+import { Lang, TranslationKey, TranslationValues, t } from "@/lib/i18n";
+
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-const NETWORK_ERROR_MESSAGE = "无法连接本地 KnowBase 后端，请关闭应用后重新打开，再重试当前操作。";
+
+function localizedMessage(key: TranslationKey, values?: TranslationValues): string {
+  const lang: Lang = typeof window !== "undefined" && localStorage.getItem("knowbase-lang") === "en" ? "en" : "zh";
+  return t(lang, key, values);
+}
+
+function localizeApiDetail(detail: unknown): string {
+  if (typeof detail !== "string" || !detail) return localizedMessage("api.requestFailed");
+
+  const exactMessages: Record<string, TranslationKey> = {
+    "Access denied": "api.accessDenied",
+    "Not found": "api.notFound",
+    "Email already registered": "api.emailRegistered",
+    "Username already taken": "api.usernameTaken",
+    "Invalid email or password": "api.invalidCredentials",
+    "Account is deactivated": "api.accountDeactivated",
+    "Invalid or expired token": "api.invalidToken",
+    "User not found or inactive": "api.userInactive",
+    "File is empty": "api.fileEmpty",
+    "Document not found": "api.documentNotFound",
+    "Conversation not found": "api.conversationNotFound",
+    "CSV dataset not found": "api.datasetNotFound",
+    "Question cannot be empty": "api.questionEmpty",
+    "Message cannot be empty": "api.messageEmpty",
+    "Configure an API key in Settings before running analysis": "api.analysisKeyRequired",
+  };
+  const exactKey = exactMessages[detail];
+  if (exactKey) return localizedMessage(exactKey);
+
+  const unsupportedType = detail.match(/^Unsupported file type:\s*(.+)$/);
+  if (unsupportedType) return localizedMessage("api.unsupportedFileType", { type: unsupportedType[1] });
+  const sizeLimit = detail.match(/^File exceeds\s+(\d+)MB limit$/);
+  if (sizeLimit) return localizedMessage("api.fileTooLarge", { limit: sizeLimit[1] });
+  const ingestionFailure = detail.match(/^Document ingestion failed:\s*(.+)$/);
+  if (ingestionFailure) return localizedMessage("api.ingestionFailed", { message: ingestionFailure[1] });
+
+  return detail;
+}
 
 async function fetchWithNetworkMessage(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   try {
     return await fetch(input, init);
   } catch (error) {
-    throw new Error(NETWORK_ERROR_MESSAGE);
+    throw new Error(localizedMessage("api.networkError"));
   }
 }
 
@@ -31,8 +70,8 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
             return { detail: text };
           }
         })()
-      : { detail: "Request failed" };
-    throw new Error(err.detail || "HTTP " + res.status);
+      : { detail: localizedMessage("api.requestFailed") };
+    throw new Error(err.detail ? localizeApiDetail(err.detail) : "HTTP " + res.status);
   }
   if (res.status === 204 || !text) {
     return undefined as T;
@@ -59,8 +98,8 @@ export async function apiPostForm<T>(path: string, formData: FormData): Promise<
     body: formData,
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: "Upload failed" }));
-    throw new Error(err.detail || "HTTP " + res.status);
+    const err = await res.json().catch(() => ({ detail: localizedMessage("api.uploadFailed") }));
+    throw new Error(err.detail ? localizeApiDetail(err.detail) : "HTTP " + res.status);
   }
   return res.json();
 }

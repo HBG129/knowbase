@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { X, CheckCircle, AlertCircle, AlertTriangle, Info } from "lucide-react";
 import { useToastStore, Toast } from "@/stores/toast-store";
 import { cn } from "@/lib/utils";
+import { useI18nStore } from "@/stores/i18n-store";
 
 const icons = {
   success: CheckCircle,
@@ -27,6 +28,7 @@ const iconColors = {
 };
 
 function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: () => void }) {
+  const t = useI18nStore((state) => state.t);
   const Icon = icons[toast.type];
   const progressRef = useRef<HTMLDivElement>(null);
   const duration = toast.duration ?? 4000;
@@ -56,6 +58,8 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: () => void }) 
       </div>
       <button
         onClick={onRemove}
+        aria-label={t("common.close")}
+        title={t("common.close")}
         className="h-6 w-6 rounded-md flex items-center justify-center text-ink-muted hover:text-ink hover:bg-black/5 transition-colors flex-shrink-0"
       >
         <X className="h-3.5 w-3.5" />

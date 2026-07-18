@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-07-16
+Last updated: 2026-07-18
 
 This document tracks the practical delivery status of KnowBase.
 
@@ -115,6 +115,10 @@ This document tracks the practical delivery status of KnowBase.
 - CI checks required release documentation paths and references.
 - CI runs the release preflight script that aggregates repository checks before packaging or publishing.
 - Frontend production dependency audit is release-clean on Next.js 15.5.20 with Next's bundled PostCSS overridden to 8.5.10; `npm audit --omit=dev --audit-level=high` reports zero vulnerabilities.
+- Complete Chinese and English product localization now covers authentication, navigation, the knowledge-base dashboard, document workflows, cited chat, API key settings, CSV Analysis, errors, empty states, relative dates, and accessibility labels.
+- Language preference hydrates after client mount, avoiding server/client language mismatches, and authentication routes remain correctly recognized with or without a trailing slash.
+- CI and release preflight enforce Chinese/English key parity, reject unknown translation keys and duplicate entries, scan product surfaces for hardcoded interface copy and mojibake, and verify localized API and authentication behavior.
+- Chinese and English localization was visually verified on desktop and mobile viewports, including the dashboard, knowledge-base details, document list, and CSV Analysis workspace.
 - Last confirmed CI run: run `29498231245` for commit `b21b906`; repository checks, backend tests, and frontend build passed.
 - Desktop artifact verification script checks for:
   - `backend\dist\KnowBaseBackend.exe`

@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { apiPostForm } from "@/lib/api";
 import { kbChatPath } from "@/lib/routes";
+import { useI18nStore } from "@/stores/i18n-store";
 
 interface UploadingFile {
   name: string;
@@ -26,6 +27,7 @@ export function DocumentUpload({ kbId, onUploadComplete }: DocumentUploadProps) 
   const router = useRouter();
   const [dragOver, setDragOver] = useState(false);
   const [files, setFiles] = useState<UploadingFile[]>([]);
+  const { t } = useI18nStore();
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -92,12 +94,13 @@ export function DocumentUpload({ kbId, onUploadComplete }: DocumentUploadProps) 
           onChange={handleSelect}
           className="absolute inset-0 opacity-0 cursor-pointer"
           accept=".pdf,.docx,.doc,.md,.txt,.csv"
+          aria-label={t("kb.uploadDocs")}
         />
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-hairline bg-canvas">
           <Upload className="h-6 w-6 text-accent" />
         </div>
-        <p className="text-sm font-medium text-ink">Drop files here or click to upload</p>
-        <p className="text-xs text-ink-muted mt-1">PDF, Word, Markdown, TXT, CSV — up to 50MB</p>
+        <p className="text-sm font-medium text-ink">{t("kb.uploadZone")}</p>
+        <p className="text-xs text-ink-muted mt-1">{t("kb.uploadHint")}</p>
         <div className="mt-5 flex flex-wrap justify-center gap-2">
           {supportedTypes.map((type) => (
             <span
@@ -134,18 +137,18 @@ export function DocumentUpload({ kbId, onUploadComplete }: DocumentUploadProps) 
                   {file.status === "processing" && (
                     <span className="text-xs text-ink-muted flex items-center gap-1.5">
                       <Loader2 className="h-3 w-3 animate-spin" />
-                      Processing…
+                      {t("kb.status.processing")}
                     </span>
                   )}
                   {file.status === "done" && (
                     <Badge variant="success">
-                      <CheckCircle2 className="h-3 w-3 mr-1" /> Ready
+                      <CheckCircle2 className="h-3 w-3 mr-1" /> {t("kb.status.completed")}
                     </Badge>
                   )}
                   {file.status === "error" && (
                     <span className="text-xs text-error flex items-center gap-1.5">
                       <AlertCircle className="h-3 w-3" />
-                      {file.error || "Failed"}
+                      {file.error || t("kb.uploadFailed")}
                     </span>
                   )}
                 </div>
@@ -153,6 +156,8 @@ export function DocumentUpload({ kbId, onUploadComplete }: DocumentUploadProps) 
               {file.status !== "uploading" && file.status !== "processing" && (
                 <button
                   onClick={() => setFiles((prev) => prev.filter((f) => f.name !== file.name))}
+                  aria-label={t("kb.removeUpload")}
+                  title={t("kb.removeUpload")}
                   className="p-1 rounded hover:bg-canvas-soft"
                 >
                   <X className="h-3.5 w-3.5 text-ink-muted" />
@@ -169,7 +174,9 @@ export function DocumentUpload({ kbId, onUploadComplete }: DocumentUploadProps) 
                   className="w-full inline-flex items-center justify-center gap-2 h-10 rounded-xl bg-ink text-canvas text-sm font-medium hover:bg-ink-soft transition-all active:scale-[0.98]"
                 >
                   <MessageSquare className="h-4 w-4" />
-                  Start Chat ({doneCount} doc{doneCount > 1 ? "s" : ""} ready)
+                  {doneCount === 1
+                    ? t("kb.startChatOne")
+                    : t("kb.startChat", { count: doneCount })}
                 </button>
               );
             }

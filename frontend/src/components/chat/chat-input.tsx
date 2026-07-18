@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, Loader2, Square } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18nStore } from "@/stores/i18n-store";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
@@ -13,9 +14,10 @@ interface ChatInputProps {
 }
 
 export function ChatInput({
-  onSend, disabled, placeholder = "Ask anything about your knowledge base\u2026",
+  onSend, disabled, placeholder,
   onStop, isStreaming,
 }: ChatInputProps) {
+  const { t } = useI18nStore();
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -53,7 +55,7 @@ export function ChatInput({
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={placeholder}
+          placeholder={placeholder || t("chat.askTitle")}
           disabled={disabled && !isStreaming}
           rows={1}
           className="flex-1 bg-transparent border-0 outline-none resize-none text-sm text-ink placeholder:text-ink-placeholder py-1 max-h-40"
@@ -61,14 +63,17 @@ export function ChatInput({
         {isStreaming ? (
           <button
             onClick={onStop}
+            aria-label={t("chat.stopGenerating")}
             className="h-9 w-9 rounded-xl flex items-center justify-center transition-all duration-150 flex-shrink-0 bg-error text-canvas hover:bg-error/90 active:scale-95"
-            title="Stop generating"
+            title={t("chat.stopGenerating")}
           >
             <Square className="h-3.5 w-3.5" />
           </button>
         ) : (
           <button
             onClick={handleSend}
+            aria-label={t("chat.send")}
+            title={t("chat.send")}
             disabled={!value.trim() || disabled}
             className={cn(
               "h-9 w-9 rounded-xl flex items-center justify-center transition-all duration-150 flex-shrink-0",
@@ -86,7 +91,7 @@ export function ChatInput({
         )}
       </div>
       <p className="text-[11px] text-ink-muted text-center mt-2">
-        Press Enter to send, Shift+Enter for new line
+        {t("chat.inputHint")}
       </p>
     </div>
   );

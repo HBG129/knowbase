@@ -23,6 +23,8 @@ function Assert-Contains($Content, $Needle, $Description) {
 
 $loginForm = Read-File "frontend\src\components\auth\login-form.tsx"
 $registerForm = Read-File "frontend\src\components\auth\register-form.tsx"
+$rootLayout = Read-File "frontend\src\app\layout.tsx"
+$i18nStore = Read-File "frontend\src\stores\i18n-store.ts"
 $globalsCss = Read-File "frontend\src\app\globals.css"
 $apiClient = Read-File "frontend\src\lib\api.ts"
 $i18n = Read-File "frontend\src\lib\i18n.ts"
@@ -37,16 +39,22 @@ Assert-Contains $loginForm "localStorage.removeItem(REMEMBER_LOGIN_KEY" "remembe
 Assert-Contains $registerForm "showPassword" "password visibility state in register form"
 Assert-Contains $registerForm "auth.showPassword" "show-password label in register form"
 
+Assert-Contains $rootLayout "function isAuthPath" "shared auth-route matcher"
+Assert-Contains $rootLayout "isAuthPath(pathname)" "trailing-slash-safe auth-route matching"
+Assert-Contains $i18nStore "hydrateLanguage" "client-side language hydration action"
+Assert-Contains $rootLayout "hydrateLanguage();" "language hydration after mount"
+
 Assert-Contains $globalsCss "::selection" "global text selection style"
 Assert-Contains $globalsCss "input::selection" "input text selection style"
 Assert-Contains $globalsCss "textarea::selection" "textarea text selection style"
 Assert-Contains $globalsCss "--selection-bg" "high-contrast selection token"
 
-Assert-Contains $apiClient "NETWORK_ERROR_MESSAGE" "network error message constant"
+Assert-Contains $apiClient 'localizedMessage("api.networkError")' "localized network error message"
 Assert-Contains $apiClient "catch (error)" "network error handling"
 
 Assert-Contains $i18n '"auth.rememberPassword"' "remember-password translation"
 Assert-Contains $i18n '"auth.showPassword"' "show-password translation"
 Assert-Contains $i18n '"auth.hidePassword"' "hide-password translation"
+Assert-Contains $i18n '"api.networkError"' "network-error translation"
 
 Write-Output "Auth UX checks passed."

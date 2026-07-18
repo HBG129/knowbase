@@ -129,6 +129,8 @@ Before public release, confirm:
 - Release process is documented in `docs\release-process.md`.
 - README explains customer API key requirements and first-run setup.
 - The app shows useful errors when no LLM API key is configured.
+- Chinese and English interfaces cover the complete customer workflow, including authentication, knowledge bases, document upload, cited chat, API key settings, CSV Analysis, errors, and empty states.
+- Switching languages does not cause hydration warnings, mixed-language controls, broken layouts, or untranslated accessibility labels on desktop or mobile viewports.
 - Local data location is documented in `docs\customer-data-and-privacy.md`.
 - Backup and restore scripts are documented in `docs\customer-data-and-privacy.md`.
 - Uninstall behavior and manual data removal are documented in `docs\customer-data-and-privacy.md`.

@@ -5,6 +5,7 @@ import { FileText, File, Trash2, Loader2, Clock, CheckCircle2, XCircle } from "l
 import { cn, formatRelativeTime } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { api } from "@/lib/api";
+import { useI18nStore } from "@/stores/i18n-store";
 
 interface Document {
   id: string;
@@ -23,15 +24,16 @@ interface DocumentListProps {
 }
 
 const statusConfig = {
-  pending: { icon: Clock, label: "Pending", variant: "default" as const },
-  processing: { icon: Loader2, label: "Processing", variant: "warning" as const },
-  completed: { icon: CheckCircle2, label: "Ready", variant: "success" as const },
-  failed: { icon: XCircle, label: "Failed", variant: "error" as const },
+  pending: { icon: Clock, labelKey: "kb.status.pending" as const, variant: "default" as const },
+  processing: { icon: Loader2, labelKey: "kb.status.processing" as const, variant: "warning" as const },
+  completed: { icon: CheckCircle2, labelKey: "kb.status.completed" as const, variant: "success" as const },
+  failed: { icon: XCircle, labelKey: "kb.status.failed" as const, variant: "error" as const },
 };
 
 export function DocumentList({ kbId, onSelect, selectedId }: DocumentListProps) {
   const [docs, setDocs] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
+  const { lang, t } = useI18nStore();
 
   const fetchDocs = async () => {
     try {
@@ -64,8 +66,8 @@ export function DocumentList({ kbId, onSelect, selectedId }: DocumentListProps) 
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <FileText className="h-12 w-12 text-ink-muted/30 mb-4" />
-        <p className="text-sm font-medium text-ink-muted">No documents yet</p>
-        <p className="text-xs text-ink-muted/60 mt-1">Upload documents to start building your knowledge base</p>
+        <p className="text-sm font-medium text-ink-muted">{t("kb.noDocs")}</p>
+        <p className="text-xs text-ink-muted/60 mt-1">{t("kb.noDocsHint")}</p>
       </div>
     );
   }
@@ -96,23 +98,29 @@ export function DocumentList({ kbId, onSelect, selectedId }: DocumentListProps) 
               <div className="flex items-center gap-2 mt-0.5">
                 <Badge variant={config.variant}>
                   <Icon className={cn("h-3 w-3 mr-1", doc.status === "processing" && "animate-spin")} />
-                  {config.label}
+                  {t(config.labelKey)}
                 </Badge>
                 <span className="text-xs text-ink-muted">
                   {doc.file_type.toUpperCase()} · {(doc.file_size / 1024).toFixed(1)}KB
                 </span>
                 {doc.chunk_count > 0 && (
-                  <span className="text-xs text-ink-muted">{doc.chunk_count} chunks</span>
+                  <span className="text-xs text-ink-muted">
+                    {doc.chunk_count === 1
+                      ? t("kb.documentChunkOne")
+                      : t("kb.documentChunks", { count: doc.chunk_count })}
+                  </span>
                 )}
               </div>
             </div>
 
             <span className="text-xs text-ink-muted/60 flex-shrink-0">
-              {formatRelativeTime(doc.created_at)}
+              {formatRelativeTime(doc.created_at, lang)}
             </span>
 
             <button
               onClick={(e) => { e.stopPropagation(); deleteDoc(doc.id); }}
+              aria-label={t("kb.deleteDocument")}
+              title={t("kb.deleteDocument")}
               className="p-1.5 rounded-md opacity-0 group-hover:opacity-100 hover:bg-error-soft/50 text-ink-muted hover:text-error transition-all"
             >
               <Trash2 className="h-3.5 w-3.5" />
