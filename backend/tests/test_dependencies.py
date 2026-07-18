@@ -367,6 +367,29 @@ def test_ci_workflows_gate_frontend_build_with_production_dependency_audit():
         assert install_index < audit_index < build_index
 
 
+def test_github_workflows_use_node24_action_runtimes_and_current_miniconda_inputs():
+    repo_root = Path(__file__).resolve().parents[2]
+    ci_workflow = (repo_root / ".github" / "workflows" / "ci.yml").read_text(
+        encoding="utf-8"
+    )
+    desktop_workflow = (
+        repo_root / ".github" / "workflows" / "desktop-package.yml"
+    ).read_text(encoding="utf-8")
+    workflows = ci_workflow + desktop_workflow
+
+    assert "actions/checkout@v7" in ci_workflow
+    assert "actions/setup-node@v7" in ci_workflow
+    assert "actions/setup-python@v6" in ci_workflow
+    assert "actions/checkout@v7" in desktop_workflow
+    assert "actions/setup-node@v7" in desktop_workflow
+    assert "actions/upload-artifact@v7" in desktop_workflow
+    assert "conda-incubator/setup-miniconda@v4" in desktop_workflow
+    assert "auto-activate: true" in desktop_workflow
+    assert "activate-environment: base" in desktop_workflow
+    assert "channels: defaults" in desktop_workflow
+    assert "auto-activate-base" not in workflows
+
+
 def test_analysis_chart_uses_zero_baseline_and_bounded_bar_width():
     repo_root = Path(__file__).resolve().parents[2]
     source = (repo_root / "frontend" / "src" / "components" / "kb" / "analysis-panel.tsx").read_text(

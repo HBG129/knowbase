@@ -21,6 +21,7 @@ Use this index to find the right document quickly.
 - `release-readiness-checklist.md` - required checks before publishing a customer installer.
 - `clean-machine-validation.md` - clean Windows install validation checklist.
 - `release-process.md` - release workflow from verification to GitHub Release publishing.
+- `release-candidate-v0.1.0-rc.1.md` - selected candidate version, exact artifact evidence, and unresolved publication gates.
 - `release-notes-template.md` - copy-ready GitHub Release notes template.
 - `demo-assets.md` - screenshot, GIF, and demo-script guidance for README and releases.
 - `desktop-build-troubleshooting.md` - Windows desktop packaging prerequisites and MSVC troubleshooting.

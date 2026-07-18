@@ -10,8 +10,8 @@ This document tracks the practical delivery status of KnowBase.
 | --- | ---: | --- |
 | Resume and interview showcase | 98% | Strong project story, architecture, RAG workflow, CSV Analysis Agent, packaging path, release process, CI history, customer-readiness narrative, beta testing workflow, and installed-app evidence are present. |
 | GitHub portfolio completeness | 98% | README, architecture, roadmap, project plan, changelog, support, security, release docs, demo data, CI, release gates, issue templates, branded desktop icon, and desktop artifacts are in place. |
-| Limited tester readiness | 95% | Windows installer artifact is produced by GitHub Actions and locally install-verified; release preflight, validation, troubleshooting, beta, privacy, support workflows, Windows Credential Manager API key storage, encrypted fallback API key storage, per-install desktop secrets, branded app icon, installer metadata, installer process cleanup, and CSV analysis validation are ready for controlled testing. |
-| Public customer release readiness | 85% | Core workflows and release automation are strong, but clean-machine validation, final release notes, final version decision, and code signing or explicit unsigned-release disclosure are still required before public customer release. |
+| Limited tester readiness | 97% | The latest Windows installer is produced by GitHub Actions, downloaded, checksum-verified, locally upgrade-installed, launched, health-checked, and exit-cleanup verified; controlled testing is blocked only by the explicit signature decision and tester distribution approval. |
+| Public customer release readiness | 90% | Core workflows, complete bilingual UX, version selection, release automation, and local installed-app evidence are strong, but clean-machine validation, final release notes, and code signing or explicit unsigned-release disclosure are still required before public customer release. |
 
 ## Verified
 
@@ -22,6 +22,7 @@ This document tracks the practical delivery status of KnowBase.
 - Desktop package workflow runs automatically on relevant `main` pushes.
 - Desktop package workflow succeeded on run `28660401375` for commit `27450da`.
 - Desktop package workflow succeeded on run `29498356330` for commit `b21b906` after verifying the packaged backend health and Analysis API contract on the GitHub-hosted Windows runner.
+- Desktop package workflow succeeded on run `29639608446` for commit `6b3606b` after complete bilingual localization; backend tests, frontend build, PyInstaller, Tauri/NSIS, packaged-backend health, artifact checks, signature status, and both uploads passed.
 - Uploaded CI artifacts:
   - `KnowBaseDesktop-Windows-24` (artifact SHA256 digest: `88eae540b31694bc954fe1e650d6d341fccfeccba8eb025944912a7a6c2206b5`)
   - `KnowBaseBackend-24` (artifact SHA256 digest: `94a29469da9264aafc0d234467e6a969731ba51d8172315a5e1cd682a873a84f`)
@@ -34,6 +35,12 @@ This document tracks the practical delivery status of KnowBase.
   - installer inside ZIP: `KnowBase_0.1.0_x64-setup.exe`,
   - installer size: `85356036` bytes,
   - installer SHA256: `5D7BF11DC28213A9AF9BBB7F82F641AF527A7226C28BAF8B7D2EA659B8102E32`,
+  - Authenticode status: `NotSigned`.
+- Downloaded artifact `KnowBaseDesktop-Windows-25.zip` from run `29639608446` verified locally:
+  - ZIP SHA256: `CB59221D736321049AC718F28E6FAC473E5695D00B441AF2A4A8FF0689579015`, matching the GitHub artifact digest,
+  - installer inside ZIP: `KnowBase_0.1.0_x64-setup.exe`,
+  - installer size: `85356855` bytes,
+  - installer SHA256: `2B5148882FB19D8139ED0EA239CEF525F24CF7797178748AF702BBA988C610BD`,
   - Authenticode status: `NotSigned`.
 - Release package prepared from `KnowBaseDesktop-Windows-24.zip`:
   - output: `D:\Codex_AI_Workspace\artifacts\knowbase-release-pr16-run-29498356330`,
@@ -54,6 +61,13 @@ This document tracks the practical delivery status of KnowBase.
   - the `127.0.0.1:8000` listener belongs to a detected `KnowBaseBackend.exe` under the installation directory,
   - the health endpoint returns `{"status":"ok"}`,
   - closing the desktop window stops both the app and backend processes.
+- Latest `KnowBaseDesktop-Windows-25` was upgrade-installed and validated locally:
+  - existing custom installation directory and Start Menu/Desktop shortcuts were preserved,
+  - installed file timestamps match desktop package run `29639608446`,
+  - the desktop app started the packaged PyInstaller backend process tree,
+  - exactly one `127.0.0.1:8000` listener belonged to the packaged backend child process,
+  - the health endpoint returned `{"status":"ok"}`,
+  - closing the desktop window removed the app process, both PyInstaller backend processes, and the listener within two seconds.
 - Packaged backend core API smoke passed with isolated data on `127.0.0.1:8765`:
   - health endpoint returned `{"status":"ok"}`,
   - user registration and login succeeded,
@@ -119,13 +133,19 @@ This document tracks the practical delivery status of KnowBase.
 - Language preference hydrates after client mount, avoiding server/client language mismatches, and authentication routes remain correctly recognized with or without a trailing slash.
 - CI and release preflight enforce Chinese/English key parity, reject unknown translation keys and duplicate entries, scan product surfaces for hardcoded interface copy and mojibake, and verify localized API and authentication behavior.
 - Chinese and English localization was visually verified on desktop and mobile viewports, including the dashboard, knowledge-base details, document list, and CSV Analysis workspace.
-- Last confirmed CI run: run `29498231245` for commit `b21b906`; repository checks, backend tests, and frontend build passed.
+- Last confirmed CI run: run `29639530539` for commit `6b3606b`; repository checks, backend tests, and frontend build passed.
 - Desktop artifact verification script checks for:
   - `backend\dist\KnowBaseBackend.exe`
   - NSIS installer under `frontend\src-tauri\target\release\bundle\nsis`
 - Synthetic demo files exist for safe screenshots, GIFs, and release validation.
 
 ## Current Blockers
+
+### Release policy and clean-machine evidence
+
+- The selected controlled tester candidate is `v0.1.0-rc.1`; the GA target is `v0.1.0` after all release gates pass.
+- The current installer is `NotSigned`. Publishing requires a valid signature or explicit unsigned-release approval with exact release-note disclosure.
+- The latest installer has not completed the full checklist on a clean Windows VM without the development toolchain.
 
 ### Local machine
 
@@ -151,7 +171,7 @@ The desktop package workflow is currently passing:
 
 ## Next Required Checks
 
-1. Install `KnowBase_0.1.0_x64-setup.exe` on a clean Windows machine or VM.
+1. Install the verified `KnowBase_0.1.0_x64-setup.exe` from `KnowBaseDesktop-Windows-25` on a clean Windows machine or VM.
 2. Validate:
    - app launches,
    - backend starts automatically,
@@ -165,5 +185,4 @@ The desktop package workflow is currently passing:
 
 - The installer is tested on a clean Windows machine.
 - The installer has a valid code signature, or release notes explicitly state that the build is unsigned.
-- The final public release version is selected.
 - Release notes include exact verification results.

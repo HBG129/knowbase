@@ -36,6 +36,7 @@ $requiredPaths = @(
   "docs\demo-data",
   "docs\known-limitations.md",
   "docs\privacy-notice-draft.md",
+  "docs\release-candidate-v0.1.0-rc.1.md",
   "docs\release-notes-template.md",
   "docs\release-process.md",
   "docs\release-readiness-checklist.md",
@@ -116,6 +117,18 @@ $contentChecks = @(
   @{
     Path = "docs\README.md"
     Needle = "privacy-notice-draft.md"
+  },
+  @{
+    Path = "docs\README.md"
+    Needle = "release-candidate-v0.1.0-rc.1.md"
+  },
+  @{
+    Path = "docs\release-candidate-v0.1.0-rc.1.md"
+    Needle = 'Controlled tester candidate: `v0.1.0-rc.1`'
+  },
+  @{
+    Path = "docs\release-candidate-v0.1.0-rc.1.md"
+    Needle = "Do not create a public GitHub Release"
   },
   @{
     Path = "docs\customer-beta-test-plan.md"

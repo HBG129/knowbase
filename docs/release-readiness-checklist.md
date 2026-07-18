@@ -12,6 +12,13 @@ Required release target:
 A customer can install KnowBase, launch it, create an account, create a knowledge base, upload documents and CSV files, ask cited questions, run CSV analysis, and receive useful results without installing Python, Node.js, Rust, or Git.
 ```
 
+Selected version target:
+
+```text
+Controlled tester candidate: v0.1.0-rc.1
+General availability after all gates pass: v0.1.0
+```
+
 ## Build Machine Requirements
 
 The build machine must have:

@@ -15,6 +15,7 @@ Private AI knowledge workspace for local documents.
 - Local knowledge bases for PDF, Word, Markdown, TXT, and CSV files.
 - RAG answers with source citations.
 - CSV data analysis with the Analysis tab.
+- Complete Chinese and English customer workflows.
 - Recent conversations, guided empty states, and in-app confirmations.
 
 ## Who This Release Is For

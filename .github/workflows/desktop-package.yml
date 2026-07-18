@@ -23,21 +23,23 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: "20"
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
       - name: Setup Miniconda Python
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v4
         with:
           python-version: "3.12"
           auto-update-conda: false
-          auto-activate-base: true
+          auto-activate: true
+          activate-environment: base
+          channels: defaults
 
       - name: Setup Rust
         shell: pwsh
@@ -97,7 +99,7 @@ jobs:
           .\scripts\check-code-signature.ps1 -Path $installer.FullName -AllowUnsigned
 
       - name: Upload backend executable
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: KnowBaseBackend-${{ github.run_number }}
           path: backend/dist/KnowBaseBackend.exe
@@ -105,7 +107,7 @@ jobs:
           retention-days: 14
 
       - name: Upload desktop installer bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: KnowBaseDesktop-Windows-${{ github.run_number }}
           path: |

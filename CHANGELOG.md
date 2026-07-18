@@ -8,10 +8,12 @@ This project is still pre-release. Version numbers below describe repository mil
 
 ### Added
 
-- Windows desktop packaging foundation with Tauri and PyInstaller.
-- GitHub Actions desktop packaging workflow that builds and uploads Windows artifacts on relevant `main` pushes.
-- Temporary Tauri Windows app icon required for CI resource generation.
+- CSV Analysis Agent with preview/profile, guarded read-only DuckDB SQL, charts, summaries, insights, and independent history.
+- Complete Chinese and English product localization with typed translation keys and CI coverage enforcement.
+- Windows desktop packaging with Tauri, PyInstaller, NSIS lifecycle hooks, packaged-backend health checks, and artifact verification.
+- Branded Windows app icon, installer metadata, and release signature policy checks.
 - Customer quick start, privacy notes, release process, support runbook, and architecture documentation.
+- Dry-run-first backup, restore, and local-data removal tools plus non-sensitive support and installed-app reports.
 - Synthetic demo data for safe screenshots, release validation, and interview walkthroughs.
 - GitHub issue templates, pull request template, Dependabot configuration, and release notes categorization.
 
@@ -19,14 +21,16 @@ This project is still pre-release. Version numbers below describe repository mil
 
 - README now presents KnowBase as a desktop-first AI knowledge workspace.
 - Release documentation now separates release notes, readiness checks, and demo asset guidance.
+- Packaged API keys use Windows Credential Manager; non-desktop fallback storage is encrypted.
+- GitHub Actions and Miniconda setup use Node 24-compatible action runtimes.
 - Repository text normalization now includes `.txt`, `.csv`, and `.gitattributes`.
 
 ### Known Limitations
 
 - Windows installer artifact is produced by CI, but it is not publicly released yet.
 - Local Tauri packaging still requires Microsoft C++ Build Tools.
-- Final app icon, app signing, and auto-update are not configured yet.
-- API key storage should move toward OS credential storage before broad customer release.
+- The latest installer still requires clean-machine validation.
+- App signing and auto-update are not configured yet.
 
 ## 0.1.0-pre
 
