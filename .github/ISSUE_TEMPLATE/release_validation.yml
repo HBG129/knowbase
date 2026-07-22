@@ -80,6 +80,7 @@ body:
       options:
         - label: Installer runs without developer tools.
         - label: KnowBase launches from Start Menu or desktop shortcut.
+        - label: UI renders without a separate WebView2 Runtime download or installation.
         - label: Desktop app starts the backend automatically.
         - label: App opens without a developer terminal.
         - label: App stores runtime data under `%APPDATA%\KnowBase`.

@@ -30,10 +30,12 @@ This document records the selected release target and current validation evidenc
 - Installer Authenticode status: `NotSigned`
 - Local upgrade/install verification passed for shortcuts, bundled backend startup, listener ownership, health response, and process cleanup after closing the desktop window.
 - Complete Chinese/English desktop and mobile visual checks passed for the dashboard, knowledge-base, document, chat, and Analysis surfaces.
+- Windows Sandbox validation on 2026-07-22 proved installation, packaged backend health, authentication, knowledge-base creation, document upload, CSV discovery, and CSV profile without a development toolchain. The UI could not render because the previous installer did not make WebView2 Runtime available; this candidate remains blocked until an offline-WebView2 rebuild passes the same clean-machine test.
 
 ## Blocking Gates
 
 - Run the full checklist on a clean Windows machine or VM without Python, Node.js, Rust, Git, or project source code.
+- Rebuild with the offline WebView2 Runtime and confirm the UI renders without a separate runtime installation.
 - Obtain a valid code-signing certificate, or record explicit approval for an unsigned tester release and include the exact disclosure in the release notes.
 - Replace the remaining `not tested` clean-machine results with attached validation evidence.
 

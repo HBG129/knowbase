@@ -5,6 +5,7 @@ Use this checklist before publishing a KnowBase Windows installer to customers.
 ## Goal
 
 A customer should be able to install and use KnowBase without installing Python, Node.js, Rust, Git, or the project source code.
+The KnowBase installer must also provision WebView2 without asking the customer to install it separately.
 
 ## Test Machine
 
@@ -23,6 +24,7 @@ Not allowed:
 - Rust
 - Git
 - Local project checkout
+- Manual WebView2 Runtime installation
 
 ## Artifact Check
 
@@ -56,6 +58,7 @@ Release artifact verified.
 4. Launch KnowBase from the Start Menu or desktop shortcut.
 5. Confirm the app opens without a developer terminal.
 6. Confirm no Python, Node.js, Rust, Git, or source-code path is required.
+7. Confirm the UI renders without a separate WebView2 download or installation step.
 
 ## First-Run Flow
 
@@ -116,6 +119,7 @@ Use `docs\customer-troubleshooting.md` to classify the failure before deciding w
 Do not publish the installer if any of these fail:
 
 - Installer does not run on the clean machine.
+- App reports that WebView2 Runtime is missing or requires a separate runtime installation.
 - App requires developer tools.
 - Backend does not start automatically.
 - Registration or login fails.

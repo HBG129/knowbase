@@ -114,6 +114,7 @@ The clean machine must not require:
 - Rust
 - Git
 - Local project source code
+- A separate WebView2 Runtime download or installation
 
 The clean machine may still require:
 

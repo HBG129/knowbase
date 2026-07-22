@@ -36,6 +36,15 @@ def test_frontend_uses_audited_next_and_bundled_postcss_versions():
     assert lock["packages"]["node_modules/next/node_modules/postcss"]["version"] == "8.5.10"
 
 
+def test_frontend_overrides_next_sharp_to_patched_version():
+    repo_root = Path(__file__).resolve().parents[2]
+    package = json.loads((repo_root / "frontend" / "package.json").read_text(encoding="utf-8"))
+    lock = json.loads((repo_root / "frontend" / "package-lock.json").read_text(encoding="utf-8"))
+
+    assert package["overrides"]["next"]["sharp"] == "0.35.3"
+    assert lock["packages"]["node_modules/sharp"]["version"] == "0.35.3"
+
+
 def test_backend_packager_includes_duckdb_hidden_import():
     repo_root = Path(__file__).resolve().parents[2]
     script = repo_root / "package-backend.bat"
@@ -51,6 +60,19 @@ def test_backend_packager_fails_if_previous_outputs_remain_locked():
     assert "Failed to remove previous backend executable" in content
     assert "Failed to remove previous backend build directory" in content
     assert "Failed to remove previous backend spec file" in content
+
+
+def test_desktop_installer_embeds_offline_webview2_runtime():
+    repo_root = Path(__file__).resolve().parents[2]
+    tauri_config = json.loads(
+        (repo_root / "frontend" / "src-tauri" / "tauri.conf.json").read_text(
+            encoding="utf-8"
+        )
+    )
+
+    assert tauri_config["bundle"]["windows"]["webviewInstallMode"] == {
+        "type": "offlineInstaller"
+    }
 
 
 def test_packaged_backend_health_check_uses_backend_port_env_and_cleans_up():

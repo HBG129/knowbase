@@ -307,6 +307,10 @@ $contentChecks = @(
     Needle = '"installerHooks": "nsis/installer-hooks.nsh"'
   },
   @{
+    Path = "frontend\src-tauri\tauri.conf.json"
+    Needle = '"type": "offlineInstaller"'
+  },
+  @{
     Path = ".github\PULL_REQUEST_TEMPLATE.md"
     Needle = ".\scripts\check-release-preflight.ps1 -SkipGitStatus"
   },
@@ -355,12 +359,20 @@ $contentChecks = @(
     Needle = "CSV Analysis tab"
   },
   @{
+    Path = "docs\clean-machine-validation.md"
+    Needle = "Manual WebView2 Runtime installation"
+  },
+  @{
     Path = "docs\release-readiness-checklist.md"
     Needle = "CSV Analysis tab"
   },
   @{
     Path = ".github\ISSUE_TEMPLATE\release_validation.yml"
     Needle = "CSV Analysis tab"
+  },
+  @{
+    Path = ".github\ISSUE_TEMPLATE\release_validation.yml"
+    Needle = "UI renders without a separate WebView2 Runtime download or installation."
   },
   @{
     Path = ".github\ISSUE_TEMPLATE\release_validation.yml"

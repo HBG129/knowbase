@@ -40,6 +40,7 @@ A customer can install KnowBase, launch it, create an account, configure an API 
 1. Customer-installable desktop packaging
    - Keep `backend\dist\KnowBaseBackend.exe` buildable.
    - Keep Tauri bundle resources and NSIS installer hooks valid.
+   - Keep the offline WebView2 Runtime embedded so clean Windows installs do not require a separate runtime download.
    - Keep packaged backend health checks scriptable.
 
 2. Knowledge base RAG quality
@@ -63,7 +64,7 @@ A customer can install KnowBase, launch it, create an account, configure an API 
 ## Current Blockers
 
 - Local Tauri installer build on this machine is blocked until Microsoft C++ Build Tools provides `cl.exe` and `link.exe`.
-- Public customer release still requires clean-machine validation.
+- The previous clean-machine installer failed to render because WebView2 Runtime was unavailable; rebuild with the offline Runtime and repeat the full validation before release.
 - Public customer release needs a valid code signature, or explicit unsigned approval evidence plus a clear unsigned disclosure in the release notes.
 
 ## Required Verification Gates

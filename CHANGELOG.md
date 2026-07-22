@@ -23,13 +23,15 @@ This project is still pre-release. Version numbers below describe repository mil
 - Release documentation now separates release notes, readiness checks, and demo asset guidance.
 - Packaged API keys use Windows Credential Manager; non-desktop fallback storage is encrypted.
 - GitHub Actions and Miniconda setup use Node 24-compatible action runtimes.
+- Windows NSIS packages now embed the offline WebView2 Runtime instead of depending on a successful first-run download.
+- Next.js resolves `sharp` to patched version `0.35.3` after the upstream libvips security advisory.
 - Repository text normalization now includes `.txt`, `.csv`, and `.gitattributes`.
 
 ### Known Limitations
 
 - Windows installer artifact is produced by CI, but it is not publicly released yet.
 - Local Tauri packaging still requires Microsoft C++ Build Tools.
-- The latest installer still requires clean-machine validation.
+- The offline-WebView2 replacement installer still requires clean-machine validation.
 - App signing and auto-update are not configured yet.
 
 ## 0.1.0-pre

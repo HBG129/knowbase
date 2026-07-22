@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-07-18
+Last updated: 2026-07-22
 
 This document tracks the practical delivery status of KnowBase.
 
@@ -10,8 +10,8 @@ This document tracks the practical delivery status of KnowBase.
 | --- | ---: | --- |
 | Resume and interview showcase | 98% | Strong project story, architecture, RAG workflow, CSV Analysis Agent, packaging path, release process, CI history, customer-readiness narrative, beta testing workflow, and installed-app evidence are present. |
 | GitHub portfolio completeness | 98% | README, architecture, roadmap, project plan, changelog, support, security, release docs, demo data, CI, release gates, issue templates, branded desktop icon, and desktop artifacts are in place. |
-| Limited tester readiness | 97% | The latest Windows installer is produced by GitHub Actions, downloaded, checksum-verified, locally upgrade-installed, launched, health-checked, and exit-cleanup verified; controlled testing is blocked only by the explicit signature decision and tester distribution approval. |
-| Public customer release readiness | 90% | Core workflows, complete bilingual UX, version selection, release automation, and local installed-app evidence are strong, but clean-machine validation, final release notes, and code signing or explicit unsigned-release disclosure are still required before public customer release. |
+| Limited tester readiness | 92% | The desktop build and backend workflows are strong, but the replacement installer with offline WebView2 must pass clean-machine UI validation before controlled distribution; signature policy and tester approval also remain open. |
+| Public customer release readiness | 86% | Core workflows, complete bilingual UX, version selection, release automation, and clean-machine backend evidence are strong, but the offline-WebView2 rebuild, full UI/LLM clean-machine validation, final release notes, and code signing remain required. |
 
 ## Verified
 
@@ -138,6 +138,8 @@ This document tracks the practical delivery status of KnowBase.
   - `backend\dist\KnowBaseBackend.exe`
   - NSIS installer under `frontend\src-tauri\target\release\bundle\nsis`
 - Synthetic demo files exist for safe screenshots, GIFs, and release validation.
+- Windows Sandbox validation proved the unsigned installer can install on a machine without Python, Node.js, npm, Rust, Cargo, or Git; packaged backend health, authentication, knowledge-base creation, Markdown/CSV upload, dataset discovery, and CSV profile all passed.
+- That clean-machine run also found a release-blocking UI failure: WebView2 Runtime was unavailable after installation. The Tauri bundle now explicitly selects the offline WebView2 installer, and a new desktop artifact must pass the same Sandbox validation before release.
 
 ## Current Blockers
 
@@ -145,7 +147,7 @@ This document tracks the practical delivery status of KnowBase.
 
 - The selected controlled tester candidate is `v0.1.0-rc.1`; the GA target is `v0.1.0` after all release gates pass.
 - The current installer is `NotSigned`. Publishing requires a valid signature or explicit unsigned-release approval with exact release-note disclosure.
-- The latest installer has not completed the full checklist on a clean Windows VM without the development toolchain.
+- The latest installer completed backend and core API checks in Windows Sandbox but failed UI launch because WebView2 Runtime was missing; the offline-WebView2 replacement has not yet completed the full clean-machine checklist.
 
 ### Local machine
 
@@ -171,9 +173,9 @@ The desktop package workflow is currently passing:
 
 ## Next Required Checks
 
-1. Install the verified `KnowBase_0.1.0_x64-setup.exe` from `KnowBaseDesktop-Windows-25` on a clean Windows machine or VM.
+1. Build and download a new `KnowBase_0.1.0_x64-setup.exe` with the offline WebView2 Runtime embedded.
 2. Validate:
-   - app launches,
+   - app renders without a separate WebView2 installation,
    - backend starts automatically,
    - user can register,
    - knowledge base can be created,
