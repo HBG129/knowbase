@@ -231,15 +231,15 @@ Desktop package:
 .\package-desktop.bat
 ```
 
-The desktop packaging script runs the prerequisite check, builds the backend executable, then runs the Tauri build.
+The desktop packaging script runs the prerequisite check, prepares and verifies the pinned app-local WebView2 Fixed Version Runtime, builds the backend executable, then runs the Tauri build.
 
-Known local blocker:
+Local compiler location:
 
 ```text
-cl.exe / link.exe missing until Microsoft C++ Build Tools are installed
+D:\DevTools\Microsoft\VSBuildTools2022
 ```
 
-If local packaging is blocked, use the manual GitHub Actions desktop packaging workflow.
+Load the matching `VsDevCmd.bat` when `cl.exe` or `link.exe` is not on `PATH`. If local packaging is unavailable, use the manual GitHub Actions desktop packaging workflow.
 
 ## Security Boundaries
 

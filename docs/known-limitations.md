@@ -5,10 +5,9 @@ This document lists current KnowBase limitations before a public customer releas
 ## Installer And Desktop Packaging
 
 - A customer Windows installer has not been released yet.
-- The Tauri desktop build is currently blocked on this machine until Microsoft C++ Build Tools provides `cl.exe` and `link.exe`.
 - The controlled tester candidate is `v0.1.0-rc.1`, with `v0.1.0` selected as the GA target after all release gates pass.
 - Code signing and the auto-update flow are not finalized.
-- Clean-machine installation still needs to be verified on a Windows machine without Python, Node.js, Rust, or Git.
+- A fixed-runtime installer has rendered and passed core API smoke checks in Windows Sandbox without Python, Node.js, Rust, or Git. The exact current CI artifact still needs close, orphan-process cleanup, uninstall, and real-provider RAG/Analysis validation.
 
 ## Runtime Requirements
 

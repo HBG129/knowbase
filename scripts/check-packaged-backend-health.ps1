@@ -7,6 +7,63 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Normalize-ProcessPathEnvironment {
+  $pathValue = $env:Path
+  if ($null -eq $pathValue) {
+    return
+  }
+
+  # Windows PowerShell 5.1 can expose duplicate Path/PATH keys when output is redirected.
+  Remove-Item Env:Path -ErrorAction SilentlyContinue
+  $env:Path = $pathValue
+}
+
+function Stop-AndWaitForProcess {
+  param([System.Diagnostics.Process]$TargetProcess)
+
+  if ($null -eq $TargetProcess) {
+    return
+  }
+
+  try {
+    if (-not $TargetProcess.HasExited) {
+      Stop-Process -Id $TargetProcess.Id -Force -ErrorAction SilentlyContinue
+    }
+    $TargetProcess.WaitForExit()
+  }
+  catch [System.InvalidOperationException] {
+    # The process exited before PowerShell obtained or refreshed its handle.
+  }
+  finally {
+    $TargetProcess.Dispose()
+  }
+}
+
+function Remove-PathWithRetry {
+  param(
+    [string]$Path,
+    [switch]$Recurse,
+    [int]$MaxAttempts = 20
+  )
+
+  for ($attempt = 1; $attempt -le $MaxAttempts; $attempt++) {
+    if (-not (Test-Path -LiteralPath $Path)) {
+      return
+    }
+
+    try {
+      Remove-Item -LiteralPath $Path -Force -Recurse:$Recurse -ErrorAction Stop
+      return
+    }
+    catch {
+      if ($attempt -eq $MaxAttempts) {
+        throw
+      }
+      Start-Sleep -Milliseconds 250
+    }
+  }
+}
+
 if (-not $Root) {
   $Root = Split-Path -Parent $PSScriptRoot
 }
@@ -41,6 +98,7 @@ try {
   $env:KNOWBASE_BACKEND_PORT = [string]$Port
   $env:KNOWBASE_DATA_DIR = $DataDir
 
+  Normalize-ProcessPathEnvironment
   $process = Start-Process -FilePath $backendExe -PassThru -WindowStyle Hidden `
     -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath
   $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
@@ -96,8 +154,9 @@ try {
   Write-Output "Packaged backend health check passed on port $Port."
   Write-Output "Packaged backend Analysis API contract check passed."
 } finally {
-  if ($null -ne $process -and -not $process.HasExited) {
-    Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+  if ($null -ne $process) {
+    Stop-AndWaitForProcess -TargetProcess $process
+    $process = $null
   }
 
   $currentProcesses = @(
@@ -105,7 +164,10 @@ try {
   )
   foreach ($currentProcess in $currentProcesses) {
     if ($existingIds -notcontains $currentProcess.Id) {
-      Stop-Process -Id $currentProcess.Id -Force -ErrorAction SilentlyContinue
+      Stop-AndWaitForProcess -TargetProcess $currentProcess
+    }
+    else {
+      $currentProcess.Dispose()
     }
   }
 
@@ -113,9 +175,7 @@ try {
   $env:KNOWBASE_DATA_DIR = $previousDataDir
 
   foreach ($logPath in @($stdoutPath, $stderrPath)) {
-    if (Test-Path -LiteralPath $logPath) {
-      Remove-Item -LiteralPath $logPath -Force
-    }
+    Remove-PathWithRetry -Path $logPath
   }
 
   if ($usingDefaultDataDir -and (Test-Path -LiteralPath $DataDir)) {
@@ -124,6 +184,6 @@ try {
     if (-not $resolvedDataDir.Path.StartsWith($resolvedTempRoot.Path)) {
       throw "Refusing to remove health-check data directory outside workspace temp directory: $($resolvedDataDir.Path)"
     }
-    Remove-Item -LiteralPath $resolvedDataDir.Path -Recurse -Force
+    Remove-PathWithRetry -Path $resolvedDataDir.Path -Recurse
   }
 }

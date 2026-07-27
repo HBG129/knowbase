@@ -40,7 +40,8 @@
     "icon": ["icons/icon.ico"],
     "windows": {
       "webviewInstallMode": {
-        "type": "offlineInstaller"
+        "type": "fixedRuntime",
+        "path": "./WebView2.FixedVersionRuntime.x64"
       },
       "nsis": {
         "installerHooks": "nsis/installer-hooks.nsh"

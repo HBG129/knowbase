@@ -308,7 +308,11 @@ $contentChecks = @(
   },
   @{
     Path = "frontend\src-tauri\tauri.conf.json"
-    Needle = '"type": "offlineInstaller"'
+    Needle = '"type": "fixedRuntime"'
+  },
+  @{
+    Path = "frontend\src-tauri\tauri.conf.json"
+    Needle = '"path": "./WebView2.FixedVersionRuntime.x64"'
   },
   @{
     Path = ".github\PULL_REQUEST_TEMPLATE.md"

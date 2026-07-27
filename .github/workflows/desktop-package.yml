@@ -12,6 +12,7 @@ on:
       - "scripts/check-code-signature.ps1"
       - "scripts/check-desktop-artifacts.ps1"
       - "scripts/check-packaged-backend-health.ps1"
+      - "scripts/prepare-webview2-fixed-runtime.ps1"
       - "check-desktop-prereqs.bat"
       - "package-backend.bat"
       - "package-desktop.bat"

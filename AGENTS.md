@@ -40,7 +40,7 @@ A customer can install KnowBase, launch it, create an account, configure an API 
 1. Customer-installable desktop packaging
    - Keep `backend\dist\KnowBaseBackend.exe` buildable.
    - Keep Tauri bundle resources and NSIS installer hooks valid.
-   - Keep the offline WebView2 Runtime embedded so clean Windows installs do not require a separate runtime download.
+   - Keep the pinned app-local WebView2 Fixed Version Runtime embedded so clean Windows installs do not require a separate runtime download.
    - Keep packaged backend health checks scriptable.
 
 2. Knowledge base RAG quality
@@ -56,15 +56,15 @@ A customer can install KnowBase, launch it, create an account, configure an API 
 
 4. Release readiness
    - Keep release preflight green.
-   - Frontend production dependency audit is release-clean on Next.js 15.5.20 with Next's bundled PostCSS overridden to 8.5.10; keep the audit gate green.
+   - Frontend production dependency audit is release-clean on Next.js 15.5.21 with Next's bundled PostCSS overridden to 8.5.18; keep the audit gate green.
    - Keep support and validation docs current.
    - Record signature policy evidence in the release validation issue: valid signer details, or unsigned approver, approval date, and exact release-notes disclosure.
    - Keep generated smoke-test files out of the git working tree.
 
 ## Current Blockers
 
-- Local Tauri installer build on this machine is blocked until Microsoft C++ Build Tools provides `cl.exe` and `link.exe`.
-- The previous clean-machine installer failed to render because WebView2 Runtime was unavailable; rebuild with the offline Runtime and repeat the full validation before release.
+- Build the current pinned WebView2 `150.0.4078.99` source revision in GitHub Actions and repeat the full clean-machine validation with that exact artifact.
+- The fixed-runtime Sandbox run proved UI rendering and core API workflows, but app close, orphan-process cleanup, uninstall, and real-provider RAG/Analysis still need release-artifact evidence.
 - Public customer release needs a valid code signature, or explicit unsigned approval evidence plus a clear unsigned disclosure in the release notes.
 
 ## Required Verification Gates
@@ -91,7 +91,7 @@ For a full local desktop release candidate, also run:
 .\scripts\check-desktop-artifacts.ps1
 ```
 
-If `cl.exe` or `link.exe` is missing, stop and use `docs\desktop-build-troubleshooting.md` or the GitHub Actions desktop packaging workflow.
+Microsoft C++ Build Tools are installed under `D:\DevTools\Microsoft\VSBuildTools2022` on this machine. Load its `VsDevCmd.bat` when `cl.exe` or `link.exe` is not already on `PATH`; otherwise use `docs\desktop-build-troubleshooting.md` or the GitHub Actions desktop packaging workflow.
 
 ## Engineering Rules For Future Agents
 

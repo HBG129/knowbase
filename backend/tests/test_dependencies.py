@@ -29,11 +29,11 @@ def test_frontend_uses_audited_next_and_bundled_postcss_versions():
     package = json.loads((repo_root / "frontend" / "package.json").read_text(encoding="utf-8"))
     lock = json.loads((repo_root / "frontend" / "package-lock.json").read_text(encoding="utf-8"))
 
-    assert package["dependencies"]["next"] == "15.5.20"
-    assert package["overrides"]["next"]["postcss"] == "8.5.10"
-    assert lock["packages"][""]["dependencies"]["next"] == "15.5.20"
-    assert lock["packages"]["node_modules/next"]["version"] == "15.5.20"
-    assert lock["packages"]["node_modules/next/node_modules/postcss"]["version"] == "8.5.10"
+    assert package["dependencies"]["next"] == "15.5.21"
+    assert package["overrides"]["next"]["postcss"] == "8.5.18"
+    assert lock["packages"][""]["dependencies"]["next"] == "15.5.21"
+    assert lock["packages"]["node_modules/next"]["version"] == "15.5.21"
+    assert lock["packages"]["node_modules/next/node_modules/postcss"]["version"] == "8.5.18"
 
 
 def test_frontend_overrides_next_sharp_to_patched_version():
@@ -62,7 +62,7 @@ def test_backend_packager_fails_if_previous_outputs_remain_locked():
     assert "Failed to remove previous backend spec file" in content
 
 
-def test_desktop_installer_embeds_offline_webview2_runtime():
+def test_desktop_installer_embeds_fixed_webview2_runtime():
     repo_root = Path(__file__).resolve().parents[2]
     tauri_config = json.loads(
         (repo_root / "frontend" / "src-tauri" / "tauri.conf.json").read_text(
@@ -71,8 +71,30 @@ def test_desktop_installer_embeds_offline_webview2_runtime():
     )
 
     assert tauri_config["bundle"]["windows"]["webviewInstallMode"] == {
-        "type": "offlineInstaller"
+        "type": "fixedRuntime",
+        "path": "./WebView2.FixedVersionRuntime.x64",
     }
+
+
+def test_desktop_packager_prepares_a_verified_fixed_webview2_runtime():
+    repo_root = Path(__file__).resolve().parents[2]
+    package_script = (repo_root / "package-desktop.bat").read_text(encoding="utf-8")
+    runtime_script = (
+        repo_root / "scripts" / "prepare-webview2-fixed-runtime.ps1"
+    ).read_text(encoding="utf-8")
+
+    assert "prepare-webview2-fixed-runtime.ps1" in package_script
+    assert '$version = "150.0.4078.99"' in runtime_script
+    assert 'Microsoft.WebView2.FixedVersionRuntime.$version.x64.cab' in runtime_script
+    assert "https://msedge.sf.dl.delivery.mp.microsoft.com/" in runtime_script
+    assert "2E69CDC3D304441562C7C2A8C21948C3B8E69DC7629D912EF853E41147220BDA" in runtime_script
+    assert "Get-FileHash" in runtime_script
+    assert "SHA256" in runtime_script
+    assert "$downloadAttempts = 3" in runtime_script
+    assert "msedgewebview2.exe" in runtime_script
+    assert "if (Test-PreparedRuntime) {" not in runtime_script
+    assert "Copy-Item -Destination $runtimeRoot -Recurse -Force" in runtime_script
+    assert "Move-Item -LiteralPath $extractedRuntime" not in runtime_script
 
 
 def test_packaged_backend_health_check_uses_backend_port_env_and_cleans_up():
@@ -87,6 +109,11 @@ def test_packaged_backend_health_check_uses_backend_port_env_and_cleans_up():
     assert "KnowBaseBackend" in content
     assert "RedirectStandardOutput" in content
     assert "RedirectStandardError" in content
+    assert "Normalize-ProcessPathEnvironment" in content
+    assert "Remove-Item Env:Path" in content
+    assert "Stop-AndWaitForProcess" in content
+    assert "Remove-PathWithRetry" in content
+    assert ".Dispose()" in content
     assert "Packaged backend stderr" in content
     assert "data\\packaged-backend-health" not in content
     assert ".tmp" in content

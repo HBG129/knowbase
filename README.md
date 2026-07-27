@@ -326,7 +326,7 @@ To run the desktop packaging pipeline from one entry point:
 .\package-desktop.bat
 ```
 
-The packaging pipeline checks desktop prerequisites first, then builds the backend executable, then runs the Tauri build.
+The packaging pipeline checks desktop prerequisites, prepares and verifies the pinned app-local WebView2 Fixed Version Runtime, builds the backend executable, then runs the Tauri build.
 
 Windows Tauri compilation also requires Microsoft C++ Build Tools. The prerequisite check tries to load common Visual Studio developer shell locations automatically. If `cl.exe` or `link.exe` is still not available, install Microsoft C++ Build Tools and select the `Desktop development with C++` workload before running a full Tauri build. See the official Tauri Windows prerequisites: <https://v2.tauri.app/start/prerequisites/>.
 
@@ -337,10 +337,11 @@ rustc 1.96.0
 cargo 1.96.0
 cargo metadata: passed
 backend runtime path tests: metadata check passed
-cargo check: blocked because link.exe is missing
+Microsoft C++ Build Tools: available under D:\DevTools\Microsoft\VSBuildTools2022
+fixed-runtime Tauri/NSIS build: passed
 ```
 
-The Visual Studio Build Tools bootstrapper was attempted, but it failed while downloading `vs_installer.opc` due to certificate/network errors from the installer. Install Microsoft C++ Build Tools manually if the automated installer fails on this machine.
+On this machine, load `D:\DevTools\Microsoft\VSBuildTools2022\Common7\Tools\VsDevCmd.bat` before a local Tauri build if the compiler and linker are not already on `PATH`.
 
 Development commands:
 
