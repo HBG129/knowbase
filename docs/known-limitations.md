@@ -7,7 +7,7 @@ This document lists current KnowBase limitations before a public customer releas
 - A customer Windows installer has not been released yet.
 - The controlled tester candidate is `v0.1.0-rc.1`, with `v0.1.0` selected as the GA target after all release gates pass.
 - Code signing and the auto-update flow are not finalized.
-- A fixed-runtime installer has rendered and passed core API smoke checks in Windows Sandbox without Python, Node.js, Rust, or Git. The exact current CI artifact still needs close, orphan-process cleanup, uninstall, and real-provider RAG/Analysis validation.
+- The exact fixed-runtime CI installer passed automated offline Windows Sandbox validation without Python, Node.js, Rust, or Git, including launch, core API workflows, graceful close, backend cleanup, uninstall, and customer-data preservation. Real-provider cited RAG and natural-language CSV Analysis still require release-artifact validation.
 
 ## Runtime Requirements
 

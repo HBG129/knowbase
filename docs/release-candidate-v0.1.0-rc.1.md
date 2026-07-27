@@ -20,22 +20,22 @@ This document records the selected release target and current validation evidenc
 
 ## Current Evidence
 
-- Latest pushed source commit: `eaf71d9789db51327ad177ea8a659d5caca3e697`
-- PR CI run `29911275920`: repository checks, backend tests, and frontend build passed.
-- Desktop package run `29911326668`: backend tests, frontend build, PyInstaller, Tauri/NSIS packaging, packaged-backend health, artifact verification, signature status check, and both artifact uploads passed.
-- GitHub artifact: `KnowBaseDesktop-Windows-27`
-- Artifact ZIP SHA256: `73F0A86CA3FB7EFE8CF5443AA7586C2B2C4210136470F240ADD8DB82A2E99268`
-- The current working revision pins Next.js `15.5.21`, Next's bundled PostCSS `8.5.18`, and WebView2 Fixed Version Runtime `150.0.4078.99`; local backend tests, frontend production build, production dependency audit, and runtime preparation pass.
-- The current local fixed-runtime NSIS build completed successfully. `KnowBase_0.1.0_x64-setup.exe` is `308045565` bytes with SHA256 `9991CD2E4B29A1CFAD790AF63D1E93DF8B49626CDC4F090B02E113C54B7408EF`; Authenticode status is `NotSigned`.
+- Validated source commit: `1a4c8042eaa4f081989c505006fccf828eb74761`
+- PR CI run `30250177575`: repository checks, `126` backend tests, production dependency audit, and frontend build passed.
+- Desktop package run `30250261389`: clean dependency installation, audit, backend tests, frontend build, pinned WebView2 download and verification, PyInstaller, Tauri/NSIS packaging, packaged-backend health, artifact verification, signature status check, and both artifact uploads passed.
+- GitHub artifact: `KnowBaseDesktop-Windows-28`
+- Artifact ZIP SHA256: `37F106F9179E2492DE6445090FFBD024CA4C719DD8848BECE4290E2A24937724`
+- Installer: `KnowBase_0.1.0_x64-setup.exe`, `309619211` bytes, SHA256 `690D99CF36E20296FEC94FB8D47626501A06BEBD035347D4F665B76711B5D80E`
+- Installer Authenticode status: `NotSigned`
+- The candidate pins Next.js `15.5.21`, Next's bundled PostCSS `8.5.18`, and WebView2 Fixed Version Runtime `150.0.4078.99`.
 - Local upgrade/install verification passed for shortcuts, bundled backend startup, listener ownership, health response, and process cleanup after closing the desktop window.
 - Complete Chinese/English desktop and mobile visual checks passed for the dashboard, knowledge-base, document, chat, and Analysis surfaces.
-- Windows Sandbox validation on 2026-07-22 proved that a local fixed-runtime installer rendered the UI and passed packaged backend health, authentication, knowledge-base creation, Markdown/CSV upload, dataset discovery, and CSV profile without a development toolchain or separate WebView2 installation.
-- The Sandbox report did not prove app close and orphan-process cleanup because no manual close action occurred before the timeout. The current source revision and its exact CI artifact still require that check plus uninstall validation.
+- Offline Windows Sandbox validation on 2026-07-27 passed for the exact artifact without Python, Node.js, npm, Rust, Cargo, Git, project source code, or network access.
+- The Sandbox proved installation, fixed-runtime UI rendering from the app-local `150.0.4078.99` process path, backend health and listener ownership, authentication, knowledge-base creation, Markdown/CSV upload, dataset discovery, CSV profile, WM_CLOSE-equivalent window shutdown, backend cleanup, silent uninstall, and preservation of `%APPDATA%\KnowBase`.
 
 ## Blocking Gates
 
-- Build the current fixed-runtime source revision in GitHub Actions and validate that exact artifact on a clean Windows machine or VM.
-- Confirm app close, orphan-process cleanup, uninstall, and real-provider cited chat and CSV Analysis with the exact candidate artifact.
+- Confirm real-provider cited chat and natural-language CSV Analysis with the exact candidate artifact.
 - Obtain a valid code-signing certificate, or record explicit approval for an unsigned tester release and include the exact disclosure in the release notes.
 - Replace the remaining `not tested` clean-machine results with attached validation evidence.
 

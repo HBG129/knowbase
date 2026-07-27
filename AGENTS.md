@@ -63,8 +63,7 @@ A customer can install KnowBase, launch it, create an account, configure an API 
 
 ## Current Blockers
 
-- Build the current pinned WebView2 `150.0.4078.99` source revision in GitHub Actions and repeat the full clean-machine validation with that exact artifact.
-- The fixed-runtime Sandbox run proved UI rendering and core API workflows, but app close, orphan-process cleanup, uninstall, and real-provider RAG/Analysis still need release-artifact evidence.
+- Complete cited RAG and natural-language CSV Analysis with a real provider key on the exact release artifact.
 - Public customer release needs a valid code signature, or explicit unsigned approval evidence plus a clear unsigned disclosure in the release notes.
 
 ## Required Verification Gates
