@@ -4,7 +4,8 @@ import hashlib
 import uuid
 from datetime import datetime, timedelta, timezone
 from cryptography.fernet import Fernet, InvalidToken
-from jose import jwt, JWTError
+import jwt
+from jwt import InvalidTokenError
 from passlib.context import CryptContext
 from app.config import settings
 
@@ -41,7 +42,7 @@ def create_refresh_token(user_id: str) -> str:
 def decode_token(token: str) -> dict | None:
     try:
         return jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
-    except JWTError:
+    except InvalidTokenError:
         return None
 
 
