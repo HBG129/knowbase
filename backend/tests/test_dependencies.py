@@ -138,6 +138,9 @@ def test_release_preflight_smoke_artifact_uses_temp_directory():
     assert "-MinInstallerBytes 1" in content
     assert "KnowBaseSupportTools.zip" in content
     assert "README.txt" in content
+    assert "backup-local-data.ps1" in content
+    assert "restore-local-data.ps1" in content
+    assert "remove-local-data.ps1" in content
     assert "SHA256SUMS.txt" in content
     assert "RELEASE_VALIDATION_ISSUE_DRAFT.md" in content
     assert "Valid signature verified" in content
@@ -385,6 +388,16 @@ def test_release_package_support_readme_explains_validation_report():
     assert identity_description in release_docs_check
 
 
+def test_local_data_removal_includes_webview_profile():
+    repo_root = Path(__file__).resolve().parents[2]
+    script = (repo_root / "scripts" / "remove-local-data.ps1").read_text(encoding="utf-8")
+
+    assert "$WebViewDataDir" in script
+    assert 'Join-Path $env:LOCALAPPDATA "com.hbg129.knowbase"' in script
+    assert "WebView data directory" in script
+    assert "Removed WebView data directory" in script
+
+
 def test_desktop_workflow_health_checks_packaged_backend_before_upload():
     repo_root = Path(__file__).resolve().parents[2]
     workflow = (repo_root / ".github" / "workflows" / "desktop-package.yml").read_text(
@@ -414,6 +427,21 @@ def test_ci_workflows_gate_frontend_build_with_production_dependency_audit():
         build_index = content.index("run: npm run build")
 
         assert install_index < audit_index < build_index
+
+
+def test_ci_workflows_audit_python_dependencies():
+    repo_root = Path(__file__).resolve().parents[2]
+    pyproject = (repo_root / "backend" / "pyproject.toml").read_text(encoding="utf-8")
+    workflow_paths = [
+        repo_root / ".github" / "workflows" / "ci.yml",
+        repo_root / ".github" / "workflows" / "desktop-package.yml",
+    ]
+
+    assert "pip-audit>=2.9,<3" in pyproject
+    for workflow_path in workflow_paths:
+        content = workflow_path.read_text(encoding="utf-8")
+        assert "-m pip_audit --local --strict" in content
+        assert content.index("-m pip_audit --local --strict") < content.index("-m pytest")
 
 
 def test_github_workflows_use_node24_action_runtimes_and_current_miniconda_inputs():

@@ -1,6 +1,18 @@
 import { Lang, TranslationKey, TranslationValues, t } from "@/lib/i18n";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const AUTH_TOKEN_PATHS = new Set([
+  "/api/auth/login",
+  "/api/auth/register",
+  "/api/auth/refresh",
+]);
+
+interface TokenResponse {
+  access_token: string;
+  refresh_token: string;
+}
+
+let refreshPromise: Promise<string | null> | null = null;
 
 function localizedMessage(key: TranslationKey, values?: TranslationValues): string {
   const lang: Lang = typeof window !== "undefined" && localStorage.getItem("knowbase-lang") === "en" ? "en" : "zh";
@@ -48,15 +60,73 @@ async function fetchWithNetworkMessage(input: RequestInfo | URL, init?: RequestI
   }
 }
 
+function clearAuthTokens(): void {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("refresh_token");
+}
+
+async function refreshAccessToken(): Promise<string | null> {
+  const refreshToken = localStorage.getItem("refresh_token");
+  if (!refreshToken) return null;
+
+  if (!refreshPromise) {
+    refreshPromise = (async () => {
+      try {
+        const res = await fetchWithNetworkMessage(BASE_URL + "/api/auth/refresh", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refresh_token: refreshToken }),
+        });
+        if (!res.ok) {
+          clearAuthTokens();
+          return null;
+        }
+
+        const tokens = await res.json() as TokenResponse;
+        localStorage.setItem("access_token", tokens.access_token);
+        localStorage.setItem("refresh_token", tokens.refresh_token);
+        return tokens.access_token;
+      } catch {
+        clearAuthTokens();
+        return null;
+      } finally {
+        refreshPromise = null;
+      }
+    })();
+  }
+
+  return refreshPromise;
+}
+
+async function fetchWithAuth(path: string, init?: RequestInit): Promise<Response> {
+  const buildHeaders = (token: string | null) => ({
+    ...init?.headers,
+    ...(token ? { Authorization: "Bearer " + token } : {}),
+  });
+
+  let res = await fetchWithNetworkMessage(BASE_URL + path, {
+    ...init,
+    headers: buildHeaders(localStorage.getItem("access_token")),
+  });
+
+  if (res.status === 401 && !AUTH_TOKEN_PATHS.has(path)) {
+    const refreshedToken = await refreshAccessToken();
+    if (refreshedToken) {
+      res = await fetchWithNetworkMessage(BASE_URL + path, {
+        ...init,
+        headers: buildHeaders(refreshedToken),
+      });
+    }
+  }
+
+  return res;
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== "undefined"
-    ? localStorage.getItem("access_token")
-    : null;
-  const res = await fetchWithNetworkMessage(BASE_URL + path, {
+  const res = await fetchWithAuth(path, {
     ...options,
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: "Bearer " + token } : {}),
       ...options?.headers,
     },
   });
@@ -91,10 +161,8 @@ export const api = {
 };
 
 export async function apiPostForm<T>(path: string, formData: FormData): Promise<T> {
-  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
-  const res = await fetchWithNetworkMessage(BASE_URL + path, {
+  const res = await fetchWithAuth(path, {
     method: "POST",
-    headers: token ? { Authorization: "Bearer " + token } : {},
     body: formData,
   });
   if (!res.ok) {
@@ -106,12 +174,10 @@ export async function apiPostForm<T>(path: string, formData: FormData): Promise<
 
 /** SSE streaming - returns raw Response for ReadableStream consumption */
 export function apiStream(path: string, body: unknown, signal?: AbortSignal): Promise<Response> {
-  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
-  return fetchWithNetworkMessage(BASE_URL + path, {
+  return fetchWithAuth(path, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: "Bearer " + token } : {}),
     },
     body: JSON.stringify(body),
     signal,

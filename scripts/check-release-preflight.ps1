@@ -95,7 +95,14 @@ function Run-ReleaseArtifactSmokeCheck {
           Where-Object { $_.Name } |
           ForEach-Object { $_.FullName }
       )
-      $expectedEntries = @("check-installed-app.ps1", "collect-support-info.ps1", "README.txt")
+      $expectedEntries = @(
+        "backup-local-data.ps1",
+        "check-installed-app.ps1",
+        "collect-support-info.ps1",
+        "remove-local-data.ps1",
+        "restore-local-data.ps1",
+        "README.txt"
+      )
       $missingEntries = @($expectedEntries | Where-Object { $_ -notin $entryNames })
       $unexpectedEntries = @($entryNames | Where-Object { $_ -notin $expectedEntries })
       if ($missingEntries.Count -gt 0 -or $unexpectedEntries.Count -gt 0) {
@@ -158,6 +165,7 @@ Run-Check "Version consistency" (Join-Path $PSScriptRoot "check-version-consiste
 Run-Check "Sensitive tracked files" (Join-Path $PSScriptRoot "check-sensitive-files.ps1")
 Run-Check "Installer hooks" (Join-Path $PSScriptRoot "check-installer-hooks.ps1")
 Run-Check "Tauri lifecycle" (Join-Path $PSScriptRoot "check-tauri-lifecycle.ps1")
+Run-Check "Tauri security" (Join-Path $PSScriptRoot "check-tauri-security.ps1")
 Run-Check "Desktop windowing" (Join-Path $PSScriptRoot "check-desktop-windowing.ps1")
 Run-Check "Desktop icon" (Join-Path $PSScriptRoot "check-desktop-icon.ps1")
 Run-Check "Frontend dialogs" (Join-Path $PSScriptRoot "check-frontend-dialogs.ps1")

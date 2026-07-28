@@ -60,6 +60,9 @@ A customer can install KnowBase, launch it, create an account, configure an API 
    - Keep support and validation docs current.
    - Record signature policy evidence in the release validation issue: valid signer details, or unsigned approver, approval date, and exact release-notes disclosure.
    - Keep generated smoke-test files out of the git working tree.
+   - Never persist login passwords in WebView storage; the optional login convenience may remember only the email address.
+   - Keep the desktop Content Security Policy explicit and restricted to local assets and the loopback backend.
+   - Keep complete local-data removal aligned across `%APPDATA%\KnowBase`, the WebView profile, and Windows Credential Manager.
 
 ## Current Blockers
 
@@ -72,6 +75,7 @@ Run the checks that match the changed area:
 
 ```powershell
 cd backend
+.\.venv\Scripts\python.exe -m pip_audit --local --strict
 .\.venv\Scripts\python.exe -m pytest
 cd ..
 cd frontend

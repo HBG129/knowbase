@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAuthStore } from "@/stores/auth-store";
 import { useI18nStore } from "@/stores/i18n-store";
-import { Check, Eye, EyeOff, Key, Loader2, X } from "lucide-react";
+import { Check, Eye, EyeOff, Key, Loader2, ShieldCheck, X } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -151,6 +151,11 @@ export function ApiKeyDialog({ open, onClose }: Props) {
                 {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
+          </div>
+
+          <div className="flex items-start gap-2.5 rounded-lg border border-hairline bg-canvas-soft/60 p-3">
+            <ShieldCheck className="mt-0.5 h-4 w-4 flex-shrink-0 text-accent" />
+            <p className="text-xs leading-5 text-ink-muted">{t("apiKey.providerDataNotice")}</p>
           </div>
 
           {message && (

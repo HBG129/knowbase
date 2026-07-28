@@ -33,6 +33,14 @@ The desktop data directory contains:
 
 If a user saves a personal LLM API key in the packaged Windows desktop app, the secret is stored through Windows Credential Manager and the local database stores only a credential reference. Development or non-desktop fallback modes may store an encrypted API key record in the local database. Treat the data directory as sensitive.
 
+The desktop WebView profile is stored separately under:
+
+```text
+%LOCALAPPDATA%\com.hbg129.knowbase
+```
+
+It can contain session tokens, language and theme preferences, and an email address only when the user enables `Remember email`. KnowBase does not persist the login password in WebView storage. Upgrades from older builds remove the legacy remembered-login record when the login screen loads.
+
 ## What Leaves The Machine
 
 KnowBase sends content to the configured LLM provider when the user asks questions or processes documents for embeddings.
@@ -90,13 +98,13 @@ Do not restore a production customer's data onto a shared or untrusted machine.
 
 ## Uninstall And Data Removal
 
-The final Windows installer behavior is not locked yet.
-
-Until the installer explicitly offers a data removal option, assume uninstalling the app may leave local data behind under:
+Uninstalling KnowBase removes the application but intentionally preserves customer data under:
 
 ```text
 %APPDATA%\KnowBase
 ```
+
+The WebView profile under `%LOCALAPPDATA%\com.hbg129.knowbase` may also remain so reinstalling does not silently destroy the customer's session and preferences.
 
 To remove local KnowBase data manually:
 
@@ -115,7 +123,7 @@ To remove local KnowBase data manually:
 .\scripts\remove-local-data.ps1 -ConfirmDelete
 ```
 
-Confirmed removal deletes uploaded documents, local accounts, conversation history, saved API key records, the local SQLite database, and KnowBase credential targets.
+Confirmed removal deletes uploaded documents, local accounts, conversation history, saved API key records, the local SQLite database, the WebView profile and session tokens, and KnowBase Credential Manager targets.
 
 Do not run confirmed removal during support unless the customer understands the data loss.
 

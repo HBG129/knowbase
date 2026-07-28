@@ -117,13 +117,19 @@ This document tracks the practical delivery status of KnowBase.
 - Installed app check script exists for clean-machine evidence capture and reports installed executable version, signature status, and backend process path when available.
 - Support info script exists for non-sensitive installation and startup triage reports.
 - Local data backup script exists with dry-run by default and explicit `-ConfirmBackup` for customer-owned backup workflows.
-- Local data removal script exists with dry-run by default and explicit `-ConfirmDelete` for uninstall, reinstall, or privacy cleanup workflows.
+- Local data removal script exists with dry-run by default and explicit `-ConfirmDelete`; confirmed cleanup covers `%APPDATA%\KnowBase`, `%LOCALAPPDATA%\com.hbg129.knowbase`, and KnowBase Credential Manager targets.
 - Local data restore script exists with dry-run by default and refuses to overwrite an existing `KnowBase` data directory.
+- Release support tools now include backup, restore, complete local-data removal, installed-app validation, and non-sensitive support-report scripts.
 - Customer troubleshooting, customer beta test plan, and privacy notice draft are documented.
 - Packaged Windows desktop runtime stores saved provider API keys through Windows Credential Manager; the database stores only a credential reference.
 - Local Windows Credential Manager smoke passed with a fake `KnowBase:smoke:*` secret: write, read, and delete succeeded.
 - Non-desktop fallback modes encrypt saved provider API keys before storage in the local application database, with legacy plaintext compatibility for existing local data.
 - Packaged desktop runtime creates and reuses a per-install `app.secret` for local tokens and saved API key encryption.
+- Login convenience stores only an optional remembered email; it never persists the login password and removes the legacy remembered-login record on first load.
+- The API key dialog now discloses that questions, relevant document excerpts, and analysis context are sent to the selected provider while full files remain local.
+- Expired access tokens are refreshed once through the rotating refresh-token endpoint, with concurrent refresh requests deduplicated.
+- New passwords use `bcrypt_sha256` so long passwords are not silently truncated; existing bcrypt password hashes remain valid.
+- Tauri enforces an explicit Content Security Policy restricted to packaged assets and the loopback backend, and release preflight rejects an empty or permissive desktop policy.
 - Tauri bundle includes a simplified branded knowledge-cube KnowBase app icon.
 - Tauri bundle metadata includes publisher, homepage, copyright, category, and installer descriptions.
 - NSIS installer hooks stop `KnowBase.exe` and `KnowBaseBackend.exe` before install or uninstall file operations.
@@ -152,7 +158,7 @@ This document tracks the practical delivery status of KnowBase.
 - A WM_CLOSE-equivalent window close removed the desktop process; both packaged backend processes and the port `8000` listener exited; silent uninstall returned `0` and removed the installed executable.
 - Uninstall preserved `%APPDATA%\KnowBase`, matching the documented customer-controlled backup and removal policy.
 - The current source pins WebView2 Fixed Version Runtime `150.0.4078.99`, verifies the CAB SHA256 and Microsoft Authenticode signature before packaging, and prepares the app-local runtime successfully.
-- Current local verification passes with `126` backend tests, a Next.js `15.5.21` production build, and a zero-vulnerability production dependency audit.
+- Current local verification passes with `130` backend tests, a Next.js `15.5.21` production build, a zero-vulnerability frontend production audit, and release preflight.
 - The current local fixed-runtime Tauri/NSIS build completed successfully:
   - installer size: `308045565` bytes,
   - installer SHA256: `9991CD2E4B29A1CFAD790AF63D1E93DF8B49626CDC4F090B02E113C54B7408EF`,

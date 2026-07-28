@@ -65,6 +65,11 @@ jobs:
         working-directory: frontend
         run: npm audit --omit=dev --audit-level=high
 
+      - name: Audit Python dependencies
+        working-directory: backend
+        shell: pwsh
+        run: .\.venv\Scripts\python.exe -m pip_audit --local --strict
+
       - name: Run backend tests
         working-directory: backend
         shell: pwsh

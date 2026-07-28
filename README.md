@@ -14,12 +14,12 @@ KnowBase turns PDFs, Word documents, Markdown notes, text files, and CSVs into s
 | Web app | Usable for local development |
 | Backend API | Working |
 | Backend executable | Working with PyInstaller |
-| Desktop shell | Tauri Windows packaging verified in CI and local install smoke |
+| Desktop shell | Tauri Windows packaging verified in CI and offline Windows Sandbox |
 | Desktop package workflow | Passing and uploading artifacts |
 | Release preflight | CI checks scripts, versions, sensitive files, and release documentation |
 | Customer installer | CI artifact available and locally install-verified, not publicly released yet |
 
-The current repository is ready for development and packaging work. A Windows installer artifact is produced by GitHub Actions, guarded by release preflight checks, and locally install-verified. It still needs clean-machine validation and code signing before customer release.
+The current repository is ready for development and release-candidate packaging. A Windows installer artifact is produced by GitHub Actions and guarded by release preflight checks. The exact CI installer has passed offline Windows Sandbox installation, launch, core local API workflows, graceful close, backend cleanup, uninstall, and customer-data preservation without developer tools. Real-provider RAG/Analysis validation and code signing remain before public customer release.
 
 ## Why KnowBase
 
@@ -57,7 +57,7 @@ KnowBase is being prepared for customers who should be able to install and run t
 4. Windows installer artifact in CI
 5. Clean-machine validation, signing, update flow, and release packaging
 
-Current milestone: the backend executable and Tauri Windows installer are produced by CI; the next release gate is installing and validating the artifact on a clean Windows machine.
+Current milestone: the backend executable and Tauri Windows installer are produced by CI, and the exact CI installer passed offline Windows Sandbox validation. The remaining public-release gates are real-provider cited RAG and natural-language CSV Analysis on the release artifact, plus a valid code signature or an explicitly approved unsigned-release decision.
 
 ## Quick Start
 

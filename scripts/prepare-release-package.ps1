@@ -110,6 +110,9 @@ if (Test-Path -LiteralPath $supportToolsZipPath) {
 New-Item -ItemType Directory -Force -Path $supportToolsDir | Out-Null
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot "check-installed-app.ps1") -Destination (Join-Path $supportToolsDir "check-installed-app.ps1") -Force
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot "collect-support-info.ps1") -Destination (Join-Path $supportToolsDir "collect-support-info.ps1") -Force
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot "backup-local-data.ps1") -Destination (Join-Path $supportToolsDir "backup-local-data.ps1") -Force
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot "restore-local-data.ps1") -Destination (Join-Path $supportToolsDir "restore-local-data.ps1") -Force
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot "remove-local-data.ps1") -Destination (Join-Path $supportToolsDir "remove-local-data.ps1") -Force
 
 $supportToolsReadmePath = Join-Path $supportToolsDir "README.txt"
 $supportToolsReadme = @(
@@ -123,6 +126,32 @@ $supportToolsReadme = @(
   ''
   'The installed app report is written to Desktop\KnowBaseValidation by default.'
   'It records ProductVersion, signature status, installed executable path, and backend process path when available.'
+  ''
+  'Preview a local data backup:'
+  ''
+  '  powershell -ExecutionPolicy Bypass -File .\backup-local-data.ps1'
+  ''
+  'Create the backup after reviewing the output path:'
+  ''
+  '  powershell -ExecutionPolicy Bypass -File .\backup-local-data.ps1 -ConfirmBackup'
+  ''
+  'Preview a restore:'
+  ''
+  '  powershell -ExecutionPolicy Bypass -File .\restore-local-data.ps1 -ZipPath D:\path\to\backup.zip'
+  ''
+  'Restore only after closing KnowBase and reviewing the destination:'
+  ''
+  '  powershell -ExecutionPolicy Bypass -File .\restore-local-data.ps1 -ZipPath D:\path\to\backup.zip -ConfirmRestore'
+  ''
+  'Preview complete local data removal:'
+  ''
+  '  powershell -ExecutionPolicy Bypass -File .\remove-local-data.ps1'
+  ''
+  'Remove app data, WebView session data, and KnowBase Credential Manager entries:'
+  ''
+  '  powershell -ExecutionPolicy Bypass -File .\remove-local-data.ps1 -ConfirmDelete'
+  ''
+  'Credential Manager API keys are not included in backup ZIP files.'
   ''
   'Support report for install/startup issues:'
   ''
