@@ -147,23 +147,24 @@ This document tracks the practical delivery status of KnowBase.
 - Language preference hydrates after client mount, avoiding server/client language mismatches, and authentication routes remain correctly recognized with or without a trailing slash.
 - CI and release preflight enforce Chinese/English key parity, reject unknown translation keys and duplicate entries, scan product surfaces for hardcoded interface copy and mojibake, and verify localized API and authentication behavior.
 - Chinese and English localization was visually verified on desktop and mobile viewports, including the dashboard, knowledge-base details, document list, and CSV Analysis workspace.
-- Last confirmed pushed CI run: run `30250177575` for commit `1a4c804`; repository checks, `126` backend tests, production dependency audit, and frontend build passed.
+- Last confirmed pushed CI run: run `30360368704` for commit `96f219018b5602641ed558cdee33b15681a98e15`; repository checks, Python and frontend production dependency audits, `135` backend tests, and frontend build passed.
 - Desktop artifact verification script checks for:
   - `backend\dist\KnowBaseBackend.exe`
   - NSIS installer under `frontend\src-tauri\target\release\bundle\nsis`
 - Synthetic demo files exist for safe screenshots, GIFs, and release validation.
-- Offline Windows Sandbox validation passed for the exact `KnowBaseDesktop-Windows-28` installer on a machine without Python, Node.js, npm, Rust, Cargo, Git, project source code, or network access.
+- Offline Windows Sandbox validation passed on 2026-07-29 for the exact `KnowBaseDesktop-Windows-29` installer on a machine without Python, Node.js, npm, Rust, Cargo, Git, project source code, or network access.
 - The app-local runtime `150.0.4078.99` was present, and every observed WebView2 rendering process ran from the bundled fixed-runtime path.
 - Sandbox backend health, listener ownership, authentication, knowledge-base creation, Markdown/CSV upload, dataset discovery, and CSV profile passed.
 - A WM_CLOSE-equivalent window close removed the desktop process; both packaged backend processes and the port `8000` listener exited; silent uninstall returned `0` and removed the installed executable.
 - Uninstall preserved `%APPDATA%\KnowBase`, matching the documented customer-controlled backup and removal policy.
 - The current source pins WebView2 Fixed Version Runtime `150.0.4078.99`, verifies the CAB SHA256 and Microsoft Authenticode signature before packaging, and prepares the app-local runtime successfully.
-- Current local verification passes with `130` backend tests, a Next.js `15.5.21` production build, a zero-vulnerability frontend production audit, and release preflight.
-- The current local fixed-runtime Tauri/NSIS build completed successfully:
-  - installer size: `308045565` bytes,
-  - installer SHA256: `9991CD2E4B29A1CFAD790AF63D1E93DF8B49626CDC4F090B02E113C54B7408EF`,
+- Current local verification passes with `135` backend tests, a no-known-vulnerability Python dependency audit, a Next.js `15.5.21` production build, a zero-vulnerability frontend production audit, and release preflight.
+- The current GitHub Actions fixed-runtime Tauri/NSIS build completed successfully in run `30360681930`:
+  - artifact: `KnowBaseDesktop-Windows-29`,
+  - installer size: `310079531` bytes,
+  - installer SHA256: `A9852F59E093861F89484E27B60EE50376E71E3DB6976428387AD48676704684`,
   - Authenticode status: `NotSigned`,
-  - desktop artifact verification: passed.
+  - packaged-backend health and desktop artifact verification: passed.
 
 ## Current Blockers
 

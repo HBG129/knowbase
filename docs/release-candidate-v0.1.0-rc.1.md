@@ -20,23 +20,22 @@ This document records the selected release target and current validation evidenc
 
 ## Current Evidence
 
-- Validated source commit: `1a4c8042eaa4f081989c505006fccf828eb74761`
-- PR CI run `30250177575`: repository checks, `126` backend tests, production dependency audit, and frontend build passed.
-- Desktop package run `30250261389`: clean dependency installation, audit, backend tests, frontend build, pinned WebView2 download and verification, PyInstaller, Tauri/NSIS packaging, packaged-backend health, artifact verification, signature status check, and both artifact uploads passed.
-- GitHub artifact: `KnowBaseDesktop-Windows-28`
-- Artifact ZIP SHA256: `37F106F9179E2492DE6445090FFBD024CA4C719DD8848BECE4290E2A24937724`
-- Installer: `KnowBase_0.1.0_x64-setup.exe`, `309619211` bytes, SHA256 `690D99CF36E20296FEC94FB8D47626501A06BEBD035347D4F665B76711B5D80E`
+- Validated source commit: `96f219018b5602641ed558cdee33b15681a98e15`
+- PR CI run `30360368704`: repository checks, Python and frontend production dependency audits, `135` backend tests, and frontend build passed.
+- Desktop package run `30360681930`: clean dependency installation, both dependency audits, backend tests, frontend build, pinned WebView2 download and verification, PyInstaller, Tauri/NSIS packaging, packaged-backend health, artifact verification, signature status check, and both artifact uploads passed.
+- GitHub artifact: `KnowBaseDesktop-Windows-29`
+- GitHub artifact digest: `sha256:eab3c42a9a53843ee817482f14f2a983e28b34eec7ae6ce07c5a53e622882583`
+- Installer: `KnowBase_0.1.0_x64-setup.exe`, `310079531` bytes, SHA256 `A9852F59E093861F89484E27B60EE50376E71E3DB6976428387AD48676704684`
 - Installer Authenticode status: `NotSigned`
 - The candidate pins Next.js `15.5.21`, Next's bundled PostCSS `8.5.18`, and WebView2 Fixed Version Runtime `150.0.4078.99`.
 - Local upgrade/install verification passed for shortcuts, bundled backend startup, listener ownership, health response, and process cleanup after closing the desktop window.
 - Complete Chinese/English desktop and mobile visual checks passed for the dashboard, knowledge-base, document, chat, and Analysis surfaces.
-- Offline Windows Sandbox validation on 2026-07-27 passed for the exact artifact without Python, Node.js, npm, Rust, Cargo, Git, project source code, or network access.
+- Offline Windows Sandbox validation on 2026-07-29 passed for the exact artifact without Python, Node.js, npm, Rust, Cargo, Git, project source code, or network access.
 - The Sandbox proved installation, fixed-runtime UI rendering from the app-local `150.0.4078.99` process path, backend health and listener ownership, authentication, knowledge-base creation, Markdown/CSV upload, dataset discovery, CSV profile, WM_CLOSE-equivalent window shutdown, backend cleanup, silent uninstall, and preservation of `%APPDATA%\KnowBase`.
 
 ## Blocking Gates
 
 - Confirm real-provider cited chat and natural-language CSV Analysis with the exact candidate artifact.
 - Obtain a valid code-signing certificate, or record explicit approval for an unsigned tester release and include the exact disclosure in the release notes.
-- Replace the remaining `not tested` clean-machine results with attached validation evidence.
 
 Do not create a public GitHub Release until every blocking gate is resolved and the release validation issue records a `Ready` decision.
