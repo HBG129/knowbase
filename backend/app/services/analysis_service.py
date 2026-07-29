@@ -294,8 +294,13 @@ def run_analysis_query(db: Session, kb_id: str, doc: Document, user: User, quest
     except duckdb.Error as e:
         raise AnalysisQueryExecutionError(f"Generated SQL could not be executed: {e}", sql) from e
     chart = _chart_from_result(str(plan.get("chart_type", "table")), query_result["columns"], query_result["rows"], question)
+    language_instruction = (
+        "The user's question is in Chinese. Respond only in Chinese."
+        if any("\u4e00" <= char <= "\u9fff" for char in question)
+        else "Respond in the same language as the user's question."
+    )
     summary_prompt = (
-        "Summarize this analysis result in the user's language. Keep it concise.\n"
+        f"{language_instruction} Keep the summary concise.\n"
         f"Question: {question}\nSQL: {sql}\n"
         f"Columns: {query_result['columns']}\nRows: {query_result['rows'][:20]}\n"
         f"Goal: {plan.get('summary_goal', '')}"
@@ -303,7 +308,7 @@ def run_analysis_query(db: Session, kb_id: str, doc: Document, user: User, quest
     try:
         summary = chat_sync(
             user,
-            "You summarize data analysis results for business users.",
+            f"You summarize data analysis results for business users. {language_instruction}",
             [{"role": "user", "content": summary_prompt}],
             temperature=0.2,
         ).strip()

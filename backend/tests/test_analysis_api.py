@@ -182,6 +182,35 @@ def test_analysis_query_returns_rows_when_summary_generation_fails(client, monke
     assert runs.json()[0]["summary"] == result["summary"]
 
 
+def test_analysis_summary_prompt_explicitly_requires_chinese_for_chinese_question(
+    client,
+    monkeypatch,
+    tmp_path,
+):
+    register_user(client)
+    headers = auth_headers(login_user(client))
+    _configure_api_key(client, headers)
+    kb, doc = _create_kb_with_csv(client, headers, tmp_path, monkeypatch)
+    prompts = []
+
+    def fake_chat_sync(user, system_prompt, messages, temperature=0.2):
+        prompts.append(messages[0]["content"])
+        if len(prompts) == 1:
+            return '{"sql":"select channel, sum(revenue) as total_revenue from dataset group by channel","chart_type":"bar","summary_goal":"Summarize revenue"}'
+        return "网页渠道收入最高。"
+
+    monkeypatch.setattr("app.services.analysis_service.chat_sync", fake_chat_sync)
+
+    response = client.post(
+        "/api/kb/" + kb["id"] + "/analysis/query",
+        json={"doc_id": doc["id"], "question": "按渠道汇总收入。"},
+        headers=headers,
+    )
+
+    assert response.status_code == 200, response.text
+    assert "The user's question is in Chinese. Respond only in Chinese." in prompts[1]
+
+
 def test_non_member_cannot_access_analysis(client, monkeypatch, tmp_path):
     register_user(client, email="owner@example.com", username="owner")
     owner_headers = auth_headers(login_user(client, email="owner@example.com"))
