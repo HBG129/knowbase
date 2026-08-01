@@ -120,6 +120,20 @@ def test_api_key_provider_must_be_supported(client):
     assert response.status_code == 400
 
 
+def test_api_key_rejects_documentation_placeholder(client):
+    register_user(client)
+    headers = auth_headers(login_user(client))
+
+    response = client.put(
+        "/api/auth/me/api-key",
+        json={"api_key": "sk-your-key", "api_provider": "openai"},
+        headers=headers,
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Enter a real API key, not an example value"
+
+
 def test_api_key_can_be_set_and_cleared_without_echoing_secret(client):
     register_user(client)
     headers = auth_headers(login_user(client))

@@ -3,6 +3,10 @@ from tests.test_auth_api import auth_headers, login_user, register_user
 
 def _create_kb_with_csv(client, headers, tmp_path, monkeypatch):
     monkeypatch.setattr("app.config.settings.UPLOAD_DIR", str(tmp_path / "uploads"))
+    monkeypatch.setattr(
+        "app.services.ingestion_service.embed_texts",
+        lambda user, texts: [[1.0] for _ in texts],
+    )
     kb = client.post("/api/kb", json={"name": "Sales Data"}, headers=headers).json()
     upload = client.post(
         "/api/kb/" + kb["id"] + "/documents",

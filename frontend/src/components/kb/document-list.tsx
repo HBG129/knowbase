@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useState, useEffect } from "react";
-import { FileText, File, Trash2, Loader2, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { FileText, File, Trash2, Loader2, Clock, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { api } from "@/lib/api";
@@ -14,6 +14,7 @@ interface Document {
   file_size: number;
   status: string;
   chunk_count: number;
+  error_message?: string | null;
   created_at: string;
 }
 
@@ -75,7 +76,9 @@ export function DocumentList({ kbId, onSelect, selectedId }: DocumentListProps) 
   return (
     <div className="space-y-1.5">
       {docs.map((doc) => {
-        const config = statusConfig[doc.status as keyof typeof statusConfig] || statusConfig.pending;
+        const config = doc.status === "completed" && doc.error_message
+          ? { icon: AlertTriangle, labelKey: "kb.status.keywordOnly" as const, variant: "warning" as const }
+          : statusConfig[doc.status as keyof typeof statusConfig] || statusConfig.pending;
         const Icon = config.icon;
 
         return (

@@ -33,11 +33,12 @@ def _bm25_score(
     doc_tokens: list[str],
     doc_freqs: dict[str, int],  # token -> how many docs contain it
     total_docs: int,
+    avg_doc_length: float | None = None,
     k1: float = 1.2, b: float = 0.75,
 ) -> float:
     if not query_tokens or not doc_tokens:
         return 0.0
-    avgdl = sum(len(d) for d in ([doc_tokens])) / max(total_docs, 1) if total_docs > 0 else len(doc_tokens)
+    avgdl = avg_doc_length or len(doc_tokens)
     dl = len(doc_tokens)
     score = 0.0
     for qt in query_tokens:
@@ -70,9 +71,10 @@ def keyword_search_bm25(db: Session, kb_id: str, query: str, top_k: int = 20) ->
         for t in set(tokens):
             doc_freqs[t] = doc_freqs.get(t, 0) + 1
     total_docs = len(tokenized)
+    avg_doc_length = sum(len(tokens) for _, tokens in tokenized) / total_docs
     scored = []
     for chunk, tokens in tokenized:
-        s = _bm25_score(query_tokens, tokens, doc_freqs, total_docs)
+        s = _bm25_score(query_tokens, tokens, doc_freqs, total_docs, avg_doc_length)
         if s > 0:
             scored.append((chunk, s))
     scored.sort(key=lambda x: x[1], reverse=True)
