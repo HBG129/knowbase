@@ -66,8 +66,8 @@ A customer can install KnowBase, launch it, create an account, configure an API 
 
 ## Current Blockers
 
-- Complete cited RAG and natural-language CSV Analysis with a real provider key on the exact release artifact.
 - Public customer release needs a valid code signature, or explicit unsigned approval evidence plus a clear unsigned disclosure in the release notes.
+- After the signature decision, rebuild and repeat exact-artifact clean-machine and real-provider validation before publishing final release notes and checksums.
 
 ## Required Verification Gates
 
