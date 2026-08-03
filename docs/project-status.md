@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-07-27
+Last updated: 2026-08-03
 
 This document tracks the practical delivery status of KnowBase.
 
@@ -10,8 +10,8 @@ This document tracks the practical delivery status of KnowBase.
 | --- | ---: | --- |
 | Resume and interview showcase | 98% | Strong project story, architecture, RAG workflow, CSV Analysis Agent, packaging path, release process, CI history, customer-readiness narrative, beta testing workflow, and installed-app evidence are present. |
 | GitHub portfolio completeness | 98% | README, architecture, roadmap, project plan, changelog, support, security, release docs, demo data, CI, release gates, issue templates, branded desktop icon, and desktop artifacts are in place. |
-| Limited tester readiness | 98% | The exact CI installer passed automated offline clean-machine install, launch, core API, close, cleanup, and uninstall checks; real-provider and signature-policy evidence remain. |
-| Public customer release readiness | 94% | Core workflows, bilingual UX, release automation, dependency audit, exact-artifact clean-machine evidence, and uninstall behavior are strong, but real-provider validation, final release notes, and code signing remain required. |
+| Limited tester readiness | 99% | The exact CI installer passed automated offline clean-machine and real-provider RAG/Analysis validation; only the final signature-policy decision and release materials remain. |
+| Public customer release readiness | 97% | Core workflows, bilingual UX, release automation, dependency audits, exact-artifact clean-machine evidence, real-provider validation, and uninstall behavior pass; code signing and final release notes remain required. |
 
 ## Verified
 
@@ -147,7 +147,7 @@ This document tracks the practical delivery status of KnowBase.
 - Language preference hydrates after client mount, avoiding server/client language mismatches, and authentication routes remain correctly recognized with or without a trailing slash.
 - CI and release preflight enforce Chinese/English key parity, reject unknown translation keys and duplicate entries, scan product surfaces for hardcoded interface copy and mojibake, and verify localized API and authentication behavior.
 - Chinese and English localization was visually verified on desktop and mobile viewports, including the dashboard, knowledge-base details, document list, and CSV Analysis workspace.
-- Last confirmed pushed CI run: run `30360368704` for commit `96f219018b5602641ed558cdee33b15681a98e15`; repository checks, Python and frontend production dependency audits, `135` backend tests, and frontend build passed.
+- Last confirmed pushed CI run: run `30698708279` for commit `02bfc4d0d5bc1813aad63d2497c759e10f82c724`; repository checks, Python and frontend production dependency audits, `138` backend tests, and frontend build passed.
 - Desktop artifact verification script checks for:
   - `backend\dist\KnowBaseBackend.exe`
   - NSIS installer under `frontend\src-tauri\target\release\bundle\nsis`
@@ -158,13 +158,16 @@ This document tracks the practical delivery status of KnowBase.
 - A WM_CLOSE-equivalent window close removed the desktop process; both packaged backend processes and the port `8000` listener exited; silent uninstall returned `0` and removed the installed executable.
 - Uninstall preserved `%APPDATA%\KnowBase`, matching the documented customer-controlled backup and removal policy.
 - The current source pins WebView2 Fixed Version Runtime `150.0.4078.99`, verifies the CAB SHA256 and Microsoft Authenticode signature before packaging, and prepares the app-local runtime successfully.
-- Current local verification passes with `135` backend tests, a no-known-vulnerability Python dependency audit, a Next.js `15.5.21` production build, a zero-vulnerability frontend production audit, and release preflight.
-- The current GitHub Actions fixed-runtime Tauri/NSIS build completed successfully in run `30360681930`:
-  - artifact: `KnowBaseDesktop-Windows-29`,
-  - installer size: `310079531` bytes,
-  - installer SHA256: `A9852F59E093861F89484E27B60EE50376E71E3DB6976428387AD48676704684`,
+- Current local verification passes with `138` backend tests, a no-known-vulnerability Python dependency audit, a Next.js `15.5.21` production build, a zero-vulnerability frontend production audit, and release preflight.
+- The current GitHub Actions fixed-runtime Tauri/NSIS build completed successfully in run `30698787062` for commit `02bfc4d0d5bc1813aad63d2497c759e10f82c724`:
+  - artifact: `KnowBaseDesktop-Windows-31`,
+  - GitHub artifact digest: `sha256:c3552cf384dd9c7b9e2374cac343b1da13d6466e2931a1de22ade7532e02237c`,
+  - installer size: `310171268` bytes,
+  - installer SHA256: `D84FA9EFBAD460324587F00232BB7E3C791BF3D8C93BAA68473C581F7DA640B7`,
   - Authenticode status: `NotSigned`,
   - packaged-backend health and desktop artifact verification: passed.
+- Offline Windows Sandbox validation passed on 2026-08-03 for the exact Windows-31 installer and SHA256 without Python, Node.js, npm, Rust, Cargo, Git, project source, or network access. Installation, bundled WebView2 `150.0.4078.99`, backend health/listener ownership, registration/login, Markdown and CSV upload, Analysis dataset discovery/profile, graceful shutdown, uninstall, and customer-data preservation all passed.
+- Real-provider validation passed on 2026-08-03 for the installed Windows-31 candidate using synthetic data and a temporary Zhipu key. Real embedding ingestion, Chinese grounded RAG with two complete citations, CSV Analysis with safe SQL, three result rows, bar chart, Chinese summary, insights, analysis-history restore, credential removal, process cleanup, and isolated-data cleanup all passed.
 
 ## Current Blockers
 
@@ -172,7 +175,7 @@ This document tracks the practical delivery status of KnowBase.
 
 - The selected controlled tester candidate is `v0.1.0-rc.1`; the GA target is `v0.1.0` after all release gates pass.
 - The current installer is `NotSigned`. Publishing requires a valid signature or explicit unsigned-release approval with exact release-note disclosure.
-- The exact candidate artifact still needs real-provider cited chat and natural-language CSV Analysis evidence.
+- Exact-artifact clean-machine and real-provider evidence are complete. The remaining release-policy decision is code signing or explicit unsigned-release approval with exact disclosure.
 
 ### Local machine
 
@@ -197,12 +200,11 @@ The desktop package workflow is currently passing:
 
 ## Next Required Checks
 
-1. Validate cited RAG and natural-language CSV Analysis with a temporary real provider key on the exact candidate artifact.
-2. Integrate the supplied code-signing certificate and verify the signed installer and installed executable.
+1. Integrate the supplied code-signing certificate and verify the signed installer and installed executable.
+2. Rebuild and repeat exact-artifact signature, clean-machine, and real-provider checks for the signed candidate.
 3. Generate final release notes and release-validation evidence from the signed artifact.
 
 ## Not Release Ready Until
 
-- Real-provider cited RAG and natural-language CSV Analysis pass on the exact release installer.
 - The installer has a valid code signature, or release notes explicitly state that the build is unsigned.
 - Release notes include exact verification results.
