@@ -465,8 +465,8 @@ def test_desktop_workflow_runs_tauri_runtime_tests_before_packaging():
     package_index = workflow.index("- name: Build desktop package")
 
     assert "working-directory: frontend/src-tauri" in workflow[test_index:package_index]
-    assert 'TAURI_CONFIG: \'{"bundle":{"windows":{"webviewInstallMode":{"type":"skip"}}}}\'' in workflow[test_index:package_index]
-    assert "run: cargo test" in workflow[test_index:package_index]
+    assert "rustc --edition 2021 --test src/backend_runtime.rs" in workflow[test_index:package_index]
+    assert ".\\target\\backend-runtime-tests.exe" in workflow[test_index:package_index]
     assert test_index < package_index
 
 

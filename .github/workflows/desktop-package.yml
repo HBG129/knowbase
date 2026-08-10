@@ -83,9 +83,10 @@ jobs:
 
       - name: Run Tauri runtime tests
         working-directory: frontend/src-tauri
-        env:
-          TAURI_CONFIG: '{"bundle":{"windows":{"webviewInstallMode":{"type":"skip"}}}}'
-        run: cargo test
+        shell: pwsh
+        run: |
+          rustc --edition 2021 --test src/backend_runtime.rs -o target/backend-runtime-tests.exe
+          .\target\backend-runtime-tests.exe
 
       - name: Build desktop package
         shell: cmd
