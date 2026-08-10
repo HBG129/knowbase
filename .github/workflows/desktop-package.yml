@@ -83,6 +83,8 @@ jobs:
 
       - name: Run Tauri runtime tests
         working-directory: frontend/src-tauri
+        env:
+          TAURI_CONFIG: '{"bundle":{"windows":{"webviewInstallMode":{"type":"skip"}}}}'
         run: cargo test
 
       - name: Build desktop package
