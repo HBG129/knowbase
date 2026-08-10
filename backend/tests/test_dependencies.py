@@ -29,11 +29,22 @@ def test_frontend_uses_audited_next_and_bundled_postcss_versions():
     package = json.loads((repo_root / "frontend" / "package.json").read_text(encoding="utf-8"))
     lock = json.loads((repo_root / "frontend" / "package-lock.json").read_text(encoding="utf-8"))
 
-    assert package["dependencies"]["next"] == "15.5.21"
-    assert package["overrides"]["next"]["postcss"] == "8.5.18"
-    assert lock["packages"][""]["dependencies"]["next"] == "15.5.21"
-    assert lock["packages"]["node_modules/next"]["version"] == "15.5.21"
-    assert lock["packages"]["node_modules/next/node_modules/postcss"]["version"] == "8.5.18"
+    assert package["dependencies"]["next"] == "15.5.23"
+    assert package["overrides"]["next"]["postcss"] == "8.5.26"
+    assert package["overrides"]["nanoid"] == "3.3.18"
+    assert lock["packages"][""]["dependencies"]["next"] == "15.5.23"
+    assert lock["packages"]["node_modules/next"]["version"] == "15.5.23"
+    assert lock["packages"]["node_modules/postcss"]["version"] == "8.5.26"
+    assert lock["packages"]["node_modules/nanoid"]["version"] == "3.3.18"
+
+
+def test_backend_dependencies_enforce_current_security_floors():
+    pyproject = Path(__file__).resolve().parents[1] / "pyproject.toml"
+    data = tomllib.loads(pyproject.read_text(encoding="utf-8"))
+    dependencies = data["project"]["dependencies"]
+
+    assert "aiohttp>=3.14.3" in dependencies
+    assert "cryptography>=50.0.0" in dependencies
 
 
 def test_frontend_overrides_next_sharp_to_patched_version():

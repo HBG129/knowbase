@@ -142,7 +142,7 @@ This document tracks the practical delivery status of KnowBase.
 - CI blocks tracked `.env`, local databases, uploads, artifacts, and desktop build outputs.
 - CI checks required release documentation paths and references.
 - CI runs the release preflight script that aggregates repository checks before packaging or publishing.
-- Frontend production dependency audit is release-clean on Next.js 15.5.21 with Next's bundled PostCSS overridden to 8.5.18; `npm audit --omit=dev --audit-level=high` reports zero vulnerabilities.
+- Frontend production dependency audit is release-clean on Next.js 15.5.23 with PostCSS 8.5.26 and Nano ID 3.3.18; both full and production-only npm audits report zero vulnerabilities.
 - Complete Chinese and English product localization now covers authentication, navigation, the knowledge-base dashboard, document workflows, cited chat, API key settings, CSV Analysis, errors, empty states, relative dates, and accessibility labels.
 - Language preference hydrates after client mount, avoiding server/client language mismatches, and authentication routes remain correctly recognized with or without a trailing slash.
 - CI and release preflight enforce Chinese/English key parity, reject unknown translation keys and duplicate entries, scan product surfaces for hardcoded interface copy and mojibake, and verify localized API and authentication behavior.
@@ -158,7 +158,7 @@ This document tracks the practical delivery status of KnowBase.
 - A WM_CLOSE-equivalent window close removed the desktop process; both packaged backend processes and the port `8000` listener exited; silent uninstall returned `0` and removed the installed executable.
 - Uninstall preserved `%APPDATA%\KnowBase`, matching the documented customer-controlled backup and removal policy.
 - The current source pins WebView2 Fixed Version Runtime `150.0.4078.99`, verifies the CAB SHA256 and Microsoft Authenticode signature before packaging, and prepares the app-local runtime successfully.
-- Current local verification passes with `138` backend tests, a no-known-vulnerability Python dependency audit, a Next.js `15.5.21` production build, a zero-vulnerability frontend production audit, and release preflight.
+- Current local verification passes with `139` backend tests, a no-known-vulnerability Python dependency audit, a Next.js `15.5.23` production build, and zero-vulnerability frontend audits. Release preflight is rerun before each release commit.
 - The current GitHub Actions fixed-runtime Tauri/NSIS build completed successfully in run `30698787062` for commit `02bfc4d0d5bc1813aad63d2497c759e10f82c724`:
   - artifact: `KnowBaseDesktop-Windows-31`,
   - GitHub artifact digest: `sha256:c3552cf384dd9c7b9e2374cac343b1da13d6466e2931a1de22ade7532e02237c`,

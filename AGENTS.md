@@ -56,7 +56,7 @@ A customer can install KnowBase, launch it, create an account, configure an API 
 
 4. Release readiness
    - Keep release preflight green.
-   - Frontend production dependency audit is release-clean on Next.js 15.5.21 with Next's bundled PostCSS overridden to 8.5.18; keep the audit gate green.
+   - Frontend production dependency audit is release-clean on Next.js 15.5.23 with PostCSS 8.5.26 and Nano ID 3.3.18; keep the audit gate green.
    - Keep support and validation docs current.
    - Record signature policy evidence in the release validation issue: valid signer details, or unsigned approver, approval date, and exact release-notes disclosure.
    - Keep generated smoke-test files out of the git working tree.
