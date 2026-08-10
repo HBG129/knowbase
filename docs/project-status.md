@@ -158,7 +158,8 @@ This document tracks the practical delivery status of KnowBase.
 - A WM_CLOSE-equivalent window close removed the desktop process; both packaged backend processes and the port `8000` listener exited; silent uninstall returned `0` and removed the installed executable.
 - Uninstall preserved `%APPDATA%\KnowBase`, matching the documented customer-controlled backup and removal policy.
 - The current source pins WebView2 Fixed Version Runtime `150.0.4078.99`, verifies the CAB SHA256 and Microsoft Authenticode signature before packaging, and prepares the app-local runtime successfully.
-- Current local verification passes with `139` backend tests, a no-known-vulnerability Python dependency audit, a Next.js `15.5.23` production build, and zero-vulnerability frontend audits. Release preflight is rerun before each release commit.
+- Current local verification passes with `141` backend tests, a no-known-vulnerability Python dependency audit, a Next.js `15.5.23` production build, and zero-vulnerability frontend audits. Release preflight is rerun before each release commit.
+- The desktop runtime now prefers port `8000` but falls back to an available loopback port when it is occupied; the frontend obtains the selected URL through a Tauri command, and support tools discover the listener by `KnowBaseBackend.exe` process ownership.
 - The current GitHub Actions fixed-runtime Tauri/NSIS build completed successfully in run `30698787062` for commit `02bfc4d0d5bc1813aad63d2497c759e10f82c724`:
   - artifact: `KnowBaseDesktop-Windows-31`,
   - GitHub artifact digest: `sha256:c3552cf384dd9c7b9e2374cac343b1da13d6466e2931a1de22ade7532e02237c`,

@@ -1,5 +1,6 @@
 use std::{
-    env,
+    env, io,
+    net::TcpListener,
     path::{Path, PathBuf},
     process::{Child, Command, Stdio},
     sync::Mutex,
@@ -10,13 +11,14 @@ use std::os::windows::process::CommandExt;
 
 const BACKEND_EXE_NAME: &str = "KnowBaseBackend.exe";
 const BACKEND_HOST: &str = "127.0.0.1";
-const BACKEND_PORT: &str = "8000";
+const PREFERRED_BACKEND_PORT: u16 = 8000;
 const DESKTOP_CORS_ORIGINS: &str = r#"["http://localhost:3000","tauri://localhost","http://tauri.localhost","https://tauri.localhost"]"#;
 #[cfg(windows)]
 const CREATE_NO_WINDOW: u32 = 0x08000000;
 
 pub struct BackendProcess {
     child: Mutex<Option<Child>>,
+    port: Option<u16>,
 }
 
 impl BackendProcess {
@@ -35,10 +37,17 @@ impl BackendProcess {
                 continue;
             }
 
+            let port = match select_backend_port() {
+                Ok(port) => port,
+                Err(error) => {
+                    eprintln!("Failed to select a KnowBase backend port: {error}");
+                    break;
+                }
+            };
             let mut command = Command::new(&candidate);
             command
                 .env("KNOWBASE_BACKEND_HOST", BACKEND_HOST)
-                .env("KNOWBASE_BACKEND_PORT", BACKEND_PORT)
+                .env("KNOWBASE_BACKEND_PORT", port.to_string())
                 .env("CORS_ORIGINS", DESKTOP_CORS_ORIGINS)
                 .stdin(Stdio::null())
                 .stdout(Stdio::null())
@@ -54,6 +63,7 @@ impl BackendProcess {
                     eprintln!("KnowBase backend started: {}", candidate.display());
                     return Self {
                         child: Mutex::new(Some(child)),
+                        port: Some(port),
                     };
                 }
                 Err(error) => {
@@ -70,7 +80,14 @@ impl BackendProcess {
         );
         Self {
             child: Mutex::new(None),
+            port: None,
         }
+    }
+
+    pub fn base_url(&self) -> Result<String, String> {
+        self.port
+            .map(|port| format!("http://{BACKEND_HOST}:{port}"))
+            .ok_or_else(|| "KnowBase backend is not running".to_string())
     }
 
     pub fn stop(&self) {
@@ -80,6 +97,20 @@ impl BackendProcess {
 
         if let Some(mut child) = child.take() {
             stop_child(&mut child);
+        }
+    }
+}
+
+fn select_backend_port() -> io::Result<u16> {
+    select_backend_port_with_preferred(PREFERRED_BACKEND_PORT)
+}
+
+fn select_backend_port_with_preferred(preferred_port: u16) -> io::Result<u16> {
+    match TcpListener::bind((BACKEND_HOST, preferred_port)) {
+        Ok(listener) => listener.local_addr().map(|address| address.port()),
+        Err(_) => {
+            let listener = TcpListener::bind((BACKEND_HOST, 0))?;
+            listener.local_addr().map(|address| address.port())
         }
     }
 }
@@ -172,6 +203,17 @@ fn windows_taskkill_args(pid: u32) -> Vec<String> {
 mod tests {
     use super::*;
     use std::path::{Path, PathBuf};
+
+    #[test]
+    fn backend_port_falls_back_when_preferred_port_is_occupied() {
+        let occupied = TcpListener::bind((BACKEND_HOST, 0)).expect("bind occupied port");
+        let occupied_port = occupied.local_addr().expect("occupied address").port();
+
+        let selected = select_backend_port_with_preferred(occupied_port)
+            .expect("select fallback backend port");
+
+        assert_ne!(selected, occupied_port);
+    }
 
     #[test]
     fn dev_backend_path_uses_repo_root_from_tauri_manifest_dir() {

@@ -25,7 +25,7 @@ foreach ($requiredDirective in @(
   "object-src 'none'",
   "base-uri 'none'",
   "frame-ancestors 'none'",
-  "connect-src 'self' ipc: http://ipc.localhost http://localhost:8000 http://127.0.0.1:8000"
+  "connect-src 'self' ipc: http://ipc.localhost http://127.0.0.1:*"
 )) {
   if (-not $csp.Contains($requiredDirective)) {
     Fail "Tauri Content Security Policy is missing: $requiredDirective"

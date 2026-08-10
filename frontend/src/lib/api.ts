@@ -1,6 +1,7 @@
 import { Lang, TranslationKey, TranslationValues, t } from "@/lib/i18n";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const CONFIGURED_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const BROWSER_BASE_URL = CONFIGURED_BASE_URL || "http://localhost:8000";
 const AUTH_TOKEN_PATHS = new Set([
   "/api/auth/login",
   "/api/auth/register",
@@ -13,10 +14,37 @@ interface TokenResponse {
 }
 
 let refreshPromise: Promise<string | null> | null = null;
+let baseUrlPromise: Promise<string> | null = null;
 
 function localizedMessage(key: TranslationKey, values?: TranslationValues): string {
   const lang: Lang = typeof window !== "undefined" && localStorage.getItem("knowbase-lang") === "en" ? "en" : "zh";
   return t(lang, key, values);
+}
+
+function getBaseUrl(): Promise<string> {
+  if (CONFIGURED_BASE_URL || typeof window === "undefined") {
+    return Promise.resolve(BROWSER_BASE_URL);
+  }
+
+  if (!baseUrlPromise) {
+    baseUrlPromise = import("@tauri-apps/api/core")
+      .then(({ invoke, isTauri }) => {
+        if (!isTauri()) return BROWSER_BASE_URL;
+        return invoke<string>("backend_base_url");
+      })
+      .then((baseUrl) => {
+        if (!/^http:\/\/127\.0\.0\.1:\d+$/.test(baseUrl)) {
+          throw new Error("Invalid desktop backend URL");
+        }
+        return baseUrl;
+      })
+      .catch(() => {
+        baseUrlPromise = null;
+        throw new Error(localizedMessage("api.networkError"));
+      });
+  }
+
+  return baseUrlPromise;
 }
 
 function localizeApiDetail(detail: unknown): string {
@@ -72,7 +100,7 @@ async function refreshAccessToken(): Promise<string | null> {
   if (!refreshPromise) {
     refreshPromise = (async () => {
       try {
-        const res = await fetchWithNetworkMessage(BASE_URL + "/api/auth/refresh", {
+        const res = await fetchWithNetworkMessage((await getBaseUrl()) + "/api/auth/refresh", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ refresh_token: refreshToken }),
@@ -99,12 +127,13 @@ async function refreshAccessToken(): Promise<string | null> {
 }
 
 async function fetchWithAuth(path: string, init?: RequestInit): Promise<Response> {
+  const baseUrl = await getBaseUrl();
   const buildHeaders = (token: string | null) => ({
     ...init?.headers,
     ...(token ? { Authorization: "Bearer " + token } : {}),
   });
 
-  let res = await fetchWithNetworkMessage(BASE_URL + path, {
+  let res = await fetchWithNetworkMessage(baseUrl + path, {
     ...init,
     headers: buildHeaders(localStorage.getItem("access_token")),
   });
@@ -112,7 +141,7 @@ async function fetchWithAuth(path: string, init?: RequestInit): Promise<Response
   if (res.status === 401 && !AUTH_TOKEN_PATHS.has(path)) {
     const refreshedToken = await refreshAccessToken();
     if (refreshedToken) {
-      res = await fetchWithNetworkMessage(BASE_URL + path, {
+      res = await fetchWithNetworkMessage(baseUrl + path, {
         ...init,
         headers: buildHeaders(refreshedToken),
       });

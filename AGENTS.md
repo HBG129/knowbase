@@ -42,6 +42,7 @@ A customer can install KnowBase, launch it, create an account, configure an API 
    - Keep Tauri bundle resources and NSIS installer hooks valid.
    - Keep the pinned app-local WebView2 Fixed Version Runtime embedded so clean Windows installs do not require a separate runtime download.
    - Keep packaged backend health checks scriptable.
+   - Do not assume desktop port `8000` is available; prefer it when free, fall back to an available loopback port, and expose the selected URL through the Tauri command API.
 
 2. Knowledge base RAG quality
    - Preserve upload, ingestion, retrieval, citation, and conversation history behavior.
@@ -63,6 +64,7 @@ A customer can install KnowBase, launch it, create an account, configure an API 
    - Never persist login passwords in WebView storage; the optional login convenience may remember only the email address.
    - Keep the desktop Content Security Policy explicit and restricted to local assets and the loopback backend.
    - Keep complete local-data removal aligned across `%APPDATA%\KnowBase`, the WebView profile, and Windows Credential Manager.
+   - Keep installed-app and support diagnostics aligned with the dynamically selected packaged-backend port.
 
 ## Current Blockers
 

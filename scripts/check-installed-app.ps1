@@ -1,6 +1,6 @@
 param(
   [string]$OutputDir = "",
-  [string]$HealthUrl = "http://127.0.0.1:8000/api/health",
+  [string]$HealthUrl = "",
   [switch]$AllowFailures
 )
 
@@ -48,11 +48,15 @@ function Get-ShortcutTarget($Path) {
   return $null
 }
 
-function Wait-BackendListeners {
+function Wait-BackendListeners($ProcessIds) {
   for ($attempt = 0; $attempt -lt 10; $attempt++) {
     $listeners = @(
-      Get-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue |
-        Where-Object { $_.LocalAddress -eq "127.0.0.1" -and "$($_.State)" -eq "Listen" }
+      Get-NetTCPConnection -ErrorAction SilentlyContinue |
+        Where-Object {
+          $_.LocalAddress -eq "127.0.0.1" -and
+          "$($_.State)" -eq "Listen" -and
+          $_.OwningProcess -in $ProcessIds
+        }
     )
 
     if ($listeners.Count -gt 0) {
@@ -144,9 +148,12 @@ $backendProcessPaths = @(
     }
   }
 ) | Where-Object { $_ -and $_.Trim() }
-$backendListeners = @(Wait-BackendListeners)
 $backendProcessIds = @($backendProcesses | Select-Object -ExpandProperty Id)
+$backendListeners = @(Wait-BackendListeners $backendProcessIds)
 $listenerOwnedByBackend = $backendListeners.Count -eq 1 -and $backendListeners[0].OwningProcess -in $backendProcessIds
+if (-not $HealthUrl -and $backendListeners.Count -eq 1) {
+  $HealthUrl = "http://127.0.0.1:$($backendListeners[0].LocalPort)/api/health"
+}
 $installedAppDirs = @(
   $existingExe | ForEach-Object {
     try {
@@ -170,7 +177,7 @@ foreach ($backendPath in $backendProcessPaths) {
   } catch {
   }
 }
-$healthUrlLine = "Health URL: ``$HealthUrl``"
+$healthUrlLine = "Health URL: ``$(if ($HealthUrl) { $HealthUrl } else { 'not discovered' })``"
 $appDataDirLine = "Expected data directory: ``$appDataDir``"
 
 Add-Check "Installed app executable" ($existingExe.Count -gt 0) ($(if ($existingExe.Count -gt 0) { $existingExe -join "; " } else { "No KnowBase.exe found in common install locations." }))
@@ -178,16 +185,20 @@ Add-Check "Shortcut" ($existingShortcuts.Count -gt 0) ($(if ($existingShortcuts.
 Add-Check "App data directory" (Test-Path -LiteralPath $appDataDir) $appDataDir
 Add-Check "KnowBase process" ($knowBaseProcesses.Count -gt 0) ($(if ($knowBaseProcesses.Count -gt 0) { ($knowBaseProcesses | Select-Object -ExpandProperty Id) -join ", " } else { "No KnowBase process is currently running." }))
 Add-Check "Backend process" ($backendProcesses.Count -gt 0) ($(if ($backendProcesses.Count -gt 0) { ($backendProcesses | Select-Object -ExpandProperty Id) -join ", " } else { "No KnowBaseBackend process is currently running." }))
-Add-Check "Backend listener" ($backendListeners.Count -eq 1) ($(if ($backendListeners.Count -eq 1) { "127.0.0.1:8000 is listening in process $($backendListeners[0].OwningProcess)." } else { "Expected one 127.0.0.1:8000 listener, found $($backendListeners.Count)." }))
-Add-Check "Backend listener identity" $listenerOwnedByBackend ($(if ($listenerOwnedByBackend) { "Listener process $($backendListeners[0].OwningProcess) is a KnowBaseBackend process." } else { "The 127.0.0.1:8000 listener does not belong to a detected KnowBaseBackend process." }))
+Add-Check "Backend listener" ($backendListeners.Count -eq 1) ($(if ($backendListeners.Count -eq 1) { "127.0.0.1:$($backendListeners[0].LocalPort) is listening in process $($backendListeners[0].OwningProcess)." } else { "Expected one loopback listener owned by KnowBaseBackend, found $($backendListeners.Count)." }))
+Add-Check "Backend listener identity" $listenerOwnedByBackend ($(if ($listenerOwnedByBackend) { "Listener process $($backendListeners[0].OwningProcess) is a KnowBaseBackend process." } else { "No discovered loopback listener belongs to a detected KnowBaseBackend process." }))
 Add-Check "Backend process install path" ($backendPathsUnderInstall.Count -gt 0) ($(if ($backendPathsUnderInstall.Count -gt 0) { $backendPathsUnderInstall -join "; " } else { "No KnowBaseBackend process path is under the installed KnowBase application directory." }))
 
-try {
-  $health = Invoke-RestMethod -Uri $HealthUrl -TimeoutSec 5
-  $healthText = $health | ConvertTo-Json -Compress
-  Add-Check "Backend health endpoint" ($healthText -match '"status":"ok"') "$HealthUrl returned $healthText"
-} catch {
-  Add-Check "Backend health endpoint" $false "$HealthUrl failed: $($_.Exception.Message)"
+if ($HealthUrl) {
+  try {
+    $health = Invoke-RestMethod -Uri $HealthUrl -TimeoutSec 5
+    $healthText = $health | ConvertTo-Json -Compress
+    Add-Check "Backend health endpoint" ($healthText -match '"status":"ok"') "$HealthUrl returned $healthText"
+  } catch {
+    Add-Check "Backend health endpoint" $false "$HealthUrl failed: $($_.Exception.Message)"
+  }
+} else {
+  Add-Check "Backend health endpoint" $false "No KnowBaseBackend loopback listener was discovered."
 }
 
 $report = @(

@@ -394,15 +394,15 @@ The backend pytest configuration limits discovery to `backend\tests`, so runtime
 
 Recent local verification:
 
-- Backend tests: 95 passed
-- Frontend production build: passed
+- Backend tests: 141 passed
+- Frontend production build and dependency audits: passed
 - Backend executable health check: `{"status":"ok"}`
-- Windows desktop installer artifact: `KnowBaseDesktop-Windows-20`
-- Installed desktop smoke: installer ran, shortcuts exist, app starts, backend auto-starts, one backend process listens on `127.0.0.1:8000`, and health returns `{"status":"ok"}`
+- Desktop runtime: prefers port `8000`, falls back to an available loopback port when occupied, and reports the selected URL to the frontend through Tauri
+- Installed desktop and clean-machine evidence: tracked in [`docs/project-status.md`](docs/project-status.md)
 - Rust toolchain: installed under `D:\Codex_AI_Workspace\.tools`
 - Desktop prerequisite check: available through `.\check-desktop-prereqs.bat`
 - Desktop packaging pipeline: available through `.\package-desktop.bat`
-- Tauri backend runtime path check: passed with `rustc --test --emit=metadata`
+- Tauri runtime tests: enforced by the Windows desktop packaging workflow
 
 ## Repository Hygiene
 

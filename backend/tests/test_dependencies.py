@@ -384,6 +384,37 @@ def test_installed_app_check_reports_build_identity():
     assert 'Add-Check "Backend process install path"' in content
 
 
+def test_desktop_backend_discovers_an_available_loopback_port():
+    repo_root = Path(__file__).resolve().parents[2]
+    runtime = (repo_root / "frontend" / "src-tauri" / "src" / "backend_runtime.rs").read_text(
+        encoding="utf-8"
+    )
+    tauri_lib = (repo_root / "frontend" / "src-tauri" / "src" / "lib.rs").read_text(
+        encoding="utf-8"
+    )
+    api = (repo_root / "frontend" / "src" / "lib" / "api.ts").read_text(encoding="utf-8")
+    installed_check = (repo_root / "scripts" / "check-installed-app.ps1").read_text(
+        encoding="utf-8"
+    )
+    support_info = (repo_root / "scripts" / "collect-support-info.ps1").read_text(
+        encoding="utf-8"
+    )
+    config = json.loads(
+        (repo_root / "frontend" / "src-tauri" / "tauri.conf.json").read_text(encoding="utf-8")
+    )
+
+    assert "select_backend_port_with_preferred" in runtime
+    assert 'format!("http://{BACKEND_HOST}:{port}")' in runtime
+    assert "backend_base_url" in tauri_lib
+    assert 'invoke<string>("backend_base_url")' in api
+    assert "http://127.0.0.1:*" in config["app"]["security"]["csp"]
+    assert "http://localhost:*" not in config["app"]["security"]["csp"]
+    assert "$_.OwningProcess -in $ProcessIds" in installed_check
+    assert "$($backendListeners[0].LocalPort)/api/health" in installed_check
+    assert "Find-BackendHealthUrl" in support_info
+    assert "$($listener.LocalPort)/api/health" in support_info
+
+
 def test_release_package_support_readme_explains_validation_report():
     repo_root = Path(__file__).resolve().parents[2]
     script = repo_root / "scripts" / "prepare-release-package.ps1"
@@ -422,6 +453,20 @@ def test_desktop_workflow_health_checks_packaged_backend_before_upload():
     assert package_index < health_index < upload_index
     assert ".\\scripts\\check-packaged-backend-health.ps1" in workflow
     assert '      - "scripts/check-packaged-backend-health.ps1"' in workflow
+
+
+def test_desktop_workflow_runs_tauri_runtime_tests_before_packaging():
+    repo_root = Path(__file__).resolve().parents[2]
+    workflow = (repo_root / ".github" / "workflows" / "desktop-package.yml").read_text(
+        encoding="utf-8"
+    )
+
+    test_index = workflow.index("- name: Run Tauri runtime tests")
+    package_index = workflow.index("- name: Build desktop package")
+
+    assert "working-directory: frontend/src-tauri" in workflow[test_index:package_index]
+    assert "run: cargo test" in workflow[test_index:package_index]
+    assert test_index < package_index
 
 
 def test_ci_workflows_gate_frontend_build_with_production_dependency_audit():

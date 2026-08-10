@@ -35,6 +35,8 @@ The target desktop runtime wraps the frontend in Tauri and starts the packaged b
 Tauri shell -> bundled KnowBaseBackend.exe -> local app data -> LLM provider
 ```
 
+The desktop backend prefers `127.0.0.1:8000`. If another local application already owns that port, Tauri selects an available loopback port and exposes the actual backend URL to the frontend through the `backend_base_url` command. Browser development continues to use the configured URL or `http://localhost:8000`.
+
 The packaged backend stores runtime data under the Windows user profile by default:
 
 ```text

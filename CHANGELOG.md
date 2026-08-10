@@ -26,6 +26,8 @@ This project is still pre-release. Version numbers below describe repository mil
 - Windows NSIS packages now embed the offline WebView2 Runtime instead of depending on a successful first-run download.
 - Next.js resolves `sharp` to patched version `0.35.3` after the upstream libvips security advisory.
 - Frontend security floors now use Next.js `15.5.23`, PostCSS `8.5.26`, and Nano ID `3.3.18`; backend security floors require aiohttp `3.14.3` and cryptography `50.0.0` or newer.
+- The Windows desktop runtime now falls back to an available loopback port when `8000` is occupied and supplies the selected backend URL to the frontend through a Tauri command.
+- Installed-app and support diagnostics now discover the listener owned by `KnowBaseBackend.exe` instead of assuming port `8000`.
 - Repository text normalization now includes `.txt`, `.csv`, and `.gitattributes`.
 
 ### Known Limitations

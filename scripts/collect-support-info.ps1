@@ -1,6 +1,6 @@
 param(
   [string]$OutputDir = "",
-  [string]$HealthUrl = "http://127.0.0.1:8000/api/health"
+  [string]$HealthUrl = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -49,6 +49,37 @@ function Get-ShortcutTarget($Path) {
   }
 
   return $null
+}
+
+function Find-BackendHealthUrl {
+  $processIds = @(
+    Get-Process -ErrorAction SilentlyContinue |
+      Where-Object { $_.ProcessName -eq "KnowBaseBackend" } |
+      Select-Object -ExpandProperty Id
+  )
+  if ($processIds.Count -eq 0) {
+    return $null
+  }
+
+  $listener = Get-NetTCPConnection -ErrorAction SilentlyContinue |
+    Where-Object {
+      $_.LocalAddress -eq "127.0.0.1" -and
+      "$($_.State)" -eq "Listen" -and
+      $_.OwningProcess -in $processIds
+    } |
+    Select-Object -First 1
+  if ($listener) {
+    return "http://127.0.0.1:$($listener.LocalPort)/api/health"
+  }
+
+  return $null
+}
+
+if (-not $HealthUrl) {
+  $HealthUrl = Find-BackendHealthUrl
+}
+if (-not $HealthUrl) {
+  $HealthUrl = "http://127.0.0.1:8000/api/health"
 }
 
 try {
