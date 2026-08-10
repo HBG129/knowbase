@@ -20,19 +20,19 @@ This document records the selected release target and current validation evidenc
 
 ## Current Evidence
 
-- Validated source commit: `02bfc4d0d5bc1813aad63d2497c759e10f82c724`
-- PR CI run `30698708279`: repository checks, Python and frontend production dependency audits, `138` backend tests, and frontend build passed.
-- Desktop package run `30698787062`: clean dependency installation, both dependency audits, backend tests, frontend build, pinned WebView2 download and verification, PyInstaller, Tauri/NSIS packaging, packaged-backend health, artifact verification, signature status check, and both artifact uploads passed.
-- GitHub artifact: `KnowBaseDesktop-Windows-31`
-- GitHub artifact digest: `sha256:c3552cf384dd9c7b9e2374cac343b1da13d6466e2931a1de22ade7532e02237c`
-- Installer: `KnowBase_0.1.0_x64-setup.exe`, `310171268` bytes, SHA256 `D84FA9EFBAD460324587F00232BB7E3C791BF3D8C93BAA68473C581F7DA640B7`
+- Validated source commit: `8611043353e81704944255b7b66d0543185c64af`
+- PR CI run `31426401406`: repository checks, Python and frontend production dependency audits, `141` backend tests, and frontend build passed.
+- Desktop package run `31426443435`: clean dependency installation, both dependency audits, backend tests, frontend build, standalone Rust desktop-runtime tests, pinned WebView2 download and verification, PyInstaller, Tauri/NSIS packaging, packaged-backend health, artifact verification, signature status check, and both artifact uploads passed.
+- GitHub artifact: `KnowBaseDesktop-Windows-36`
+- GitHub artifact digest: `sha256:e37038c6283e6d65dff9225238da97d13806a05b769ff8ede759a36c482ea77b`
+- Installer: `KnowBase_0.1.0_x64-setup.exe`, `310498339` bytes, SHA256 `A7A8C3C48BF5BDF1967958C57605511D64FFF9061C3B91B6CD916047F69E5685`
 - Installer Authenticode status: `NotSigned`
-- The candidate pins Next.js `15.5.21`, Next's bundled PostCSS `8.5.18`, and WebView2 Fixed Version Runtime `150.0.4078.99`.
+- The candidate pins Next.js `15.5.23`, Next's bundled PostCSS `8.5.26`, Nano ID `3.3.18`, Python security floors `aiohttp>=3.14.3` and `cryptography>=50.0.0`, and WebView2 Fixed Version Runtime `150.0.4078.99`.
 - Local upgrade/install verification passed for shortcuts, bundled backend startup, listener ownership, health response, and process cleanup after closing the desktop window.
 - Complete Chinese/English desktop and mobile visual checks passed for the dashboard, knowledge-base, document, chat, and Analysis surfaces.
-- Offline Windows Sandbox validation on 2026-08-03 passed for the exact artifact without Python, Node.js, npm, Rust, Cargo, Git, project source code, or network access.
-- The Sandbox proved installation, fixed-runtime UI rendering from the app-local `150.0.4078.99` process path, backend health and listener ownership, authentication, knowledge-base creation, Markdown/CSV upload, dataset discovery, CSV profile, WM_CLOSE-equivalent window shutdown, backend cleanup, silent uninstall, and preservation of `%APPDATA%\KnowBase`.
-- Real-provider validation on 2026-08-03 passed on the installed exact candidate with synthetic data: Zhipu embedding ingestion, Chinese grounded RAG with two complete citations, CSV Analysis with safe DuckDB SQL, three result rows, bar chart, Chinese summary, insights, analysis-history restore, credential removal, process cleanup, and isolated-data cleanup all passed.
+- Offline Windows Sandbox validation on 2026-08-11 passed for the exact artifact without Python, Node.js, npm, Rust, Cargo, Git, project source code, or network access.
+- The Sandbox deliberately occupied port `8000`; KnowBase selected `127.0.0.1:49674` and passed installation, fixed-runtime UI rendering from the app-local `150.0.4078.99` process path, backend health and listener ownership, authentication, knowledge-base creation, Markdown/CSV upload, dataset discovery, CSV profile, WM_CLOSE-equivalent window shutdown, backend cleanup, silent uninstall, and preservation of `%APPDATA%\KnowBase`.
+- Real-provider validation on 2026-08-11 passed on the installed exact candidate with port `8000` deliberately occupied. KnowBase selected `127.0.0.1:58809`; Zhipu embedding ingestion, Chinese grounded RAG with two complete citations, CSV Analysis with safe DuckDB SQL, three result rows, bar chart, Chinese summary, insights, analysis-history restore, credential removal, process cleanup, and isolated-data cleanup all passed.
 
 ## Blocking Gates
 

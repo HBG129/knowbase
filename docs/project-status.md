@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-08-03
+Last updated: 2026-08-11
 
 This document tracks the practical delivery status of KnowBase.
 
@@ -11,7 +11,7 @@ This document tracks the practical delivery status of KnowBase.
 | Resume and interview showcase | 98% | Strong project story, architecture, RAG workflow, CSV Analysis Agent, packaging path, release process, CI history, customer-readiness narrative, beta testing workflow, and installed-app evidence are present. |
 | GitHub portfolio completeness | 98% | README, architecture, roadmap, project plan, changelog, support, security, release docs, demo data, CI, release gates, issue templates, branded desktop icon, and desktop artifacts are in place. |
 | Limited tester readiness | 99% | The exact CI installer passed automated offline clean-machine and real-provider RAG/Analysis validation; only the final signature-policy decision and release materials remain. |
-| Public customer release readiness | 97% | Core workflows, bilingual UX, release automation, dependency audits, exact-artifact clean-machine evidence, real-provider validation, and uninstall behavior pass; code signing and final release notes remain required. |
+| Public customer release readiness | 98% | Core workflows, bilingual UX, release automation, dependency audits, exact-artifact clean-machine evidence, real-provider validation, port-conflict recovery, and uninstall behavior pass; code signing and final release approval remain required. |
 
 ## Verified
 
@@ -147,7 +147,7 @@ This document tracks the practical delivery status of KnowBase.
 - Language preference hydrates after client mount, avoiding server/client language mismatches, and authentication routes remain correctly recognized with or without a trailing slash.
 - CI and release preflight enforce Chinese/English key parity, reject unknown translation keys and duplicate entries, scan product surfaces for hardcoded interface copy and mojibake, and verify localized API and authentication behavior.
 - Chinese and English localization was visually verified on desktop and mobile viewports, including the dashboard, knowledge-base details, document list, and CSV Analysis workspace.
-- Last confirmed pushed CI run: run `30698708279` for commit `02bfc4d0d5bc1813aad63d2497c759e10f82c724`; repository checks, Python and frontend production dependency audits, `138` backend tests, and frontend build passed.
+- Last confirmed pushed CI run: run `31426401406` for commit `8611043353e81704944255b7b66d0543185c64af`; repository checks, Python and frontend production dependency audits, `141` backend tests, and frontend build passed.
 - Desktop artifact verification script checks for:
   - `backend\dist\KnowBaseBackend.exe`
   - NSIS installer under `frontend\src-tauri\target\release\bundle\nsis`
@@ -160,15 +160,15 @@ This document tracks the practical delivery status of KnowBase.
 - The current source pins WebView2 Fixed Version Runtime `150.0.4078.99`, verifies the CAB SHA256 and Microsoft Authenticode signature before packaging, and prepares the app-local runtime successfully.
 - Current local verification passes with `141` backend tests, a no-known-vulnerability Python dependency audit, a Next.js `15.5.23` production build, and zero-vulnerability frontend audits. Release preflight is rerun before each release commit.
 - The desktop runtime now prefers port `8000` but falls back to an available loopback port when it is occupied; the frontend obtains the selected URL through a Tauri command, and support tools discover the listener by `KnowBaseBackend.exe` process ownership.
-- The current GitHub Actions fixed-runtime Tauri/NSIS build completed successfully in run `30698787062` for commit `02bfc4d0d5bc1813aad63d2497c759e10f82c724`:
-  - artifact: `KnowBaseDesktop-Windows-31`,
-  - GitHub artifact digest: `sha256:c3552cf384dd9c7b9e2374cac343b1da13d6466e2931a1de22ade7532e02237c`,
-  - installer size: `310171268` bytes,
-  - installer SHA256: `D84FA9EFBAD460324587F00232BB7E3C791BF3D8C93BAA68473C581F7DA640B7`,
+- The current GitHub Actions fixed-runtime Tauri/NSIS build completed successfully in run `31426443435` for commit `8611043353e81704944255b7b66d0543185c64af`:
+  - artifact: `KnowBaseDesktop-Windows-36`,
+  - GitHub artifact digest: `sha256:e37038c6283e6d65dff9225238da97d13806a05b769ff8ede759a36c482ea77b`,
+  - installer size: `310498339` bytes,
+  - installer SHA256: `A7A8C3C48BF5BDF1967958C57605511D64FFF9061C3B91B6CD916047F69E5685`,
   - Authenticode status: `NotSigned`,
-  - packaged-backend health and desktop artifact verification: passed.
-- Offline Windows Sandbox validation passed on 2026-08-03 for the exact Windows-31 installer and SHA256 without Python, Node.js, npm, Rust, Cargo, Git, project source, or network access. Installation, bundled WebView2 `150.0.4078.99`, backend health/listener ownership, registration/login, Markdown and CSV upload, Analysis dataset discovery/profile, graceful shutdown, uninstall, and customer-data preservation all passed.
-- Real-provider validation passed on 2026-08-03 for the installed Windows-31 candidate using synthetic data and a temporary Zhipu key. Real embedding ingestion, Chinese grounded RAG with two complete citations, CSV Analysis with safe SQL, three result rows, bar chart, Chinese summary, insights, analysis-history restore, credential removal, process cleanup, and isolated-data cleanup all passed.
+  - Rust desktop runtime tests, packaged-backend health, and desktop artifact verification: passed.
+- Offline Windows Sandbox validation passed on 2026-08-11 for the exact Windows-36 installer and SHA256 without Python, Node.js, npm, Rust, Cargo, Git, project source, or network access. Port `8000` was deliberately occupied; KnowBase selected `127.0.0.1:49674`. Installation, bundled WebView2 `150.0.4078.99`, backend health/listener ownership, registration/login, Markdown and CSV upload, Analysis dataset discovery/profile, graceful shutdown, uninstall, and customer-data preservation all passed.
+- Real-provider validation passed on 2026-08-11 for the installed Windows-36 candidate using synthetic data and a temporary Zhipu key while port `8000` was deliberately occupied. KnowBase selected `127.0.0.1:58809`; real embedding ingestion, Chinese grounded RAG with two complete citations, CSV Analysis with safe SQL, three result rows, bar chart, Chinese summary, insights, analysis-history restore, credential removal, process cleanup, and isolated-data cleanup all passed.
 
 ## Current Blockers
 
