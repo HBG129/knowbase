@@ -21,3 +21,17 @@ def test_bm25_score_increases_for_matching_terms():
     )
 
     assert score > 0
+
+
+def test_bm25_length_normalization_rewards_focused_chunks():
+    shared = {
+        "query_tokens": ["rag"],
+        "doc_freqs": {"rag": 2},
+        "total_docs": 2,
+        "avg_doc_length": 51.0,
+    }
+
+    focused = _bm25_score(doc_tokens=["rag", "answer"], **shared)
+    verbose = _bm25_score(doc_tokens=["rag", *(["noise"] * 99)], **shared)
+
+    assert focused > verbose

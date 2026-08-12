@@ -86,6 +86,9 @@ def set_user_api_key(db: Session, user: User, api_key: str, provider: str) -> Us
     valid_providers = {"zhipu", "deepseek", "openai"}
     if provider not in valid_providers:
         raise ValueError(f"Invalid provider. Choose: {', '.join(sorted(valid_providers))}")
+    api_key = api_key.strip()
+    if not api_key or api_key.lower() in {"sk-your-key", "your-api-key"}:
+        raise ValueError("Enter a real API key, not an example value")
     user.api_key = store_api_key(user.id, api_key)
     user.api_provider = provider
     db.flush()

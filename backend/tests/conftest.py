@@ -1,7 +1,11 @@
+import os
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
+
+os.environ["JWT_SECRET_KEY"] = "knowbase-test-jwt-secret-with-at-least-32-bytes"
 
 import app.models  # noqa: F401
 from app.database import Base, get_db

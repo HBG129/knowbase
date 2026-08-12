@@ -35,7 +35,7 @@ Run backend tests:
 
 ```powershell
 cd backend
-.\.venv\Scripts\python.exe -m pytest tests -q
+.\.venv\Scripts\python.exe -m pytest
 ```
 
 Run frontend build:
@@ -69,6 +69,12 @@ Verify generated artifacts:
 
 ```powershell
 .\scripts\check-desktop-artifacts.ps1
+```
+
+Verify the packaged backend executable starts and responds to health checks:
+
+```powershell
+.\scripts\check-packaged-backend-health.ps1
 ```
 
 Do not publish if packaging fails, if the generated bundle is missing, or if the artifact check fails.
@@ -110,6 +116,8 @@ Prepare the files for a GitHub Release:
 .\scripts\prepare-release-package.ps1 -ZipPath D:\Codex_AI_Workspace\artifacts\KnowBaseDesktop-Windows-3.zip
 ```
 
+The command blocks installers whose Authenticode status is not `Valid`. For explicitly approved unsigned validation or release builds, add `-AllowUnsigned` and ensure the generated release notes clearly disclose the unsigned status.
+
 This creates:
 
 ```text
@@ -126,7 +134,69 @@ Check the installer code signature:
 .\scripts\check-code-signature.ps1 -Path D:\Codex_AI_Workspace\artifacts\knowbase-release\KnowBase_0.1.0_x64-setup.exe
 ```
 
-For internal validation builds only, use `-AllowUnsigned` to record the signature state without failing the command.
+For explicitly approved unsigned validation or release builds, use `-AllowUnsigned` to record the signature state without failing, and disclose that status in the release notes.
+
+### Signed customer candidate
+
+The regular `Desktop Package` workflow intentionally produces an unsigned validation build. A customer-signed candidate must use the manual GitHub Actions workflow:
+
+```text
+Signed Windows Release Candidate
+```
+
+Run it only from `main`. Configure a protected GitHub Environment named `release-signing` with required reviewers and deployment branch restricted to `main`.
+
+Environment secrets:
+
+```text
+WINDOWS_CERTIFICATE_BASE64
+WINDOWS_CERTIFICATE_PASSWORD
+```
+
+Environment variable:
+
+```text
+WINDOWS_TIMESTAMP_URL
+```
+
+`WINDOWS_CERTIFICATE_BASE64` is the Base64 encoding of a PFX that contains an accessible private key and the Code Signing EKU (`1.3.6.1.5.5.7.3.3`). Never commit the PFX, Base64 value, password, or private key. Use the timestamp URL supplied by the certificate provider.
+
+The protected workflow:
+
+1. imports the PFX into the ephemeral runner's current-user certificate store,
+2. validates certificate validity, private-key access, and Code Signing EKU,
+3. signs and timestamps `KnowBaseBackend.exe` before it is embedded,
+4. lets Tauri sign and timestamp the desktop executable and NSIS installer,
+5. pins all three signatures to the same certificate thumbprint and requires a trusted timestamp,
+6. removes the PFX and imported certificate even when a later step fails,
+7. exports the locked backend and frontend CycloneDX SBOMs, a normalized Rust dependency manifest, and build metadata tied to the source commit,
+8. includes every manifest in `SHA256SUMS.txt`, creates one exact release ZIP, and generates GitHub provenance attestations for both the signed installer and exact release ZIP,
+9. generates a self-contained release package without using `-AllowUnsigned`.
+
+Expected artifact:
+
+```text
+KnowBaseSignedRelease-<run number>.zip
+```
+
+It contains the signed installer, desktop bundle ZIP, support tools, SHA256 checksums, release notes draft, artifact summary, release-validation issue draft, `backend-sbom.cdx.json`, `frontend-sbom.cdx.json`, `rust-dependencies.json`, and `BUILD_METADATA.json`. Backend builds resolve from `backend\uv.lock`; frontend and Rust continue to use their committed lockfiles.
+
+Verify the downloaded installer and exact release ZIP against their GitHub build provenance:
+
+```powershell
+gh attestation verify .\KnowBase_0.1.0_x64-setup.exe -R HBG129/knowbase
+gh attestation verify .\KnowBaseSignedRelease-<run number>.zip -R HBG129/knowbase
+```
+
+An attestation links the artifact to its GitHub workflow and source commit; it does not replace Authenticode, dependency auditing, clean-machine validation, or the release approval gate. The workflow does not publish a GitHub Release; Issue #17 must record the final `Ready` decision first.
+
+For a local certificate already installed in Windows, run:
+
+```powershell
+.\scripts\build-signed-release.ps1 `
+  -CertificateThumbprint <40-character-thumbprint> `
+  -TimestampUrl <provider-RFC3161-URL>
+```
 
 ## 4. Test On A Clean Windows Machine
 
@@ -158,19 +228,22 @@ For GitHub tracking, open a `Release validation` issue and paste the installer n
 D:\Codex_AI_Workspace\artifacts\knowbase-release\RELEASE_NOTES_DRAFT.md
 ```
 
+In the release validation issue, record the signer or the unsigned approver, approval date, and exact release-notes disclosure. `-AllowUnsigned` applies only when the installer status is `NotSigned`; it does not permit invalid or untrusted signatures. Any other non-`Valid` status must keep the release blocked.
+
 Use this local draft as the working checklist while testing:
 
 ```text
 D:\Codex_AI_Workspace\artifacts\knowbase-release\RELEASE_VALIDATION_ISSUE_DRAFT.md
 ```
 
-After installing and launching the app on the clean machine, run:
+Extract `KnowBaseSupportTools.zip` into a folder named `support-tools`. After installing and launching the app on the clean machine, run from the folder that contains `support-tools`:
 
 ```powershell
-.\scripts\check-installed-app.ps1
+cd .\support-tools
+powershell -ExecutionPolicy Bypass -File .\check-installed-app.ps1
 ```
 
-Attach only the generated Markdown report if it contains no secrets or private document content.
+The report is written to `Desktop\KnowBaseValidation` by default and includes the installed executable version, signature status, installed executable path, and backend process path when available. Attach only the generated Markdown report if it contains no secrets or private document content.
 
 ## 5. Prepare Release Notes
 

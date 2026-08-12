@@ -1,9 +1,14 @@
 param(
   [string]$OutputDir = "",
-  [string]$HealthUrl = "http://127.0.0.1:8000/api/health"
+  [string]$HealthUrl = ""
 )
 
 $ErrorActionPreference = "Stop"
+
+function Fail($Message) {
+  Write-Error $Message
+  exit 1
+}
 
 function Redact-Path($Path) {
   if (-not $Path) {
@@ -46,6 +51,56 @@ function Get-ShortcutTarget($Path) {
   return $null
 }
 
+function Find-BackendHealthUrl {
+  $processIds = @(
+    Get-Process -ErrorAction SilentlyContinue |
+      Where-Object { $_.ProcessName -eq "KnowBaseBackend" } |
+      Select-Object -ExpandProperty Id
+  )
+  if ($processIds.Count -eq 0) {
+    return $null
+  }
+
+  $listener = Get-NetTCPConnection -ErrorAction SilentlyContinue |
+    Where-Object {
+      $_.LocalAddress -eq "127.0.0.1" -and
+      "$($_.State)" -eq "Listen" -and
+      $_.OwningProcess -in $processIds
+    } |
+    Select-Object -First 1
+  if ($listener) {
+    return "http://127.0.0.1:$($listener.LocalPort)/api/health"
+  }
+
+  return $null
+}
+
+if (-not $HealthUrl) {
+  $HealthUrl = Find-BackendHealthUrl
+}
+if (-not $HealthUrl) {
+  $HealthUrl = "http://127.0.0.1:8000/api/health"
+}
+
+try {
+  $healthUri = [System.Uri]$HealthUrl
+} catch {
+  Fail "HealthUrl must be a local HTTP /api/health endpoint without credentials, query, or fragment."
+}
+
+$allowedHealthHosts = @("127.0.0.1", "localhost", "::1")
+$healthUrlIsSafe =
+  $healthUri.IsAbsoluteUri -and
+  $healthUri.Scheme -eq "http" -and
+  $healthUri.Host -in $allowedHealthHosts -and
+  $healthUri.AbsolutePath -eq "/api/health" -and
+  -not $healthUri.UserInfo -and
+  -not $healthUri.Query -and
+  -not $healthUri.Fragment
+if (-not $healthUrlIsSafe) {
+  Fail "HealthUrl must be a local HTTP /api/health endpoint without credentials, query, or fragment."
+}
+$safeHealthUrl = $healthUri.GetLeftPart([System.UriPartial]::Path)
 if (-not $OutputDir) {
   $desktop = [Environment]::GetFolderPath("Desktop")
   if ($desktop) {
@@ -115,14 +170,17 @@ Add-Line "## Runtime"
 Add-Line ""
 Add-Line "- KnowBase process count: $($knowBaseProcesses.Count)"
 Add-Line "- KnowBaseBackend process count: $($backendProcesses.Count)"
-Add-Line "- Health URL checked: ``$HealthUrl``"
+Add-Line "- Health URL checked: ``$safeHealthUrl``"
 
 try {
-  $health = Invoke-RestMethod -Uri $HealthUrl -TimeoutSec 5
-  $healthText = $health | ConvertTo-Json -Compress
-  Add-Line "- Health endpoint result: ``$healthText``"
+  $health = Invoke-RestMethod -Uri $safeHealthUrl -TimeoutSec 5
+  if ([string]$health.status -eq "ok") {
+    Add-Line "- Health endpoint result: ok"
+  } else {
+    Add-Line "- Health endpoint result: unexpected status"
+  }
 } catch {
-  Add-Line "- Health endpoint result: failed - $($_.Exception.Message)"
+  Add-Line "- Health endpoint result: failed ($($_.Exception.GetType().Name))"
 }
 
 Add-Line ""

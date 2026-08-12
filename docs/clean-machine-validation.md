@@ -5,6 +5,7 @@ Use this checklist before publishing a KnowBase Windows installer to customers.
 ## Goal
 
 A customer should be able to install and use KnowBase without installing Python, Node.js, Rust, Git, or the project source code.
+The KnowBase installer must also provision WebView2 without asking the customer to install it separately.
 
 ## Test Machine
 
@@ -23,6 +24,7 @@ Not allowed:
 - Rust
 - Git
 - Local project checkout
+- Manual WebView2 Runtime installation
 
 ## Artifact Check
 
@@ -56,6 +58,7 @@ Release artifact verified.
 4. Launch KnowBase from the Start Menu or desktop shortcut.
 5. Confirm the app opens without a developer terminal.
 6. Confirm no Python, Node.js, Rust, Git, or source-code path is required.
+7. Confirm the UI renders without a separate WebView2 download or installation step.
 
 ## First-Run Flow
 
@@ -66,6 +69,7 @@ Validate:
 - A knowledge base can be created.
 - The API key settings flow accepts a valid provider key.
 - PDF, Word, Markdown, TXT, and CSV uploads are accepted.
+- CSV Analysis tab can preview data, answer a question, render a chart, show a summary, and restore the run from history.
 - Uploaded files appear in the document list.
 - Chat is disabled until the knowledge base has usable documents.
 - Chat returns an answer with citations after ingestion completes.
@@ -96,6 +100,8 @@ The script writes a local Markdown report to the current user's Desktop under:
 KnowBaseValidation
 ```
 
+The report includes installed executable version, signature status, and backend process path when available. Review those fields before attaching the report to a release validation issue.
+
 If any check fails, the script exits with a non-zero status. Use `-AllowFailures` only when you need a report for investigation without blocking the current shell session.
 
 Use the report as supporting evidence for the GitHub `Release validation` issue. Do not attach local databases, uploaded documents, API keys, or `%APPDATA%\KnowBase` contents.
@@ -113,9 +119,11 @@ Use `docs\customer-troubleshooting.md` to classify the failure before deciding w
 Do not publish the installer if any of these fail:
 
 - Installer does not run on the clean machine.
+- App reports that WebView2 Runtime is missing or requires a separate runtime installation.
 - App requires developer tools.
 - Backend does not start automatically.
 - Registration or login fails.
 - Document upload or chat fails with valid provider credentials.
+- CSV Analysis tab preview, query, chart, summary, or history fails for a completed CSV.
 - App leaves orphan backend processes after exit.
 - Sensitive data is exposed in logs or release artifacts.

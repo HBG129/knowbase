@@ -10,6 +10,7 @@ import { ApiKeyDialog } from "@/components/auth/api-key-dialog";
 import { ArrowLeft, Plus, MessageSquare, Bot, PanelRightClose, PanelRightOpen, Trash2, Eraser, Upload, AlertTriangle, Key } from "lucide-react";
 import { api, apiStream } from "@/lib/api";
 import { kbDetailPath } from "@/lib/routes";
+import { useI18nStore } from "@/stores/i18n-store";
 
 interface Citation { doc_id: string; chunk_index: number; snippet: string; }
 interface Message {
@@ -30,16 +31,10 @@ function isApiKeyError(message: string) {
   );
 }
 
-function formatChatError(message: string) {
-  if (isApiKeyError(message)) {
-    return "I cannot answer yet because no model API key is configured. Open API Key Settings, add a provider key, then try again.";
-  }
-  return "Error: " + message;
-}
-
 export default function ChatPage() {
   const router = useRouter();
   const { user } = useAuthStore();
+  const { t } = useI18nStore();
   const [id, setId] = useState<string | null>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
@@ -132,10 +127,18 @@ export default function ChatPage() {
 
   const readyDocCount = docs.filter((doc) => doc.status === "completed").length;
   const chatPlaceholder = docsLoading
-    ? "Checking document readiness..."
+    ? t("chat.checkingDocs")
     : readyDocCount === 0
-      ? "Upload a completed document before asking questions"
-      : `Ask across ${readyDocCount} ready document${readyDocCount === 1 ? "" : "s"}...`;
+      ? t("chat.uploadBeforeAsk")
+      : readyDocCount === 1
+        ? t("chat.askReadyDoc")
+        : t("chat.askReadyDocs", { count: readyDocCount });
+
+  function formatChatError(message: string) {
+    return isApiKeyError(message)
+      ? t("chat.noModelKey")
+      : t("chat.errorPrefix", { message });
+  }
 
   // SSE streaming send
   async function handleSend(msg: string) {
@@ -165,11 +168,11 @@ export default function ChatPage() {
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.detail || `Chat failed (${res.status})`);
+        throw new Error(errData.detail || t("chat.failedStatus", { status: res.status }));
       }
 
       const reader = res.body?.getReader();
-      if (!reader) throw new Error("No response stream");
+      if (!reader) throw new Error(t("chat.noResponseStream"));
 
       const decoder = new TextDecoder();
       let buffer = "";
@@ -210,7 +213,7 @@ export default function ChatPage() {
                 fetchConversations();
               }
             } else if (data.type === "error") {
-              const message = data.message || "Request failed";
+              const message = data.message || t("chat.requestFailed");
               if (isApiKeyError(message)) setShowApiKeyPrompt(true);
               setStreaming(false);
               setStreamingContent("");
@@ -231,12 +234,12 @@ export default function ChatPage() {
           setMessages((prev) => [...prev, {
             id: "ai-" + Date.now(),
             role: "assistant",
-            content: streamingContent + "\n\n*[Response cancelled]*",
+            content: streamingContent + `\n\n*${t("chat.responseCancelled")}*`,
             created_at: new Date().toISOString(),
           }]);
         }
       } else {
-        const message = err.message || "Request failed";
+        const message = err.message || t("chat.requestFailed");
         if (isApiKeyError(message)) setShowApiKeyPrompt(true);
         setMessages((prev) => [...prev, {
           id: "err-" + Date.now(),
@@ -271,7 +274,7 @@ export default function ChatPage() {
     setPendingAction({
       type: "delete-conversation",
       conversationId: convId,
-      title: conversation?.title || "this conversation",
+      title: conversation?.title || t("chat.thisConversation"),
     });
   }
 
@@ -323,7 +326,7 @@ export default function ChatPage() {
     ) : !id ? (
       <div className="flex h-full items-center justify-center">
         <button onClick={() => router.push("/")} className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink transition-colors">
-          <ArrowLeft className="h-3.5 w-3.5" /> Back to Knowledge Bases
+          <ArrowLeft className="h-3.5 w-3.5" /> {t("kb.backToKbs")}
         </button>
       </div>
     ) : (
@@ -335,20 +338,20 @@ export default function ChatPage() {
             onClick={() => router.push(kbDetailPath(id))}
             className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink transition-colors"
           >
-            <ArrowLeft className="h-3.5 w-3.5" /> KB Details
+            <ArrowLeft className="h-3.5 w-3.5" /> {t("chat.backToDetails")}
           </button>
           <button
             onClick={handleNewChat}
             className="w-full inline-flex items-center justify-center gap-2 h-9 rounded-lg bg-ink text-canvas text-sm font-medium hover:bg-ink-soft transition-all active:scale-[0.98]"
           >
-            <Plus className="h-4 w-4" /> New Chat
+            <Plus className="h-4 w-4" /> {t("chat.newChat")}
           </button>
           {activeConvId && messages.length > 0 && (
             <button
               onClick={handleClearMessages}
               className="w-full inline-flex items-center justify-center gap-2 h-8 rounded-lg text-xs text-ink-muted hover:text-error hover:bg-error-soft/30 transition-all"
             >
-              <Eraser className="h-3 w-3" /> Clear Messages
+              <Eraser className="h-3 w-3" /> {t("chat.clearMessages")}
             </button>
           )}
           {pendingAction && (
@@ -358,13 +361,13 @@ export default function ChatPage() {
                 <div className="min-w-0">
                   <p className="text-xs font-semibold text-ink">
                     {pendingAction.type === "delete-conversation"
-                      ? "Delete conversation?"
-                      : "Clear messages?"}
+                      ? t("chat.deleteConversation")
+                      : t("chat.clearMessagesTitle")}
                   </p>
                   <p className="mt-1 text-xs leading-4 text-ink-muted">
                     {pendingAction.type === "delete-conversation"
                       ? pendingAction.title
-                      : "This keeps the conversation but removes every message."}
+                      : t("chat.clearMessagesHint")}
                   </p>
                 </div>
               </div>
@@ -373,13 +376,13 @@ export default function ChatPage() {
                   onClick={() => setPendingAction(null)}
                   className="h-8 rounded-md border border-hairline bg-canvas text-xs font-medium text-ink-muted transition-colors hover:text-ink"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
                 <button
                   onClick={confirmPendingAction}
                   className="h-8 rounded-md bg-error text-xs font-medium text-white transition-opacity hover:opacity-90"
                 >
-                  Confirm
+                  {t("common.confirm")}
                 </button>
               </div>
             </div>
@@ -397,7 +400,7 @@ export default function ChatPage() {
           >
             <div className="flex items-center gap-2">
               <MessageSquare className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate">New Chat</span>
+              <span className="truncate">{t("chat.newChat")}</span>
             </div>
           </button>
           {conversations.map((conv) => (
@@ -420,6 +423,9 @@ export default function ChatPage() {
                 <span className="truncate flex-1">{conv.title}</span>
                 <span
                   onClick={(e) => handleDeleteConv(conv.id, e)}
+                  role="button"
+                  aria-label={t("chat.deleteConversation")}
+                  title={t("chat.deleteConversation")}
                   className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-error-soft/50 text-ink-muted hover:text-error transition-all"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
@@ -438,7 +444,7 @@ export default function ChatPage() {
             ) : (
               <PanelRightOpen className="h-3.5 w-3.5" />
             )}{" "}
-            {showCitations ? "Hide Sources" : "Show Sources"}
+            {showCitations ? t("chat.hideSources") : t("chat.showSources")}
           </button>
         </div>
       </div>
@@ -455,12 +461,12 @@ export default function ChatPage() {
               )}
             </div>
             <h2 className="h3 text-ink mb-2">
-              {readyDocCount === 0 ? "Upload documents first" : "Ask your knowledge base"}
+              {readyDocCount === 0 ? t("chat.uploadFirst") : t("chat.askTitle")}
             </h2>
             <p className="body-sm text-ink-body max-w-md">
               {readyDocCount === 0
-                ? "Chat becomes available after at least one document finishes processing."
-                : "Ask questions and get answers with source citations from your documents."}
+                ? t("chat.uploadFirstHint")
+                : t("chat.askHint")}
             </p>
             {readyDocCount === 0 && (
               <button
@@ -468,7 +474,7 @@ export default function ChatPage() {
                 className="mt-6 inline-flex h-10 items-center gap-2 rounded-lg bg-ink px-4 text-sm font-medium text-canvas transition-all hover:bg-ink-soft active:scale-[0.98]"
               >
                 <Upload className="h-4 w-4" />
-                Upload documents
+                {t("chat.uploadDocs")}
               </button>
             )}
           </div>
@@ -508,9 +514,9 @@ export default function ChatPage() {
             <div className="mx-auto flex max-w-3xl flex-col gap-3 rounded-xl border border-warning/25 bg-canvas px-4 py-3 shadow-sm sm:flex-row sm:items-center">
               <AlertTriangle className="h-5 w-5 shrink-0 text-warning" />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-ink">Model API key required</p>
+                <p className="text-sm font-semibold text-ink">{t("chat.apiKeyRequired")}</p>
                 <p className="mt-0.5 text-xs leading-5 text-ink-muted">
-                  Add your LLM provider key before asking questions. This is required on customer installs that do not ship with a system fallback key.
+                  {t("chat.apiKeyRequiredHint")}
                 </p>
               </div>
               <button
@@ -518,7 +524,7 @@ export default function ChatPage() {
                 className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-ink px-3 text-xs font-medium text-canvas transition-all hover:bg-ink-soft active:scale-[0.98]"
               >
                 <Key className="h-3.5 w-3.5" />
-                Set API Key
+                {t("nav.setApiKey")}
               </button>
             </div>
           </div>
@@ -539,8 +545,8 @@ export default function ChatPage() {
           <div className="lg:hidden fixed inset-0 z-50 bg-canvas" style={{ display: mobilePanel === "citations" ? "flex" : "none" }}>
             <div className="flex flex-col h-full w-full">
               <div className="flex items-center justify-between p-4 border-b border-hairline">
-                <h3 className="text-sm font-semibold text-ink">Sources</h3>
-                <button onClick={() => setMobilePanel("chat")} className="p-2 rounded-lg text-ink-muted hover:bg-canvas-softer">✕</button>
+                <h3 className="text-sm font-semibold text-ink">{t("chat.sources")}</h3>
+                <button onClick={() => setMobilePanel("chat")} aria-label={t("common.close")} title={t("common.close")} className="p-2 rounded-lg text-ink-muted hover:bg-canvas-softer">×</button>
               </div>
               <div className="flex-1 overflow-y-auto">
                 <CitationPanel
@@ -570,7 +576,9 @@ export default function ChatPage() {
             className="h-10 px-4 rounded-full bg-ink text-canvas text-xs font-medium shadow-lg flex items-center gap-2"
           >
             <PanelRightOpen className="h-3.5 w-3.5" />
-            {allCitations.length} Sources
+            {allCitations.length === 1
+              ? t("chat.sourceCountOne")
+              : t("chat.sourcesCount", { count: allCitations.length })}
           </button>
         </div>
       )}

@@ -10,6 +10,9 @@ backend/*.spec
 backend/build/
 backend/dist/
 frontend/src-tauri/target/
+frontend/src-tauri/gen/
+frontend/src-tauri/.webview2-cache/
+frontend/src-tauri/WebView2.FixedVersionRuntime.x64/
 node_modules/
 .next/
 out/

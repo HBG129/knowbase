@@ -9,7 +9,14 @@ KnowBase is not customer-release ready until all required items below pass on a 
 Required release target:
 
 ```text
-A customer can install KnowBase, launch it, create an account, create a knowledge base, upload a document, ask a question, and receive an answer without installing Python, Node.js, Rust, or Git.
+A customer can install KnowBase, launch it, create an account, create a knowledge base, upload documents and CSV files, ask cited questions, run CSV analysis, and receive useful results without installing Python, Node.js, Rust, or Git.
+```
+
+Selected version target:
+
+```text
+Controlled tester candidate: v0.1.0-rc.1
+General availability after all gates pass: v0.1.0
 ```
 
 ## Build Machine Requirements
@@ -20,7 +27,7 @@ The build machine must have:
 - Rust and Cargo
 - Microsoft C++ Build Tools with `Desktop development with C++`
 - Python 3.12 virtual environment for backend packaging
-- Project dependencies installed
+- `uv` `0.11.32` and project dependencies installed from `backend\uv.lock`
 - Valid LLM API key for runtime testing
 
 Run:
@@ -30,6 +37,7 @@ Run:
 .\check-desktop-prereqs.bat
 .\package-desktop.bat
 .\scripts\check-desktop-artifacts.ps1
+.\scripts\check-packaged-backend-health.ps1
 ```
 
 The release build is blocked if `cl.exe` or `link.exe` is missing. See:
@@ -53,6 +61,21 @@ Required workflow artifacts:
 
 The desktop workflow is not release-ready if either artifact is missing.
 
+Release builds must also satisfy these supply-chain gates:
+
+- `uv lock --check --project backend` passes and every backend CI/package install uses `uv sync --locked`.
+- Remote GitHub Actions are pinned to full commit SHAs.
+- `backend-sbom.cdx.json`, `frontend-sbom.cdx.json`, `rust-dependencies.json`, and `BUILD_METADATA.json` are generated from committed lockfiles.
+- Every manifest is listed in `SHA256SUMS.txt` inside the exact release ZIP.
+- GitHub provenance attestations verify for both the signed installer and exact signed-release ZIP.
+
+Verify downloaded provenance with:
+
+```powershell
+gh attestation verify .\KnowBase_0.1.0_x64-setup.exe -R HBG129/knowbase
+gh attestation verify .\KnowBaseSignedRelease-<run number>.zip -R HBG129/knowbase
+```
+
 After downloading the desktop ZIP, verify the release artifact before installing it:
 
 ```powershell
@@ -65,6 +88,12 @@ After extracting or preparing the installer, verify its Authenticode status:
 .\scripts\check-code-signature.ps1 -Path D:\Codex_AI_Workspace\artifacts\knowbase-release\KnowBase_0.1.0_x64-setup.exe
 ```
 
+`prepare-release-package.ps1` blocks a non-`Valid` signature by default. Use `-AllowUnsigned` only for an explicitly approved unsigned build whose release notes disclose that status.
+
+The release validation issue must record either the valid signer and certificate thumbprint, or the unsigned approver, approval date, and exact release-notes disclosure. An invalid or undecided signature blocks release.
+
+For a signed customer candidate, use only the protected `Signed Windows Release Candidate` workflow from `main`. The `release-signing` Environment must require reviewers and restrict deployment to `main`; its PFX, password, and timestamp URL must be stored as Environment secrets/variables rather than repository files. Confirm the workflow signs and timestamps the packaged backend, desktop executable, and NSIS installer with the same certificate before accepting its artifact.
+
 ## Functional Smoke Test
 
 Run these checks before publishing a build:
@@ -75,6 +104,7 @@ Run these checks before publishing a build:
 - User can register and log in.
 - User can create a knowledge base.
 - User can upload PDF, Word, Markdown, TXT, and CSV files.
+- User can use the CSV Analysis tab to preview data, ask a question, see a chart and summary, and reopen the analysis history.
 - Uploaded documents appear in the knowledge base document list.
 - Synthetic demo files from `docs\demo-data` upload and produce cited answers.
 - Chat input is enabled only when the selected knowledge base has usable documents.
@@ -101,6 +131,7 @@ The clean machine must not require:
 - Rust
 - Git
 - Local project source code
+- A separate WebView2 Runtime download or installation
 
 The clean machine may still require:
 
@@ -114,7 +145,7 @@ Before public release, confirm:
 
 - App name and icon are final.
 - Installer name is clear and versioned.
-- Installer code signature is valid, or release notes clearly state that the build is unsigned.
+- Installer code signature is valid, or the release validation issue records explicit unsigned approval and the release notes clearly state that the build is unsigned.
 - README has a customer installation section.
 - Documentation index is available in `docs\README.md`.
 - Customer quick start is documented in `docs\customer-quick-start.md`.
@@ -123,6 +154,8 @@ Before public release, confirm:
 - Release process is documented in `docs\release-process.md`.
 - README explains customer API key requirements and first-run setup.
 - The app shows useful errors when no LLM API key is configured.
+- Chinese and English interfaces cover the complete customer workflow, including authentication, knowledge bases, document upload, cited chat, API key settings, CSV Analysis, errors, and empty states.
+- Switching languages does not cause hydration warnings, mixed-language controls, broken layouts, or untranslated accessibility labels on desktop or mobile viewports.
 - Local data location is documented in `docs\customer-data-and-privacy.md`.
 - Backup and restore scripts are documented in `docs\customer-data-and-privacy.md`.
 - Uninstall behavior and manual data removal are documented in `docs\customer-data-and-privacy.md`.
@@ -135,6 +168,7 @@ Before public release, confirm:
 Before release, confirm:
 
 - `.env` is never bundled with secrets.
+- Dependency lockfiles, SBOMs, checksums, build metadata, and provenance point to the same source commit.
 - Local database and uploaded files are not committed.
 - JWT secret is generated for production use.
 - API keys are stored in a customer-controlled location.

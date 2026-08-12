@@ -15,12 +15,7 @@ import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { ApiKeyDialog } from "@/components/auth/api-key-dialog";
 import { useThemeStore } from "@/stores/theme-store";
 import { kbDetailPath } from "@/lib/routes";
-
-interface NavItem { href: string; label: string; icon: React.ElementType; }
-
-const mainNav: NavItem[] = [
-  { href: "/", label: "Knowledge Bases", icon: Library },
-];
+import { useI18nStore } from "@/stores/i18n-store";
 
 interface SidebarProps {
   mobileOpen?: boolean;
@@ -34,6 +29,8 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
   const { user, logout } = useAuthStore();
   const { kbs, fetchKBs } = useKBStore();
   const { theme, toggle: toggleTheme } = useThemeStore();
+  const { t } = useI18nStore();
+  const mainNav = [{ href: "/", label: t("nav.knowledgeBases"), icon: Library }];
 
   useEffect(() => { fetchKBs(); }, [fetchKBs]);
 
@@ -54,7 +51,7 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
           <Zap className="h-4 w-4 text-canvas" />
         </div>
         {!collapsed && <span className="font-semibold text-ink text-base tracking-tight">KnowBase</span>}
-        <button onClick={onMobileClose} className="lg:hidden h-8 w-8 rounded-lg flex items-center justify-center text-ink-muted hover:bg-canvas-softer hover:text-ink transition-colors ml-auto">
+        <button onClick={onMobileClose} aria-label={t("nav.closeMenu")} title={t("nav.closeMenu")} className="lg:hidden h-8 w-8 rounded-lg flex items-center justify-center text-ink-muted hover:bg-canvas-softer hover:text-ink transition-colors ml-auto">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -78,7 +75,7 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
         {!collapsed && (
           <div className="pt-4">
             <div className="flex items-center justify-between px-3 mb-1">
-              <span className="text-xs font-medium text-ink-muted uppercase tracking-wider">Knowledge Bases</span>
+              <span className="text-xs font-medium text-ink-muted uppercase tracking-wider">{t("nav.knowledgeBasesSection")}</span>
             </div>
             {kbs.slice(0, 8).map((kb) => (
               <Link key={kb.id} href={kbDetailPath(kb.id)} onClick={onMobileClose} className={cn(
@@ -102,26 +99,26 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
           collapsed && "justify-center px-2"
         )}>
           {theme === "dark" ? <Sun className="h-4 w-4 flex-shrink-0" /> : <Moon className="h-4 w-4 flex-shrink-0" />}
-          {!collapsed && <span>{theme === "dark" ? "Light" : "Dark"}</span>}
+          {!collapsed && <span>{theme === "dark" ? t("common.light") : t("common.dark")}</span>}
         </button>
         <button onClick={() => setApiKeyOpen(true)} className={cn(
           "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all w-full",
           user?.has_api_key ? "text-success hover:bg-success-soft/30" : "text-ink-muted hover:bg-canvas-softer hover:text-ink",
           collapsed && "justify-center px-2"
-        )} title="API Key Settings">
+        )} title={t("nav.apiKeySettings")} aria-label={t("nav.apiKeySettings")}>
           <Key className="h-4 w-4 flex-shrink-0" />
-          {!collapsed && <span>{user?.has_api_key ? "API Key ✓" : "Set API Key"}</span>}
+          {!collapsed && <span>{user?.has_api_key ? t("nav.apiKeyConfigured") : t("nav.setApiKey")}</span>}
         </button>
-        <button onClick={() => setCollapsed(!collapsed)} className="hidden lg:flex w-full items-center justify-center p-2 rounded-lg text-ink-muted hover:bg-canvas-softer hover:text-ink transition-all">
+        <button onClick={() => setCollapsed(!collapsed)} aria-label={collapsed ? t("nav.expand") : t("nav.collapse")} title={collapsed ? t("nav.expand") : t("nav.collapse")} className="hidden lg:flex w-full items-center justify-center p-2 rounded-lg text-ink-muted hover:bg-canvas-softer hover:text-ink transition-all">
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </button>
         <div className={cn("flex items-center gap-3 p-2 rounded-lg", collapsed && "justify-center")}>
           <Avatar fallback={initials} size="sm" />
-          {!collapsed && <div className="flex-1 min-w-0"><p className="text-sm font-medium text-ink truncate">{user?.email || "User"}</p></div>}
+          {!collapsed && <div className="flex-1 min-w-0"><p className="text-sm font-medium text-ink truncate">{user?.email || t("common.user")}</p></div>}
         </div>
         <button onClick={logout} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-ink-muted hover:text-error hover:bg-error-soft/50 transition-all w-full", collapsed && "justify-center px-2")}>
           <LogOut className="h-4 w-4 flex-shrink-0" />
-          {!collapsed && <span>Sign Out</span>}
+          {!collapsed && <span>{t("nav.signOut")}</span>}
         </button>
       </div>
     </aside>

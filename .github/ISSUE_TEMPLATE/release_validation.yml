@@ -34,6 +34,32 @@ body:
     validations:
       required: true
 
+  - type: dropdown
+    id: signature_policy
+    attributes:
+      label: Signature policy decision
+      description: Select the decision supported by the installer signature check and release notes.
+      options:
+        - Valid signature verified
+        - Unsigned build explicitly approved and disclosed
+        - Signature invalid or undecided - block release
+    validations:
+      required: true
+
+  - type: textarea
+    id: signature_evidence
+    attributes:
+      label: Signature decision evidence
+      description: For a valid signature, record the signer and certificate thumbprint. Unsigned approver, approval date, and exact release-notes disclosure are required for an approved unsigned build.
+      placeholder: |
+        Signature status:
+        Signer and certificate thumbprint:
+        Unsigned approver:
+        Approval date:
+        Release-notes disclosure:
+    validations:
+      required: true
+
   - type: checkboxes
     id: clean_machine
     attributes:
@@ -54,6 +80,7 @@ body:
       options:
         - label: Installer runs without developer tools.
         - label: KnowBase launches from Start Menu or desktop shortcut.
+        - label: UI renders without a separate WebView2 Runtime download or installation.
         - label: Desktop app starts the backend automatically.
         - label: App opens without a developer terminal.
         - label: App stores runtime data under `%APPDATA%\KnowBase`.
@@ -74,6 +101,7 @@ body:
         - label: Markdown upload and cited chat answer work.
         - label: TXT upload and cited chat answer work.
         - label: CSV upload and cited chat answer work.
+        - label: CSV Analysis tab preview, query, chart, summary, and history work.
         - label: Recent conversations reopen correctly.
         - label: Conversation deletion uses in-app confirmation.
 
@@ -101,6 +129,14 @@ body:
         - Windows version:
         - Non-sensitive error:
         - Support report generated:
+
+  - type: checkboxes
+    id: release_gate
+    attributes:
+      label: Release gate attestation
+      options:
+        - label: A Ready decision is selected only when every required validation check above is complete; otherwise the release decision is Block release and failures are documented.
+          required: true
 
   - type: dropdown
     id: release_decision

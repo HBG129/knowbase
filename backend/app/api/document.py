@@ -7,6 +7,7 @@ from app.config import settings
 from app.database import get_db
 from app.models.user import User
 from app.models.document import Document, DocumentChunk
+from app.models.analysis import AnalysisRun
 from app.api.deps import get_current_user
 from app.services.knowledge_base_service import get_user_role
 from app.services.ingestion_service import ingest_document
@@ -74,6 +75,7 @@ def delete_doc(kb_id: str, doc_id: str, user: User = Depends(get_current_user), 
         raise HTTPException(404, "Document not found")
     if os.path.exists(doc.file_path):
         os.remove(doc.file_path)
+    db.execute(delete(AnalysisRun).where(AnalysisRun.doc_id == doc.id))
     db.execute(delete(DocumentChunk).where(DocumentChunk.doc_id == doc.id))
     db.delete(doc)
     db.flush()

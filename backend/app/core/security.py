@@ -4,20 +4,21 @@ import hashlib
 import uuid
 from datetime import datetime, timedelta, timezone
 from cryptography.fernet import Fernet, InvalidToken
-from jose import jwt, JWTError
+import jwt
+from jwt import InvalidTokenError
 from passlib.context import CryptContext
 from app.config import settings
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["bcrypt_sha256", "bcrypt"], deprecated=["bcrypt"])
 ENCRYPTED_API_KEY_PREFIX = "enc:v1:"
 
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password[:72])
+    return pwd_context.hash(password)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password[:72], hashed_password)
+    return pwd_context.verify(plain_password, hashed_password)
 
 
 def create_access_token(user_id: str) -> str:
@@ -41,7 +42,7 @@ def create_refresh_token(user_id: str) -> str:
 def decode_token(token: str) -> dict | None:
     try:
         return jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
-    except JWTError:
+    except InvalidTokenError:
         return None
 
 

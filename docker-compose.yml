@@ -57,7 +57,7 @@ services:
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin123
       MINIO_BUCKET: knowbase
-      JWT_SECRET_KEY: change-me-in-production
+      JWT_SECRET_KEY: change-me-in-production-use-32-bytes-minimum
       OPENAI_API_KEY: "${OPENAI_API_KEY}"
       CORS_ORIGINS: '["http://localhost:3000"]'
     ports:

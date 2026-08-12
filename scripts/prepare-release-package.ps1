@@ -6,19 +6,38 @@ param(
 
   [string]$Version = "0.1.0-rc.1",
 
-  [string]$OutputDir = ""
+  [string]$OutputDir = "",
+
+  [int64]$MinInstallerBytes = 50000000,
+
+  [switch]$AllowUnsigned,
+
+  [string]$ExpectedSignerThumbprint = "",
+
+  [switch]$RequireTimestamp,
+
+  [string[]]$AdditionalFiles = @()
 )
 
 $ErrorActionPreference = "Stop"
+$normalizedExpectedThumbprint = ($ExpectedSignerThumbprint -replace "\s", "").ToUpperInvariant()
 
 function Fail($Message) {
   Write-Error $Message
   exit 1
 }
 
+if ($AllowUnsigned -and ($normalizedExpectedThumbprint -or $RequireTimestamp)) {
+  Fail "-AllowUnsigned cannot be combined with signed-release verification options."
+}
+if ($normalizedExpectedThumbprint -and $normalizedExpectedThumbprint -notmatch "^[A-F0-9]{40}$") {
+  Fail "ExpectedSignerThumbprint must contain exactly 40 hexadecimal characters."
+}
+
 $repoRoot = Split-Path -Parent $PSScriptRoot
+$workspaceRoot = Split-Path -Parent $repoRoot
+$workspaceTempRoot = Join-Path $workspaceRoot ".tmp"
 if (-not $OutputDir) {
-  $workspaceRoot = Split-Path -Parent $repoRoot
   $OutputDir = Join-Path $workspaceRoot "artifacts\knowbase-release"
 }
 
@@ -27,32 +46,75 @@ if (-not $zip) {
   Fail "Release artifact ZIP was not found: $ZipPath"
 }
 
-& (Join-Path $PSScriptRoot "check-release-artifact.ps1") -ZipPath $zip.Path -ExpectedSha256 $ExpectedSha256
-
-New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
+& (Join-Path $PSScriptRoot "check-release-artifact.ps1") -ZipPath $zip.Path -ExpectedSha256 $ExpectedSha256 -MinInstallerBytes $MinInstallerBytes
 
 Add-Type -AssemblyName System.IO.Compression.FileSystem
-$archive = [System.IO.Compression.ZipFile]::OpenRead($zip.Path)
+$stagingPath = Join-Path $workspaceTempRoot "knowbase-release-package-stage-$([guid]::NewGuid().ToString('N'))"
+New-Item -ItemType Directory -Force -Path $stagingPath | Out-Null
+$signatureFailure = ""
 try {
-  $installer = @(
-    $archive.Entries |
-      Where-Object { $_.FullName -match '(^|/|\\)KnowBase_.*_x64-setup\.exe$' -and $_.Length -gt 0 }
-  )[0]
+  $archive = [System.IO.Compression.ZipFile]::OpenRead($zip.Path)
+  try {
+    $installer = @(
+      $archive.Entries |
+        Where-Object { $_.FullName -match '(^|/|\\)KnowBase_.*_x64-setup\.exe$' -and $_.Length -gt 0 }
+    )[0]
 
-  $installerPath = Join-Path $OutputDir (Split-Path -Leaf $installer.FullName)
-  [System.IO.Compression.ZipFileExtensions]::ExtractToFile($installer, $installerPath, $true)
+    $installerName = Split-Path -Leaf $installer.FullName
+    $stagedInstallerPath = Join-Path $stagingPath $installerName
+    [System.IO.Compression.ZipFileExtensions]::ExtractToFile($installer, $stagedInstallerPath, $true)
+  }
+  finally {
+    $archive.Dispose()
+  }
+
+  $zipHash = Get-FileHash -Algorithm SHA256 -LiteralPath $zip.Path
+  $installerHash = Get-FileHash -Algorithm SHA256 -LiteralPath $stagedInstallerPath
+  $installerSignature = Get-AuthenticodeSignature -LiteralPath $stagedInstallerPath
+  $signatureStatus = [string]$installerSignature.Status
+  $signatureSigner = ""
+  $signatureThumbprint = ""
+  $timestampSigner = ""
+  $timestampCertificateExpiry = ""
+  if ($installerSignature.SignerCertificate) {
+    $signatureSigner = [string]$installerSignature.SignerCertificate.Subject
+    $signatureThumbprint = [string]$installerSignature.SignerCertificate.Thumbprint
+  }
+  if ($installerSignature.TimeStamperCertificate) {
+    $timestampSigner = [string]$installerSignature.TimeStamperCertificate.Subject
+    $timestampCertificateExpiry = $installerSignature.TimeStamperCertificate.NotAfter.ToString("o")
+  }
+
+  $approvedUnsigned = $signatureStatus -eq "NotSigned" -and $AllowUnsigned
+  if ($signatureStatus -ne "Valid" -and -not $approvedUnsigned) {
+    $signatureFailure = "Installer code signature is not acceptable. Status: $signatureStatus. -AllowUnsigned permits only explicitly approved unsigned builds with status NotSigned; invalid or untrusted signatures always fail."
+  } elseif ($normalizedExpectedThumbprint -and
+      ($signatureThumbprint -replace "\s", "").ToUpperInvariant() -ne $normalizedExpectedThumbprint) {
+    $signatureFailure = "Installer signature does not match the expected certificate thumbprint."
+  } elseif ($RequireTimestamp -and -not $installerSignature.TimeStamperCertificate) {
+    $signatureFailure = "Installer signature does not contain a trusted timestamp."
+  } else {
+    New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
+    Get-ChildItem -LiteralPath $OutputDir -Filter "KnowBase_*_x64-setup.exe" -File -ErrorAction SilentlyContinue |
+      ForEach-Object { Remove-Item -LiteralPath $_.FullName -Force }
+    $installerPath = Join-Path $OutputDir $installerName
+    Copy-Item -LiteralPath $stagedInstallerPath -Destination $installerPath -Force
+  }
 }
 finally {
-  $archive.Dispose()
+  if (Test-Path -LiteralPath $stagingPath) {
+    $resolvedTempRoot = Resolve-Path -LiteralPath $workspaceTempRoot
+    $resolvedStagingPath = Resolve-Path -LiteralPath $stagingPath
+    $tempPrefix = $resolvedTempRoot.Path.TrimEnd('\') + '\'
+    if (-not $resolvedStagingPath.Path.StartsWith($tempPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+      Fail "Refusing to remove release staging directory outside workspace temp directory: $($resolvedStagingPath.Path)"
+    }
+    Remove-Item -LiteralPath $resolvedStagingPath.Path -Recurse -Force
+  }
 }
 
-$zipHash = Get-FileHash -Algorithm SHA256 -LiteralPath $zip.Path
-$installerHash = Get-FileHash -Algorithm SHA256 -LiteralPath $installerPath
-$installerSignature = Get-AuthenticodeSignature -LiteralPath $installerPath
-$signatureStatus = [string]$installerSignature.Status
-$signatureSigner = ""
-if ($installerSignature.SignerCertificate) {
-  $signatureSigner = [string]$installerSignature.SignerCertificate.Subject
+if ($signatureFailure) {
+  Fail $signatureFailure
 }
 $checksumPath = Join-Path $OutputDir "SHA256SUMS.txt"
 $summaryPath = Join-Path $OutputDir "RELEASE_ARTIFACTS.md"
@@ -62,6 +124,39 @@ $supportToolsDir = Join-Path $OutputDir "support-tools"
 $supportToolsZipPath = Join-Path $OutputDir "KnowBaseSupportTools.zip"
 $installerName = Split-Path -Leaf $installerPath
 $zipName = Split-Path -Leaf $zip.Path
+$releaseZipPath = Join-Path $OutputDir $zipName
+$resolvedReleaseZipPath = [System.IO.Path]::GetFullPath($releaseZipPath)
+if (-not $zip.Path.Equals($resolvedReleaseZipPath, [System.StringComparison]::OrdinalIgnoreCase)) {
+  Copy-Item -LiteralPath $zip.Path -Destination $releaseZipPath -Force
+}
+
+$reservedNames = @(
+  $installerName,
+  $zipName,
+  "KnowBaseSupportTools.zip",
+  "SHA256SUMS.txt",
+  "RELEASE_ARTIFACTS.md",
+  "RELEASE_NOTES_DRAFT.md",
+  "RELEASE_VALIDATION_ISSUE_DRAFT.md"
+)
+$additionalReleaseFiles = @()
+foreach ($additionalPath in $AdditionalFiles) {
+  $resolvedAdditional = Resolve-Path -LiteralPath $additionalPath -ErrorAction SilentlyContinue
+  if (-not $resolvedAdditional -or -not (Test-Path -LiteralPath $resolvedAdditional.Path -PathType Leaf)) {
+    Fail "Additional release file was not found: $additionalPath"
+  }
+  $additionalName = Split-Path -Leaf $resolvedAdditional.Path
+  if ($additionalName -in $reservedNames -or
+      $additionalName -in @($additionalReleaseFiles | ForEach-Object Name)) {
+    Fail "Additional release file name is duplicated or reserved: $additionalName"
+  }
+  $destination = Join-Path $OutputDir $additionalName
+  $resolvedDestination = [System.IO.Path]::GetFullPath($destination)
+  if (-not $resolvedAdditional.Path.Equals($resolvedDestination, [System.StringComparison]::OrdinalIgnoreCase)) {
+    Copy-Item -LiteralPath $resolvedAdditional.Path -Destination $destination -Force
+  }
+  $additionalReleaseFiles += Get-Item -LiteralPath $destination
+}
 
 if (Test-Path -LiteralPath $supportToolsDir) {
   Remove-Item -LiteralPath $supportToolsDir -Recurse -Force
@@ -73,6 +168,9 @@ if (Test-Path -LiteralPath $supportToolsZipPath) {
 New-Item -ItemType Directory -Force -Path $supportToolsDir | Out-Null
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot "check-installed-app.ps1") -Destination (Join-Path $supportToolsDir "check-installed-app.ps1") -Force
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot "collect-support-info.ps1") -Destination (Join-Path $supportToolsDir "collect-support-info.ps1") -Force
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot "backup-local-data.ps1") -Destination (Join-Path $supportToolsDir "backup-local-data.ps1") -Force
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot "restore-local-data.ps1") -Destination (Join-Path $supportToolsDir "restore-local-data.ps1") -Force
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot "remove-local-data.ps1") -Destination (Join-Path $supportToolsDir "remove-local-data.ps1") -Force
 
 $supportToolsReadmePath = Join-Path $supportToolsDir "README.txt"
 $supportToolsReadme = @(
@@ -83,6 +181,35 @@ $supportToolsReadme = @(
   'Installed app validation:'
   ''
   '  powershell -ExecutionPolicy Bypass -File .\check-installed-app.ps1'
+  ''
+  'The installed app report is written to Desktop\KnowBaseValidation by default.'
+  'It records ProductVersion, signature status, installed executable path, and backend process path when available.'
+  ''
+  'Preview a local data backup:'
+  ''
+  '  powershell -ExecutionPolicy Bypass -File .\backup-local-data.ps1'
+  ''
+  'Create the backup after reviewing the output path:'
+  ''
+  '  powershell -ExecutionPolicy Bypass -File .\backup-local-data.ps1 -ConfirmBackup'
+  ''
+  'Preview a restore:'
+  ''
+  '  powershell -ExecutionPolicy Bypass -File .\restore-local-data.ps1 -ZipPath D:\path\to\backup.zip'
+  ''
+  'Restore only after closing KnowBase and reviewing the destination:'
+  ''
+  '  powershell -ExecutionPolicy Bypass -File .\restore-local-data.ps1 -ZipPath D:\path\to\backup.zip -ConfirmRestore'
+  ''
+  'Preview complete local data removal:'
+  ''
+  '  powershell -ExecutionPolicy Bypass -File .\remove-local-data.ps1'
+  ''
+  'Remove app data, WebView session data, and KnowBase Credential Manager entries:'
+  ''
+  '  powershell -ExecutionPolicy Bypass -File .\remove-local-data.ps1 -ConfirmDelete'
+  ''
+  'Credential Manager API keys are not included in backup ZIP files.'
   ''
   'Support report for install/startup issues:'
   ''
@@ -99,11 +226,18 @@ Compress-Archive -Path (Join-Path $supportToolsDir "*") -DestinationPath $suppor
 
 $supportToolsHash = Get-FileHash -Algorithm SHA256 -LiteralPath $supportToolsZipPath
 $supportToolsZipName = Split-Path -Leaf $supportToolsZipPath
+$additionalFileHashes = @($additionalReleaseFiles | ForEach-Object {
+  [pscustomobject]@{
+    Name = $_.Name
+    Hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $_.FullName).Hash
+  }
+})
 
 $checksums = @(
   "$($installerHash.Hash)  $installerName"
   "$($zipHash.Hash)  $zipName"
   "$($supportToolsHash.Hash)  $supportToolsZipName"
+  $additionalFileHashes | ForEach-Object { "$($_.Hash)  $($_.Name)" }
 )
 Set-Content -LiteralPath $checksumPath -Value $checksums -Encoding ASCII
 
@@ -115,8 +249,9 @@ $summary = @(
   '## Files'
   ''
   "- Installer: ``$installerName``"
-  "- Source ZIP artifact: ``$zipName``"
+  "- Desktop bundle ZIP artifact: ``$zipName``"
   "- Support tools ZIP: ``$supportToolsZipName``"
+  $additionalReleaseFiles | ForEach-Object { "- Release manifest: ``$($_.Name)``" }
   '- Checksums: `SHA256SUMS.txt`'
   ''
   '## SHA256'
@@ -129,6 +264,9 @@ $summary = @(
   ''
   "- Status: ``$signatureStatus``"
   "- Signer: ``$signatureSigner``"
+  "- Thumbprint: ``$signatureThumbprint``"
+  "- Timestamp signer: ``$timestampSigner``"
+  "- Timestamp certificate valid until: ``$timestampCertificateExpiry``"
   ''
   '## Next Step'
   ''
@@ -146,6 +284,7 @@ $releaseNotes = @(
   '- Windows desktop app packaging milestone.'
   '- Local knowledge bases for PDF, Word, Markdown, TXT, and CSV files.'
   '- RAG answers with source citations.'
+  '- CSV data analysis with the Analysis tab.'
   '- Recent conversations, guided empty states, and in-app confirmations.'
   ''
   '## Who This Release Is For'
@@ -160,7 +299,7 @@ $releaseNotes = @(
   ''
   '- production enterprise deployment,'
   '- unattended installation at scale,'
-  '- environments that require code signing or automatic updates.'
+  '- environments that require unattended deployment or automatic updates.'
   ''
   '## Requirements'
   ''
@@ -195,6 +334,18 @@ $releaseNotes = @(
   $signatureSigner
   '```'
   ''
+  'Certificate thumbprint:'
+  ''
+  '```text'
+  $signatureThumbprint
+  '```'
+  ''
+  'Timestamp signer:'
+  ''
+  '```text'
+  $timestampSigner
+  '```'
+  ''
   'Expected local data directory:'
   ''
   '```text'
@@ -205,6 +356,12 @@ $releaseNotes = @(
   ''
   '```text'
   $supportToolsZipName
+  '```'
+  ''
+  'Supply-chain manifests:'
+  ''
+  '```text'
+  @($additionalReleaseFiles | ForEach-Object Name)
   '```'
   ''
   '## First Run'
@@ -226,6 +383,7 @@ $releaseNotes = @(
   '- Markdown upload and chat: not tested'
   '- TXT upload and chat: not tested'
   '- CSV upload and chat: not tested'
+  '- CSV data analysis in Analysis tab: not tested'
   '- App close process cleanup: not tested'
   '- Installer preinstall process cleanup: configured, not clean-machine tested'
   '- Local data backup dry-run: not tested'
@@ -286,6 +444,23 @@ $validationIssue = @(
   "Signer: $signatureSigner"
   '```'
   ''
+  '## Signature Policy Decision'
+  ''
+  '- [ ] Valid signature verified'
+  '- [ ] Unsigned build explicitly approved and disclosed'
+  '- [ ] Signature invalid or undecided - block release'
+  ''
+  '```text'
+  "Signature status: $signatureStatus"
+  "Signer: $signatureSigner"
+  "Thumbprint: $signatureThumbprint"
+  "Timestamp signer: $timestampSigner"
+  "Timestamp certificate valid until: $timestampCertificateExpiry"
+  'Unsigned approver:'
+  'Approval date:'
+  'Release-notes disclosure:'
+  '```'
+  ''
   '## Clean Machine Baseline'
   ''
   '- [ ] Test machine does not have Python installed.'
@@ -317,6 +492,7 @@ $validationIssue = @(
   '- [ ] Markdown upload and cited chat answer work.'
   '- [ ] TXT upload and cited chat answer work.'
   '- [ ] CSV upload and cited chat answer work.'
+  '- [ ] CSV Analysis tab preview, query, chart, summary, and history work.'
   '- [ ] Recent conversations reopen correctly.'
   '- [ ] Conversation deletion uses in-app confirmation.'
   ''

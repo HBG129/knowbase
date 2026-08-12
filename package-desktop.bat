@@ -22,7 +22,7 @@ echo Tools root:
 echo   %TOOLS_ROOT%
 echo.
 
-echo [1/3] Checking desktop prerequisites...
+echo [1/4] Checking desktop prerequisites...
 call "%~dp0check-desktop-prereqs.bat"
 if errorlevel 1 (
   echo.
@@ -34,7 +34,18 @@ if errorlevel 1 (
 cd /d "%~dp0"
 
 echo.
-echo [2/3] Building backend executable...
+echo [2/4] Preparing fixed WebView2 Runtime...
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\prepare-webview2-fixed-runtime.ps1"
+if errorlevel 1 (
+  echo.
+  echo Desktop packaging stopped: fixed WebView2 Runtime preparation failed.
+  if "%PACKAGE_DESKTOP_PAUSE%"=="1" pause
+  exit /b 1
+)
+cd /d "%~dp0"
+
+echo.
+echo [3/4] Building backend executable...
 call "%~dp0package-backend.bat"
 if errorlevel 1 (
   echo.
@@ -52,7 +63,7 @@ if not exist "%~dp0backend\dist\KnowBaseBackend.exe" (
 )
 
 echo.
-echo [3/3] Building Tauri desktop bundle...
+echo [4/4] Building Tauri desktop bundle...
 if not exist "%~dp0frontend\node_modules" (
   echo Frontend dependencies were not found.
   echo Run npm install in frontend before packaging.

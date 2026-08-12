@@ -1,6 +1,6 @@
 # Roadmap
 
-KnowBase is moving toward a customer-installable Windows desktop AI knowledge base.
+KnowBase is moving toward a customer-installable Windows desktop AI knowledge and data workspace.
 
 This roadmap is intentionally short and release-focused. It tracks what must happen before the app can be handed to real users with reasonable confidence.
 
@@ -9,7 +9,7 @@ This roadmap is intentionally short and release-focused. It tracks what must hap
 Goal:
 
 ```text
-A Windows user can install KnowBase, launch it, upload documents, ask cited questions, and close the app without installing developer tools.
+A Windows user can install KnowBase, launch it, upload documents and CSV files, ask cited questions, run CSV analysis, and close the app without installing developer tools.
 ```
 
 Current focus:
@@ -17,6 +17,7 @@ Current focus:
 - backend executable packaging,
 - Tauri desktop shell,
 - local backend startup and shutdown,
+- CSV Analysis Agent preview, SQL safety, charts, summaries, and history,
 - clean-machine installer validation,
 - customer-facing documentation,
 - safe demo and release assets.
@@ -33,6 +34,7 @@ Required:
 - Backend starts automatically from the desktop shell.
 - App closes without orphan backend processes.
 - Demo files from `docs\demo-data` upload and answer with citations.
+- Completed CSV uploads appear in the Analysis tab and can be previewed, queried, charted, summarized, and reopened from history.
 - README includes real screenshots or a short GIF from `docs\assets`.
 
 ## Next Milestone: Public Portfolio Release
@@ -59,6 +61,7 @@ Required:
 - Customer quick start is accurate.
 - Local data and uninstall behavior are documented.
 - API key handling is reviewed.
+- CSV analysis safety boundaries are reviewed.
 - Error messages guide users when provider keys, network, or file processing fail.
 - Support runbook is usable without collecting private files by default.
 
@@ -66,13 +69,15 @@ Required:
 
 These are important, but not required for the next release:
 
-- OS credential storage for API keys.
+- Credential storage hardening for enterprise-managed Windows environments.
 - Code signing.
 - Auto-update.
 - Installer customization.
 - OAuth login.
 - Knowledge base sharing links.
 - Reranker support for retrieval quality.
+- Excel analysis support.
+- Scheduled analysis reports.
 - Enterprise deployment policy.
 
 ## Non-Goals For The Next Release

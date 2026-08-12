@@ -14,12 +14,12 @@ KnowBase turns PDFs, Word documents, Markdown notes, text files, and CSVs into s
 | Web app | Usable for local development |
 | Backend API | Working |
 | Backend executable | Working with PyInstaller |
-| Desktop shell | Tauri Windows packaging verified in CI and local install smoke |
+| Desktop shell | Tauri Windows packaging verified in CI and offline Windows Sandbox |
 | Desktop package workflow | Passing and uploading artifacts |
 | Release preflight | CI checks scripts, versions, sensitive files, and release documentation |
 | Customer installer | CI artifact available and locally install-verified, not publicly released yet |
 
-The current repository is ready for development and packaging work. A Windows installer artifact is produced by GitHub Actions, guarded by release preflight checks, and locally install-verified. It still needs clean-machine validation and code signing before customer release.
+The current repository is ready for development and release-candidate packaging. A Windows installer artifact is produced by GitHub Actions and guarded by release preflight checks, locked dependencies, dependency manifests, checksums, and provenance generation. The exact CI installer has passed offline Windows Sandbox installation, launch, core local API workflows, graceful close, backend cleanup, uninstall, customer-data preservation, and real-provider RAG/Analysis validation. Code signing and final signed-artifact evidence remain before public customer release.
 
 ## Why KnowBase
 
@@ -57,7 +57,7 @@ KnowBase is being prepared for customers who should be able to install and run t
 4. Windows installer artifact in CI
 5. Clean-machine validation, signing, update flow, and release packaging
 
-Current milestone: the backend executable and Tauri Windows installer are produced by CI; the next release gate is installing and validating the artifact on a clean Windows machine.
+Current milestone: the backend executable and Tauri Windows installer are produced by CI, and the exact CI installer passed offline Windows Sandbox plus real-provider cited RAG and natural-language CSV Analysis validation. The remaining public-release gate is a valid code signature or an explicitly approved unsigned-release decision, followed by final exact-artifact evidence and release notes.
 
 ## Quick Start
 
@@ -263,17 +263,13 @@ Output:
 backend\dist\KnowBaseBackend.exe
 ```
 
-The packaged backend stores desktop runtime data under `%APPDATA%\KnowBase` by default. For testing, set `KNOWBASE_DATA_DIR` before starting the executable.
-
-Example health-check run:
+The packaged backend stores desktop runtime data under `%APPDATA%\KnowBase` by default. For testing, run the packaged backend health check, which uses an isolated local data directory and verifies `/api/health`:
 
 ```powershell
-$env:KNOWBASE_DATA_DIR = "D:\Codex_AI_Workspace\knowbase\backend\data\desktop-test"
-$env:KNOWBASE_BACKEND_PORT = "8765"
-.\backend\dist\KnowBaseBackend.exe
+.\scripts\check-packaged-backend-health.ps1
 ```
 
-Then check:
+The script starts `backend\dist\KnowBaseBackend.exe` with `KNOWBASE_BACKEND_PORT=8765`, checks:
 
 ```text
 http://127.0.0.1:8765/api/health
@@ -330,7 +326,7 @@ To run the desktop packaging pipeline from one entry point:
 .\package-desktop.bat
 ```
 
-The packaging pipeline checks desktop prerequisites first, then builds the backend executable, then runs the Tauri build.
+The packaging pipeline checks desktop prerequisites, prepares and verifies the pinned app-local WebView2 Fixed Version Runtime, builds the backend executable, then runs the Tauri build.
 
 Windows Tauri compilation also requires Microsoft C++ Build Tools. The prerequisite check tries to load common Visual Studio developer shell locations automatically. If `cl.exe` or `link.exe` is still not available, install Microsoft C++ Build Tools and select the `Desktop development with C++` workload before running a full Tauri build. See the official Tauri Windows prerequisites: <https://v2.tauri.app/start/prerequisites/>.
 
@@ -341,10 +337,11 @@ rustc 1.96.0
 cargo 1.96.0
 cargo metadata: passed
 backend runtime path tests: metadata check passed
-cargo check: blocked because link.exe is missing
+Microsoft C++ Build Tools: available under D:\DevTools\Microsoft\VSBuildTools2022
+fixed-runtime Tauri/NSIS build: passed
 ```
 
-The Visual Studio Build Tools bootstrapper was attempted, but it failed while downloading `vs_installer.opc` due to certificate/network errors from the installer. Install Microsoft C++ Build Tools manually if the automated installer fails on this machine.
+On this machine, load `D:\DevTools\Microsoft\VSBuildTools2022\Common7\Tools\VsDevCmd.bat` before a local Tauri build if the compiler and linker are not already on `PATH`.
 
 Development commands:
 
@@ -390,31 +387,22 @@ Backend tests:
 
 ```powershell
 cd backend
-.\.venv\Scripts\python.exe -m pytest tests -q
+.\.venv\Scripts\python.exe -m pytest
 ```
 
-Stable Windows backend test command:
-
-```powershell
-cd backend
-$tmp = "D:\Codex_AI_Workspace\knowbase\backend\data\pytest-tmp"
-New-Item -ItemType Directory -Force -Path $tmp | Out-Null
-$env:TEMP = $tmp
-$env:TMP = $tmp
-.\.venv\Scripts\python.exe -m pytest tests -q --basetemp $tmp -p no:cacheprovider
-```
+The backend pytest configuration limits discovery to `backend\tests`, so runtime data under `backend\data` is not collected as tests.
 
 Recent local verification:
 
-- Backend tests: 42 passed
-- Frontend production build: passed
+- Backend tests: 141 passed
+- Frontend production build and dependency audits: passed
 - Backend executable health check: `{"status":"ok"}`
-- Windows desktop installer artifact: `KnowBaseDesktop-Windows-20`
-- Installed desktop smoke: installer ran, shortcuts exist, app starts, backend auto-starts, one backend process listens on `127.0.0.1:8000`, and health returns `{"status":"ok"}`
+- Desktop runtime: prefers port `8000`, falls back to an available loopback port when occupied, and reports the selected URL to the frontend through Tauri
+- Installed desktop and clean-machine evidence: tracked in [`docs/project-status.md`](docs/project-status.md)
 - Rust toolchain: installed under `D:\Codex_AI_Workspace\.tools`
 - Desktop prerequisite check: available through `.\check-desktop-prereqs.bat`
 - Desktop packaging pipeline: available through `.\package-desktop.bat`
-- Tauri backend runtime path check: passed with `rustc --test --emit=metadata`
+- Tauri runtime tests: enforced by the Windows desktop packaging workflow
 
 ## Repository Hygiene
 

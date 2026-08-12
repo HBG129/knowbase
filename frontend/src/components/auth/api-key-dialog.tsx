@@ -2,39 +2,50 @@
 
 import { useState } from "react";
 import { useAuthStore } from "@/stores/auth-store";
-import { Key, X, Eye, EyeOff, Check, Loader2 } from "lucide-react";
+import { useI18nStore } from "@/stores/i18n-store";
+import { Check, Eye, EyeOff, Key, Loader2, ShieldCheck, X } from "lucide-react";
 
 interface Props {
   open: boolean;
   onClose: () => void;
 }
 
+interface StatusMessage {
+  text: string;
+  error: boolean;
+}
+
 export function ApiKeyDialog({ open, onClose }: Props) {
   const { user, setApiKey, clearApiKey } = useAuthStore();
-  const [apiKey, setApiKeyVal] = useState("");
+  const { t } = useI18nStore();
+  const [apiKey, setApiKeyValue] = useState("");
   const [provider, setProvider] = useState("zhipu");
   const [showKey, setShowKey] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState<StatusMessage | null>(null);
 
   if (!open) return null;
 
   const providers = [
-    { value: "zhipu", label: "智谱 GLM (推荐)", desc: "免费/便宜，中文能力强" },
-    { value: "deepseek", label: "DeepSeek", desc: "高性价比，1M上下文" },
-    { value: "openai", label: "OpenAI", desc: "GPT-4o / GPT-4o-mini" },
+    { value: "zhipu", label: t("apiKey.zhipuLabel"), description: t("apiKey.zhipuDescription") },
+    { value: "deepseek", label: "DeepSeek", description: t("apiKey.deepseekDescription") },
+    { value: "openai", label: "OpenAI", description: t("apiKey.openaiDescription") },
   ];
+  const visibilityLabel = showKey ? t("apiKey.hide") : t("apiKey.show");
 
   async function handleSave() {
     if (!apiKey.trim()) return;
     setSaving(true);
-    setMessage("");
+    setMessage(null);
     try {
       await setApiKey(apiKey.trim(), provider);
-      setMessage("API Key 已保存！");
-      setApiKeyVal("");
-    } catch (err: any) {
-      setMessage("保存失败: " + (err.message || "Unknown error"));
+      setMessage({ text: t("apiKey.saved"), error: false });
+      setApiKeyValue("");
+    } catch (error: any) {
+      setMessage({
+        text: t("apiKey.saveFailed", { message: error.message || t("apiKey.unknownError") }),
+        error: true,
+      });
     } finally {
       setSaving(false);
     }
@@ -42,13 +53,16 @@ export function ApiKeyDialog({ open, onClose }: Props) {
 
   async function handleClear() {
     setSaving(true);
-    setMessage("");
+    setMessage(null);
     try {
       await clearApiKey();
-      setApiKeyVal("");
-      setMessage("API Key 已清除。如未配置系统默认 Key，聊天时需要重新添加个人 Key。");
-    } catch (err: any) {
-      setMessage("清除失败: " + (err.message || "Unknown error"));
+      setApiKeyValue("");
+      setMessage({ text: t("apiKey.cleared"), error: false });
+    } catch (error: any) {
+      setMessage({
+        text: t("apiKey.clearFailed", { message: error.message || t("apiKey.unknownError") }),
+        error: true,
+      });
     } finally {
       setSaving(false);
     }
@@ -56,130 +70,113 @@ export function ApiKeyDialog({ open, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh]">
-      {/* Backdrop */}
       <div className="fixed inset-0 bg-ink/60 backdrop-blur-sm" onClick={onClose} />
-
-      {/* Dialog */}
-      <div className="relative bg-canvas border border-hairline rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-hairline">
+      <div
+        className="relative mx-4 w-full max-w-md overflow-hidden rounded-xl border border-hairline bg-canvas shadow-2xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="api-key-dialog-title"
+      >
+        <div className="flex items-center justify-between border-b border-hairline px-6 py-4">
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-lg bg-accent-soft flex items-center justify-center">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-soft">
               <Key className="h-4 w-4 text-accent" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-ink">API Key 设置</h2>
-              <p className="text-xs text-ink-muted">配置你自己的 LLM API Key</p>
+              <h2 id="api-key-dialog-title" className="text-sm font-semibold text-ink">{t("apiKey.title")}</h2>
+              <p className="text-xs text-ink-muted">{t("apiKey.description")}</p>
             </div>
           </div>
-          <button onClick={onClose} className="h-8 w-8 rounded-lg flex items-center justify-center text-ink-muted hover:bg-canvas-softer hover:text-ink transition-colors">
+          <button onClick={onClose} aria-label={t("common.close")} title={t("common.close")} className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-muted transition-colors hover:bg-canvas-softer hover:text-ink">
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        {/* Body */}
-        <div className="px-6 py-5 space-y-5">
-          {/* Current status */}
-          {user?.has_api_key && (
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-success-soft/50 border border-success/20">
-              <Check className="h-4 w-4 text-success flex-shrink-0" />
+        <div className="space-y-5 px-6 py-5">
+          {user?.has_api_key ? (
+            <div className="flex items-center gap-2 rounded-lg border border-success/20 bg-success-soft/50 p-3">
+              <Check className="h-4 w-4 flex-shrink-0 text-success" />
               <div>
                 <p className="text-xs font-medium text-success">
-                  已配置 {user.api_provider?.toUpperCase()} API Key
+                  {t("apiKey.configured", { provider: user.api_provider?.toUpperCase() || "LLM" })}
                 </p>
-                <p className="text-[11px] text-ink-muted mt-0.5">
-                  你的 Key 将优先于系统默认 Key
-                </p>
+                <p className="mt-0.5 text-[11px] text-ink-muted">{t("apiKey.configuredHint")}</p>
               </div>
             </div>
-          )}
-
-          {!user?.has_api_key && (
-            <div className="p-3 rounded-xl bg-warning-soft/30 border border-warning/20">
-              <p className="text-xs text-ink-body">
-                未配置个人 API Key。若当前安装包没有内置系统 Key，聊天和文档向量化会要求你先添加自己的 Key。
-              </p>
+          ) : (
+            <div className="rounded-lg border border-warning/20 bg-warning-soft/30 p-3">
+              <p className="text-xs leading-5 text-ink-body">{t("apiKey.notConfigured")}</p>
             </div>
           )}
 
-          {/* Provider selector */}
           <div>
-            <label className="block text-xs font-medium text-ink-muted mb-2">选择 Provider</label>
+            <p className="mb-2 text-xs font-medium text-ink-muted">{t("apiKey.provider")}</p>
             <div className="space-y-1.5">
-              {providers.map((p) => (
+              {providers.map((item) => (
                 <button
-                  key={p.value}
-                  onClick={() => setProvider(p.value)}
+                  key={item.value}
+                  onClick={() => setProvider(item.value)}
                   className={
-                    "w-full text-left px-3 py-2.5 rounded-lg border text-sm transition-all " +
-                    (provider === p.value
+                    "w-full rounded-lg border px-3 py-2.5 text-left text-sm transition-all " +
+                    (provider === item.value
                       ? "border-accent bg-accent-soft/50 text-accent"
                       : "border-hairline text-ink-body hover:border-hairline-strong")
                   }
                 >
-                  <span className="font-medium">{p.label}</span>
-                  <span className="text-xs text-ink-muted ml-2">{p.desc}</span>
+                  <span className="font-medium">{item.label}</span>
+                  <span className="ml-2 text-xs text-ink-muted">{item.description}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* API Key input */}
           <div>
-            <label className="block text-xs font-medium text-ink-muted mb-2">API Key</label>
+            <label htmlFor="personal-api-key" className="mb-2 block text-xs font-medium text-ink-muted">API Key</label>
             <div className="relative">
               <input
+                id="personal-api-key"
                 type={showKey ? "text" : "password"}
                 value={apiKey}
-                onChange={(e) => setApiKeyVal(e.target.value)}
-                placeholder={provider === "zhipu" ? "例如: 49ae4535..." : "sk-..."}
-                className="w-full h-10 px-3 pr-10 rounded-lg border border-hairline bg-canvas text-sm text-ink placeholder:text-ink-placeholder focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/10"
+                onChange={(event) => setApiKeyValue(event.target.value)}
+                placeholder={provider === "zhipu" ? t("apiKey.placeholderZhipu") : t("apiKey.placeholderDefault")}
+                className="h-10 w-full rounded-lg border border-hairline bg-canvas px-3 pr-10 text-sm text-ink placeholder:text-ink-placeholder focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/10"
               />
               <button
                 type="button"
-                onClick={() => setShowKey(!showKey)}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink transition-colors"
+                onClick={() => setShowKey((value) => !value)}
+                aria-label={visibilityLabel}
+                title={visibilityLabel}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-muted transition-colors hover:text-ink"
               >
                 {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
           </div>
 
-          {/* Message */}
+          <div className="flex items-start gap-2.5 rounded-lg border border-hairline bg-canvas-soft/60 p-3">
+            <ShieldCheck className="mt-0.5 h-4 w-4 flex-shrink-0 text-accent" />
+            <p className="text-xs leading-5 text-ink-muted">{t("apiKey.providerDataNotice")}</p>
+          </div>
+
           {message && (
-            <p className={
-              "text-xs px-3 py-2 rounded-lg " +
-              (message.includes("失败") ? "bg-error/10 text-error" : "bg-success/10 text-success")
-            }>
-              {message}
+            <p className={"rounded-lg px-3 py-2 text-xs " + (message.error ? "bg-error/10 text-error" : "bg-success/10 text-success")}>
+              {message.text}
             </p>
           )}
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center gap-3 px-6 py-4 border-t border-hairline bg-canvas-soft/50">
+        <div className="flex items-center gap-3 border-t border-hairline bg-canvas-soft/50 px-6 py-4">
           {user?.has_api_key && (
-            <button
-              onClick={handleClear}
-              disabled={saving}
-              className="h-10 px-4 rounded-lg border border-error/30 text-error text-sm font-medium hover:bg-error/5 transition-colors disabled:opacity-50"
-            >
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "清除 Key"}
+            <button onClick={handleClear} disabled={saving} className="h-10 rounded-lg border border-error/30 px-4 text-sm font-medium text-error transition-colors hover:bg-error/5 disabled:opacity-50">
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : t("apiKey.clear")}
             </button>
           )}
           <div className="flex-1" />
-          <button
-            onClick={onClose}
-            className="h-10 px-4 rounded-lg border border-hairline text-ink-body text-sm font-medium hover:bg-canvas-softer transition-colors"
-          >
-            取消
+          <button onClick={onClose} className="h-10 rounded-lg border border-hairline px-4 text-sm font-medium text-ink-body transition-colors hover:bg-canvas-softer">
+            {t("common.cancel")}
           </button>
-          <button
-            onClick={handleSave}
-            disabled={!apiKey.trim() || saving}
-            className="h-10 px-5 rounded-lg bg-ink text-canvas text-sm font-medium hover:bg-ink-soft transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "保存"}
+          <button onClick={handleSave} disabled={!apiKey.trim() || saving} className="h-10 rounded-lg bg-ink px-5 text-sm font-medium text-canvas transition-all hover:bg-ink-soft active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50">
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : t("common.save")}
           </button>
         </div>
       </div>

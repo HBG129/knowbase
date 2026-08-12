@@ -7,6 +7,7 @@ import { Plus, X, Library } from "lucide-react";
 import { useKBStore } from "@/stores/kb-store";
 import { Button } from "@/components/ui/button";
 import { kbDetailPath } from "@/lib/routes";
+import { useI18nStore } from "@/stores/i18n-store";
 
 interface KBCreateDialogProps {
   children?: React.ReactNode;
@@ -21,6 +22,7 @@ export function KBCreateDialog({ children }: KBCreateDialogProps) {
   const [mounted, setMounted] = useState(false);
   const fetchKBs = useKBStore((s) => s.fetchKBs);
   const createKB = useKBStore((s) => s.createKB);
+  const { t } = useI18nStore();
 
   useEffect(() => {
     setMounted(true);
@@ -54,7 +56,7 @@ export function KBCreateDialog({ children }: KBCreateDialogProps) {
         <div onClick={() => setOpen(true)}>{children}</div>
       ) : (
         <Button variant="primary" onClick={() => setOpen(true)}>
-          <Plus className="h-4 w-4" /> New Knowledge Base
+          <Plus className="h-4 w-4" /> {t("kb.newKb")}
         </Button>
       )}
 
@@ -77,10 +79,12 @@ export function KBCreateDialog({ children }: KBCreateDialogProps) {
                   id="kb-create-dialog-title"
                   className="text-base font-semibold text-ink flex items-center gap-2"
                 >
-                  <Library className="h-4 w-4 text-accent" /> Create Knowledge Base
+                  <Library className="h-4 w-4 text-accent" /> {t("kb.createKb")}
                 </h3>
                 <button
                   onClick={() => setOpen(false)}
+                  aria-label={t("common.close")}
+                  title={t("common.close")}
                   className="p-1.5 rounded-lg hover:bg-canvas-soft transition-colors"
                 >
                   <X className="h-4 w-4 text-ink-muted" />
@@ -89,7 +93,7 @@ export function KBCreateDialog({ children }: KBCreateDialogProps) {
               <form onSubmit={submit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-ink-soft mb-1.5">
-                    Name
+                    {t("common.name")}
                   </label>
                   <input
                     value={name}
@@ -97,23 +101,23 @@ export function KBCreateDialog({ children }: KBCreateDialogProps) {
                     required
                     autoFocus
                     className="w-full h-10 px-3.5 rounded-lg border border-hairline bg-canvas text-ink text-sm focus:outline-none focus:border-hairline-focus focus:ring-2 focus:ring-accent/10 placeholder:text-ink-placeholder"
-                    placeholder="e.g. Product Documentation"
+                    placeholder={t("kb.namePlaceholder")}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-ink-soft mb-1.5">
-                    Description (optional)
+                    {t("kb.descriptionOptional")}
                   </label>
                   <textarea
                     value={desc}
                     onChange={(e) => setDesc(e.target.value)}
                     rows={2}
                     className="w-full px-3.5 py-2.5 rounded-lg border border-hairline bg-canvas text-ink text-sm focus:outline-none focus:border-hairline-focus focus:ring-2 focus:ring-accent/10 resize-none placeholder:text-ink-placeholder"
-                    placeholder="A brief description of this knowledge base…"
+                    placeholder={t("kb.descriptionPlaceholder")}
                   />
                 </div>
                 <Button type="submit" loading={loading} className="w-full">
-                  {loading ? "Creating…" : "Create Knowledge Base"}
+                  {loading ? t("kb.creating") : t("kb.createKb")}
                 </Button>
               </form>
             </div>

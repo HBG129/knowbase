@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite+aiosqlite:///./data/knowbase.db"
 
     # JWT
-    JWT_SECRET_KEY: str = "dev-secret-change-in-prod"
+    JWT_SECRET_KEY: str = "dev-secret-change-in-production-32-bytes"
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     JWT_REFRESH_TOKEN_EXPIRE_DAYS: int = 7

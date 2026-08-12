@@ -1,23 +1,179 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-const NETWORK_ERROR_MESSAGE = "无法连接本地 KnowBase 后端，请关闭应用后重新打开，再重试当前操作。";
+import { Lang, TranslationKey, TranslationValues, t } from "@/lib/i18n";
+
+const CONFIGURED_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const BROWSER_BASE_URL = CONFIGURED_BASE_URL || "http://localhost:8000";
+const AUTH_TOKEN_PATHS = new Set([
+  "/api/auth/login",
+  "/api/auth/register",
+  "/api/auth/refresh",
+]);
+
+interface TokenResponse {
+  access_token: string;
+  refresh_token: string;
+}
+
+let refreshPromise: Promise<string | null> | null = null;
+interface BackendConnection {
+  baseUrl: string;
+  capabilityToken: string | null;
+}
+
+let connectionPromise: Promise<BackendConnection> | null = null;
+
+function localizedMessage(key: TranslationKey, values?: TranslationValues): string {
+  const lang: Lang = typeof window !== "undefined" && localStorage.getItem("knowbase-lang") === "en" ? "en" : "zh";
+  return t(lang, key, values);
+}
+
+function getBackendConnection(): Promise<BackendConnection> {
+  if (CONFIGURED_BASE_URL || typeof window === "undefined") {
+    return Promise.resolve({ baseUrl: BROWSER_BASE_URL, capabilityToken: null });
+  }
+
+  if (!connectionPromise) {
+    connectionPromise = import("@tauri-apps/api/core")
+      .then(async ({ invoke, isTauri }) => {
+        if (!isTauri()) return { baseUrl: BROWSER_BASE_URL, capabilityToken: null };
+        const [baseUrl, capabilityToken] = await Promise.all([
+          invoke<string>("backend_base_url"),
+          invoke<string>("backend_capability_token"),
+        ]);
+        return { baseUrl, capabilityToken };
+      })
+      .then((connection) => {
+        const { baseUrl, capabilityToken } = connection;
+        if (!/^http:\/\/127\.0\.0\.1:\d+$/.test(baseUrl)) {
+          throw new Error("Invalid desktop backend URL");
+        }
+        if (capabilityToken !== null && !/^[a-f0-9]{64}$/.test(capabilityToken)) {
+          throw new Error("Invalid desktop capability token");
+        }
+        return connection;
+      })
+      .catch(() => {
+        connectionPromise = null;
+        throw new Error(localizedMessage("api.networkError"));
+      });
+  }
+
+  return connectionPromise;
+}
+
+function localizeApiDetail(detail: unknown): string {
+  if (typeof detail !== "string" || !detail) return localizedMessage("api.requestFailed");
+
+  const exactMessages: Record<string, TranslationKey> = {
+    "Access denied": "api.accessDenied",
+    "Not found": "api.notFound",
+    "Email already registered": "api.emailRegistered",
+    "Username already taken": "api.usernameTaken",
+    "Invalid email or password": "api.invalidCredentials",
+    "Account is deactivated": "api.accountDeactivated",
+    "Invalid or expired token": "api.invalidToken",
+    "User not found or inactive": "api.userInactive",
+    "File is empty": "api.fileEmpty",
+    "Document not found": "api.documentNotFound",
+    "Conversation not found": "api.conversationNotFound",
+    "CSV dataset not found": "api.datasetNotFound",
+    "Question cannot be empty": "api.questionEmpty",
+    "Message cannot be empty": "api.messageEmpty",
+    "Configure an API key in Settings before running analysis": "api.analysisKeyRequired",
+  };
+  const exactKey = exactMessages[detail];
+  if (exactKey) return localizedMessage(exactKey);
+
+  const unsupportedType = detail.match(/^Unsupported file type:\s*(.+)$/);
+  if (unsupportedType) return localizedMessage("api.unsupportedFileType", { type: unsupportedType[1] });
+  const sizeLimit = detail.match(/^File exceeds\s+(\d+)MB limit$/);
+  if (sizeLimit) return localizedMessage("api.fileTooLarge", { limit: sizeLimit[1] });
+  const ingestionFailure = detail.match(/^Document ingestion failed:\s*(.+)$/);
+  if (ingestionFailure) return localizedMessage("api.ingestionFailed", { message: ingestionFailure[1] });
+
+  return detail;
+}
 
 async function fetchWithNetworkMessage(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   try {
     return await fetch(input, init);
   } catch (error) {
-    throw new Error(NETWORK_ERROR_MESSAGE);
+    throw new Error(localizedMessage("api.networkError"));
   }
 }
 
+function clearAuthTokens(): void {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("refresh_token");
+}
+
+async function refreshAccessToken(): Promise<string | null> {
+  const refreshToken = localStorage.getItem("refresh_token");
+  if (!refreshToken) return null;
+
+  if (!refreshPromise) {
+    refreshPromise = (async () => {
+      try {
+        const { baseUrl, capabilityToken } = await getBackendConnection();
+        const res = await fetchWithNetworkMessage(baseUrl + "/api/auth/refresh", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(capabilityToken ? { "X-KnowBase-Desktop-Token": capabilityToken } : {}),
+          },
+          body: JSON.stringify({ refresh_token: refreshToken }),
+        });
+        if (!res.ok) {
+          clearAuthTokens();
+          return null;
+        }
+
+        const tokens = await res.json() as TokenResponse;
+        localStorage.setItem("access_token", tokens.access_token);
+        localStorage.setItem("refresh_token", tokens.refresh_token);
+        return tokens.access_token;
+      } catch {
+        clearAuthTokens();
+        return null;
+      } finally {
+        refreshPromise = null;
+      }
+    })();
+  }
+
+  return refreshPromise;
+}
+
+async function fetchWithAuth(path: string, init?: RequestInit): Promise<Response> {
+  const { baseUrl, capabilityToken } = await getBackendConnection();
+  const buildHeaders = (token: string | null) => ({
+    ...init?.headers,
+    ...(capabilityToken ? { "X-KnowBase-Desktop-Token": capabilityToken } : {}),
+    ...(token ? { Authorization: "Bearer " + token } : {}),
+  });
+
+  let res = await fetchWithNetworkMessage(baseUrl + path, {
+    ...init,
+    headers: buildHeaders(localStorage.getItem("access_token")),
+  });
+
+  if (res.status === 401 && !AUTH_TOKEN_PATHS.has(path)) {
+    const refreshedToken = await refreshAccessToken();
+    if (refreshedToken) {
+      res = await fetchWithNetworkMessage(baseUrl + path, {
+        ...init,
+        headers: buildHeaders(refreshedToken),
+      });
+    }
+  }
+
+  return res;
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== "undefined"
-    ? localStorage.getItem("access_token")
-    : null;
-  const res = await fetchWithNetworkMessage(BASE_URL + path, {
+  const res = await fetchWithAuth(path, {
     ...options,
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: "Bearer " + token } : {}),
       ...options?.headers,
     },
   });
@@ -31,8 +187,8 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
             return { detail: text };
           }
         })()
-      : { detail: "Request failed" };
-    throw new Error(err.detail || "HTTP " + res.status);
+      : { detail: localizedMessage("api.requestFailed") };
+    throw new Error(err.detail ? localizeApiDetail(err.detail) : "HTTP " + res.status);
   }
   if (res.status === 204 || !text) {
     return undefined as T;
@@ -52,27 +208,23 @@ export const api = {
 };
 
 export async function apiPostForm<T>(path: string, formData: FormData): Promise<T> {
-  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
-  const res = await fetchWithNetworkMessage(BASE_URL + path, {
+  const res = await fetchWithAuth(path, {
     method: "POST",
-    headers: token ? { Authorization: "Bearer " + token } : {},
     body: formData,
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: "Upload failed" }));
-    throw new Error(err.detail || "HTTP " + res.status);
+    const err = await res.json().catch(() => ({ detail: localizedMessage("api.uploadFailed") }));
+    throw new Error(err.detail ? localizeApiDetail(err.detail) : "HTTP " + res.status);
   }
   return res.json();
 }
 
-/** SSE streaming — returns raw Response for ReadableStream consumption */
+/** SSE streaming - returns raw Response for ReadableStream consumption */
 export function apiStream(path: string, body: unknown, signal?: AbortSignal): Promise<Response> {
-  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
-  return fetchWithNetworkMessage(BASE_URL + path, {
+  return fetchWithAuth(path, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: "Bearer " + token } : {}),
     },
     body: JSON.stringify(body),
     signal,

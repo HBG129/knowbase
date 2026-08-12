@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import { User, Bot, Quote } from "lucide-react";
+import { useI18nStore } from "@/stores/i18n-store";
 
 interface ChatMessageProps {
   role: "user" | "assistant";
@@ -14,6 +15,7 @@ interface ChatMessageProps {
 }
 
 export function ChatMessage({ role, content, citations, onCitationClick, activeCitation, messageId }: ChatMessageProps) {
+  const { t } = useI18nStore();
   const isUser = role === "user";
   const isStreaming = role === "assistant" && !content;
   const hasActiveCite = activeCitation && citations?.some(c => c.doc_id === activeCitation.docId && c.chunk_index === activeCitation.chunkIndex);
@@ -59,7 +61,7 @@ export function ChatMessage({ role, content, citations, onCitationClick, activeC
           <div className="space-y-1 pl-1">
             <p className="text-xs font-medium text-ink-muted flex items-center gap-1.5">
               <Quote className="h-3 w-3" />
-              Sources
+              {t("chat.sources")}
             </p>
             {citations.map((cite, i) => (
               <button
@@ -67,7 +69,7 @@ export function ChatMessage({ role, content, citations, onCitationClick, activeC
                 onClick={() => onCitationClick?.(cite.doc_id, cite.chunk_index)}
                 className="block w-full text-left text-xs text-link hover:text-link-deep hover:underline transition-colors px-2 py-1 rounded-md hover:bg-accent-soft/50"
               >
-                Chunk {cite.chunk_index} — {cite.snippet.slice(0, 80)}…
+                {t("chat.chunk", { index: cite.chunk_index })} — {cite.snippet.slice(0, 80)}…
               </button>
             ))}
           </div>

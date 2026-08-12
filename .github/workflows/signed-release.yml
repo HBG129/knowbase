@@ -1,0 +1,255 @@
+name: Signed Windows Release Candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version recorded in generated release materials
+        required: true
+        default: 0.1.0-rc.1
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
+concurrency:
+  group: knowbase-signed-windows-release
+  cancel-in-progress: false
+
+jobs:
+  windows-signed-release:
+    name: Build signed Windows release candidate
+    if: github.ref == 'refs/heads/main'
+    runs-on: windows-latest
+    environment: release-signing
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup Miniconda Python
+        uses: conda-incubator/setup-miniconda@8ee1f361103df19b6f8c8655fd3967a8ecb162d5 # v4.0.1
+        with:
+          python-version: "3.12"
+          auto-update-conda: false
+          auto-activate: true
+          activate-environment: base
+          channels: defaults
+
+      - name: Setup Rust
+        shell: pwsh
+        run: |
+          rustup default stable
+          rustc --version
+          cargo --version
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          version: "0.11.32"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+
+      - name: Install backend dependencies
+        shell: pwsh
+        run: |
+          uv sync --locked --project backend --extra dev --extra packaging `
+            --no-install-project --python "$env:CONDA_PREFIX\python.exe"
+          "CONDA_DLL_DIR=$env:CONDA_PREFIX\Library\bin" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run release preflight
+        shell: pwsh
+        run: .\scripts\check-release-preflight.ps1 -SkipGitStatus
+
+      - name: Audit frontend production dependencies
+        working-directory: frontend
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Audit Python dependencies
+        working-directory: backend
+        shell: pwsh
+        run: .\.venv\Scripts\python.exe -m pip_audit --local --strict
+
+      - name: Run backend tests
+        working-directory: backend
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path data\pytest-tmp | Out-Null
+          .\.venv\Scripts\python.exe -m pytest tests -q --basetemp data\pytest-tmp -p no:cacheprovider
+
+      - name: Run Tauri runtime tests
+        working-directory: frontend/src-tauri
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force target | Out-Null
+          rustc --edition 2021 --test src/backend_runtime.rs -o target/backend-runtime-tests.exe
+          .\target\backend-runtime-tests.exe
+
+      - name: Import protected code-signing certificate
+        id: signing-certificate
+        shell: pwsh
+        env:
+          WINDOWS_CERTIFICATE_BASE64: ${{ secrets.WINDOWS_CERTIFICATE_BASE64 }}
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:WINDOWS_CERTIFICATE_BASE64)) {
+            throw "WINDOWS_CERTIFICATE_BASE64 is not configured in the release-signing environment."
+          }
+          if ([string]::IsNullOrWhiteSpace($env:WINDOWS_CERTIFICATE_PASSWORD)) {
+            throw "WINDOWS_CERTIFICATE_PASSWORD is not configured in the release-signing environment."
+          }
+
+          $certificatePath = Join-Path $env:RUNNER_TEMP "knowbase-code-signing.pfx"
+          $certificateBytes = [Convert]::FromBase64String(($env:WINDOWS_CERTIFICATE_BASE64 -replace "\s", ""))
+          [IO.File]::WriteAllBytes($certificatePath, $certificateBytes)
+          $password = ConvertTo-SecureString -String $env:WINDOWS_CERTIFICATE_PASSWORD -Force -AsPlainText
+          $existingThumbprints = @(Get-ChildItem Cert:\CurrentUser\My | ForEach-Object Thumbprint)
+          $imported = @()
+          try {
+            $imported = @(Import-PfxCertificate -FilePath $certificatePath `
+              -CertStoreLocation Cert:\CurrentUser\My -Password $password -Exportable:$false)
+            if ($imported.Count -eq 0) {
+              throw "The code-signing certificate could not be imported."
+            }
+
+            "imported_thumbprints=$(@($imported | ForEach-Object Thumbprint) -join ',')" | `
+              Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+            $codeSigningOid = "1.3.6.1.5.5.7.3.3"
+            $signingCertificate = $imported | Where-Object {
+            $_.HasPrivateKey -and
+            $codeSigningOid -in @($_.EnhancedKeyUsageList | ForEach-Object { [string]$_.ObjectId })
+            } | Select-Object -First 1
+            if (-not $signingCertificate) {
+              throw "The imported PFX does not contain a certificate with an accessible private key and Code Signing EKU."
+            }
+
+            $thumbprint = $signingCertificate.Thumbprint
+            "thumbprint=$thumbprint" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+            .\scripts\check-signing-certificate.ps1 -CertificateThumbprint $thumbprint
+            Remove-Item -LiteralPath $certificatePath -Force
+          }
+          catch {
+            $newCertificates = @(Get-ChildItem Cert:\CurrentUser\My | Where-Object {
+              $_.Thumbprint -notin $existingThumbprints
+            })
+            foreach ($certificate in $newCertificates) {
+              Remove-Item -LiteralPath $certificate.PSPath -Force -ErrorAction SilentlyContinue
+            }
+            Remove-Item -LiteralPath $certificatePath -Force -ErrorAction SilentlyContinue
+            throw
+          }
+
+      - name: Build and verify signed desktop release
+        shell: pwsh
+        env:
+          WINDOWS_TIMESTAMP_URL: ${{ vars.WINDOWS_TIMESTAMP_URL }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:WINDOWS_TIMESTAMP_URL)) {
+            throw "WINDOWS_TIMESTAMP_URL is not configured in the release-signing environment."
+          }
+          .\scripts\build-signed-release.ps1 `
+            -CertificateThumbprint '${{ steps.signing-certificate.outputs.thumbprint }}' `
+            -TimestampUrl $env:WINDOWS_TIMESTAMP_URL
+
+      - name: Verify packaged backend health
+        shell: pwsh
+        run: .\scripts\check-packaged-backend-health.ps1
+
+      - name: Verify desktop artifacts
+        shell: pwsh
+        run: .\scripts\check-desktop-artifacts.ps1
+
+      - name: Generate release manifests
+        shell: pwsh
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          .\scripts\generate-release-manifests.ps1 `
+            -OutputDir artifacts\release-manifests `
+            -Version $env:RELEASE_VERSION `
+            -CommitSha $env:GITHUB_SHA
+
+      - name: Prepare signed release package
+        shell: pwsh
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          if ($env:RELEASE_VERSION -notmatch '^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$') {
+            throw "Release version must be a semantic version such as 0.1.0-rc.1."
+          }
+          if (Test-Path -LiteralPath artifacts\signed-release) {
+            Remove-Item -LiteralPath artifacts\signed-release -Recurse -Force
+          }
+          $installer = Get-ChildItem -LiteralPath frontend\src-tauri\target\release\bundle\nsis `
+            -Filter "*.exe" -File | Select-Object -First 1
+          if (-not $installer) {
+            throw "No signed NSIS installer was found."
+          }
+          $desktopBundleZip = Join-Path $env:RUNNER_TEMP "KnowBaseDesktop-Bundle-Windows-Signed.zip"
+          Compress-Archive -LiteralPath $installer.FullName -DestinationPath $desktopBundleZip -Force
+          $releaseManifests = @(Get-ChildItem -LiteralPath artifacts\release-manifests -File | `
+            Select-Object -ExpandProperty FullName)
+          .\scripts\prepare-release-package.ps1 -ZipPath $desktopBundleZip `
+            -Version $env:RELEASE_VERSION -OutputDir artifacts\signed-release `
+            -ExpectedSignerThumbprint '${{ steps.signing-certificate.outputs.thumbprint }}' `
+            -RequireTimestamp -AdditionalFiles $releaseManifests
+
+      - name: Create exact signed release archive
+        shell: pwsh
+        run: |
+          $archive = "artifacts\KnowBaseSignedRelease-${{ github.run_number }}.zip"
+          Compress-Archive -Path artifacts\signed-release\* -DestinationPath $archive -Force
+          if (-not (Test-Path -LiteralPath $archive -PathType Leaf)) {
+            throw "Signed release archive was not created."
+          }
+
+      - name: Attest signed installer provenance
+        uses: actions/attest@c32b4b8b198b65d0bd9d63490e847ff7b53989d4 # v4.0.0
+        with:
+          subject-path: artifacts/signed-release/KnowBase_*_x64-setup.exe
+
+      - name: Attest exact release archive provenance
+        uses: actions/attest@c32b4b8b198b65d0bd9d63490e847ff7b53989d4 # v4.0.0
+        with:
+          subject-path: artifacts/KnowBaseSignedRelease-${{ github.run_number }}.zip
+
+      - name: Upload signed release candidate
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: KnowBaseSignedRelease-${{ github.run_number }}.zip
+          path: artifacts/KnowBaseSignedRelease-${{ github.run_number }}.zip
+          archive: false
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Remove signing material
+        if: always()
+        shell: pwsh
+        run: |
+          $thumbprints = '${{ steps.signing-certificate.outputs.imported_thumbprints }}' -split ','
+          foreach ($thumbprint in $thumbprints) {
+            if ($thumbprint) {
+              $certificate = Get-Item -LiteralPath "Cert:\CurrentUser\My\$thumbprint" -ErrorAction SilentlyContinue
+              if ($certificate) {
+                Remove-Item -LiteralPath $certificate.PSPath -Force
+              }
+            }
+          }
+          $certificatePath = Join-Path $env:RUNNER_TEMP "knowbase-code-signing.pfx"
+          if ($certificatePath -and (Test-Path -LiteralPath $certificatePath)) {
+            Remove-Item -LiteralPath $certificatePath -Force
+          }

@@ -18,10 +18,16 @@ Ask for redacted screenshots and non-sensitive error text first.
 If the issue involves installation or desktop startup, ask the customer to run:
 
 ```powershell
-.\scripts\collect-support-info.ps1
+.\scripts\check-installed-app.ps1
 ```
 
-They may attach the generated Markdown report after checking it for private details. The script does not collect API keys, database contents, uploaded document contents, or uploaded file names.
+They may attach the generated Markdown report after checking it for private details. The script records app version, signature status, backend process path, shortcuts, process state, listener state, and health status. It does not collect API keys, database contents, uploaded document contents, or uploaded file names.
+
+If the installed app check fails or more environment context is needed, ask for the non-sensitive support report:
+
+```powershell
+.\scripts\collect-support-info.ps1
+```
 
 ## Basic Triage
 
@@ -56,6 +62,7 @@ docs\release-process.md
 Relevant script:
 
 ```text
+scripts\check-installed-app.ps1
 scripts\collect-support-info.ps1
 ```
 

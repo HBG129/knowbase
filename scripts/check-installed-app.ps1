@@ -1,6 +1,6 @@
 param(
   [string]$OutputDir = "",
-  [string]$HealthUrl = "http://127.0.0.1:8000/api/health",
+  [string]$HealthUrl = "",
   [switch]$AllowFailures
 )
 
@@ -48,11 +48,15 @@ function Get-ShortcutTarget($Path) {
   return $null
 }
 
-function Wait-BackendListeners {
+function Wait-BackendListeners($ProcessIds) {
   for ($attempt = 0; $attempt -lt 10; $attempt++) {
     $listeners = @(
-      Get-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue |
-        Where-Object { $_.LocalAddress -eq "127.0.0.1" -and "$($_.State)" -eq "Listen" }
+      Get-NetTCPConnection -ErrorAction SilentlyContinue |
+        Where-Object {
+          $_.LocalAddress -eq "127.0.0.1" -and
+          "$($_.State)" -eq "Listen" -and
+          $_.OwningProcess -in $ProcessIds
+        }
     )
 
     if ($listeners.Count -gt 0) {
@@ -65,6 +69,50 @@ function Wait-BackendListeners {
   return @()
 }
 
+function Get-FileIdentityLines($Label, $Paths) {
+  $lines = New-Object System.Collections.Generic.List[string]
+  $uniquePaths = @($Paths | Where-Object { $_ -and $_.Trim() } | Select-Object -Unique)
+
+  foreach ($path in $uniquePaths) {
+    try {
+      $resolved = Resolve-Path -LiteralPath $path -ErrorAction Stop
+      $versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($resolved.Path)
+      $version = $versionInfo.ProductVersion
+      if (-not $version) {
+        $version = $versionInfo.FileVersion
+      }
+      if (-not $version) {
+        $version = "unknown"
+      }
+
+      $signatureStatus = "unknown"
+      $signer = ""
+      try {
+        $signature = Get-AuthenticodeSignature -LiteralPath $resolved.Path
+        $signatureStatus = [string]$signature.Status
+        if ($signature.SignerCertificate) {
+          $signer = [string]$signature.SignerCertificate.Subject
+        }
+      } catch {
+        $signatureStatus = "unavailable: $($_.Exception.Message)"
+      }
+
+      $line = "- $Label`: ``$($resolved.Path)``; ProductVersion: ``$version``; signature: ``$signatureStatus``"
+      if ($signer) {
+        $line = "$line; signer: ``$signer``"
+      }
+      $lines.Add($line)
+    } catch {
+      $lines.Add("- $Label`: ``$path``; identity unavailable: $($_.Exception.Message)")
+    }
+  }
+
+  if ($lines.Count -eq 0) {
+    $lines.Add("- $Label`: not found")
+  }
+
+  return $lines
+}
 $appDataDir = Join-Path $env:APPDATA "KnowBase"
 $commonExePaths = @(
   (Join-Path $env:LOCALAPPDATA "Programs\KnowBase\KnowBase.exe"),
@@ -91,8 +139,45 @@ $existingExe = @($candidateExePaths | Where-Object { Test-Path -LiteralPath $_ }
 $existingShortcuts = @($candidateShortcutPaths | Where-Object { Test-Path -LiteralPath $_ })
 $knowBaseProcesses = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -ieq "knowbase" })
 $backendProcesses = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -eq "KnowBaseBackend" })
-$backendListeners = @(Wait-BackendListeners)
-$healthUrlLine = "Health URL: ``$HealthUrl``"
+$backendProcessPaths = @(
+  $backendProcesses | ForEach-Object {
+    try {
+      $_.Path
+    } catch {
+      $null
+    }
+  }
+) | Where-Object { $_ -and $_.Trim() }
+$backendProcessIds = @($backendProcesses | Select-Object -ExpandProperty Id)
+$backendListeners = @(Wait-BackendListeners $backendProcessIds)
+$listenerOwnedByBackend = $backendListeners.Count -eq 1 -and $backendListeners[0].OwningProcess -in $backendProcessIds
+if (-not $HealthUrl -and $backendListeners.Count -eq 1) {
+  $HealthUrl = "http://127.0.0.1:$($backendListeners[0].LocalPort)/api/health"
+}
+$installedAppDirs = @(
+  $existingExe | ForEach-Object {
+    try {
+      [System.IO.Path]::GetFullPath((Split-Path -Parent $_)).TrimEnd('\')
+    } catch {
+      $null
+    }
+  }
+) | Where-Object { $_ -and $_.Trim() } | Select-Object -Unique
+$backendPathsUnderInstall = New-Object System.Collections.Generic.List[string]
+foreach ($backendPath in $backendProcessPaths) {
+  try {
+    $resolvedBackendPath = [System.IO.Path]::GetFullPath($backendPath)
+    foreach ($installDir in $installedAppDirs) {
+      $installPrefix = $installDir.TrimEnd('\') + '\'
+      if ($resolvedBackendPath.StartsWith($installPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+        $backendPathsUnderInstall.Add($resolvedBackendPath)
+        break
+      }
+    }
+  } catch {
+  }
+}
+$healthUrlLine = "Health URL: ``$(if ($HealthUrl) { $HealthUrl } else { 'not discovered' })``"
 $appDataDirLine = "Expected data directory: ``$appDataDir``"
 
 Add-Check "Installed app executable" ($existingExe.Count -gt 0) ($(if ($existingExe.Count -gt 0) { $existingExe -join "; " } else { "No KnowBase.exe found in common install locations." }))
@@ -100,14 +185,20 @@ Add-Check "Shortcut" ($existingShortcuts.Count -gt 0) ($(if ($existingShortcuts.
 Add-Check "App data directory" (Test-Path -LiteralPath $appDataDir) $appDataDir
 Add-Check "KnowBase process" ($knowBaseProcesses.Count -gt 0) ($(if ($knowBaseProcesses.Count -gt 0) { ($knowBaseProcesses | Select-Object -ExpandProperty Id) -join ", " } else { "No KnowBase process is currently running." }))
 Add-Check "Backend process" ($backendProcesses.Count -gt 0) ($(if ($backendProcesses.Count -gt 0) { ($backendProcesses | Select-Object -ExpandProperty Id) -join ", " } else { "No KnowBaseBackend process is currently running." }))
-Add-Check "Backend listener" ($backendListeners.Count -eq 1) ($(if ($backendListeners.Count -eq 1) { "127.0.0.1:8000 is listening in process $($backendListeners[0].OwningProcess)." } else { "Expected one 127.0.0.1:8000 listener, found $($backendListeners.Count)." }))
+Add-Check "Backend listener" ($backendListeners.Count -eq 1) ($(if ($backendListeners.Count -eq 1) { "127.0.0.1:$($backendListeners[0].LocalPort) is listening in process $($backendListeners[0].OwningProcess)." } else { "Expected one loopback listener owned by KnowBaseBackend, found $($backendListeners.Count)." }))
+Add-Check "Backend listener identity" $listenerOwnedByBackend ($(if ($listenerOwnedByBackend) { "Listener process $($backendListeners[0].OwningProcess) is a KnowBaseBackend process." } else { "No discovered loopback listener belongs to a detected KnowBaseBackend process." }))
+Add-Check "Backend process install path" ($backendPathsUnderInstall.Count -gt 0) ($(if ($backendPathsUnderInstall.Count -gt 0) { $backendPathsUnderInstall -join "; " } else { "No KnowBaseBackend process path is under the installed KnowBase application directory." }))
 
-try {
-  $health = Invoke-RestMethod -Uri $HealthUrl -TimeoutSec 5
-  $healthText = $health | ConvertTo-Json -Compress
-  Add-Check "Backend health endpoint" ($healthText -match '"status":"ok"') "$HealthUrl returned $healthText"
-} catch {
-  Add-Check "Backend health endpoint" $false "$HealthUrl failed: $($_.Exception.Message)"
+if ($HealthUrl) {
+  try {
+    $health = Invoke-RestMethod -Uri $HealthUrl -TimeoutSec 5
+    $healthText = $health | ConvertTo-Json -Compress
+    Add-Check "Backend health endpoint" ($healthText -match '"status":"ok"') "$HealthUrl returned $healthText"
+  } catch {
+    Add-Check "Backend health endpoint" $false "$HealthUrl failed: $($_.Exception.Message)"
+  }
+} else {
+  Add-Check "Backend health endpoint" $false "No KnowBaseBackend loopback listener was discovered."
 }
 
 $report = @(
@@ -117,6 +208,11 @@ $report = @(
   ""
   $healthUrlLine
   $appDataDirLine
+  ""
+  "## Build Identity"
+  ""
+  (Get-FileIdentityLines "Installed app executable" $existingExe)
+  (Get-FileIdentityLines "Backend process path" $backendProcessPaths)
   ""
   "## Checks"
   ""

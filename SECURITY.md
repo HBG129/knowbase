@@ -53,6 +53,8 @@ Treat these as sensitive:
 These are known limitations before a public customer release:
 
 - Packaged Windows desktop builds store saved API keys through Windows Credential Manager; development and fallback modes use encrypted local database storage.
+- The login form can remember an email address but never persists the login password; legacy remembered-password records are removed when the login screen loads.
+- The desktop WebView uses an explicit Content Security Policy and only permits API connections to the local KnowBase backend.
 - Local database encryption is not implemented yet.
 - App signing is not configured yet.
 - Auto-update is not configured yet.
@@ -71,6 +73,7 @@ Before submitting changes:
 
 - Do not commit `.env`, databases, uploaded documents, or generated runtime data.
 - Do not log API keys, authorization headers, refresh tokens, or document contents.
+- Never persist login passwords in local storage, logs, or support reports.
 - Keep authentication and authorization checks on protected routes.
 - Prefer customer-controlled provider keys unless a system fallback key is explicitly intended.
 - Avoid adding public network exposure without reviewing CORS, auth, and storage behavior.

@@ -66,6 +66,20 @@ Expected result:
 - citations appear with the answer,
 - the conversation is saved for later.
 
+## 6. Analyze CSV Data
+
+For completed CSV uploads, open the knowledge base and select the Analysis tab.
+
+The Analysis tab can:
+
+- preview rows and column profiles,
+- suggest starter questions,
+- generate read-only SQL for the selected CSV,
+- show result tables, lightweight charts, and a short analysis summary,
+- save analysis history for the local account.
+
+Data analysis requires a configured LLM API key. Review the generated SQL and analysis output before making business, financial, legal, medical, or operational decisions.
+
 ## If Something Fails
 
 Check these common causes first:
@@ -75,6 +89,7 @@ Check these common causes first:
 - The machine has no internet access.
 - The uploaded file is too large or unsupported.
 - The document has not finished processing yet.
+- CSV data analysis requires selecting a completed CSV document in the Analysis tab.
 
 For local data and privacy notes, see:
 

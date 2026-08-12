@@ -9,13 +9,14 @@ import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-const REMEMBER_LOGIN_KEY = "knowbase.rememberedLogin";
+const REMEMBERED_EMAIL_KEY = "knowbase.rememberedEmail";
+const LEGACY_REMEMBER_LOGIN_KEY = "knowbase.rememberedLogin";
 
 export function LoginForm() {
   const { t } = useI18nStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberPassword, setRememberPassword] = useState(false);
+  const [rememberEmail, setRememberEmail] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,14 +25,24 @@ export function LoginForm() {
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(REMEMBER_LOGIN_KEY);
-      if (!saved) return;
-      const parsed = JSON.parse(saved) as { email?: string; password?: string };
-      setEmail(parsed.email ?? "");
-      setPassword(parsed.password ?? "");
-      setRememberPassword(true);
+      const savedEmail = localStorage.getItem(REMEMBERED_EMAIL_KEY);
+      if (savedEmail) {
+        setEmail(savedEmail);
+        setRememberEmail(true);
+      }
+
+      const legacyLogin = localStorage.getItem(LEGACY_REMEMBER_LOGIN_KEY);
+      if (legacyLogin) {
+        const parsed = JSON.parse(legacyLogin) as { email?: string };
+        if (!savedEmail && parsed.email) {
+          setEmail(parsed.email);
+          setRememberEmail(true);
+          localStorage.setItem(REMEMBERED_EMAIL_KEY, parsed.email);
+        }
+        localStorage.removeItem(LEGACY_REMEMBER_LOGIN_KEY);
+      }
     } catch {
-      localStorage.removeItem(REMEMBER_LOGIN_KEY);
+      localStorage.removeItem(LEGACY_REMEMBER_LOGIN_KEY);
     }
   }, []);
 
@@ -41,10 +52,10 @@ export function LoginForm() {
     setLoading(true);
     try {
       await login(email, password);
-      if (rememberPassword) {
-        localStorage.setItem(REMEMBER_LOGIN_KEY, JSON.stringify({ email, password }));
+      if (rememberEmail) {
+        localStorage.setItem(REMEMBERED_EMAIL_KEY, email);
       } else {
-        localStorage.removeItem(REMEMBER_LOGIN_KEY);
+        localStorage.removeItem(REMEMBERED_EMAIL_KEY);
       }
       router.push("/");
     } catch (err: any) {
@@ -88,13 +99,13 @@ export function LoginForm() {
       <label className="flex items-start gap-2.5 text-sm text-ink-body">
         <input
           type="checkbox"
-          checked={rememberPassword}
-          onChange={(e) => setRememberPassword(e.target.checked)}
+          checked={rememberEmail}
+          onChange={(e) => setRememberEmail(e.target.checked)}
           className="mt-0.5 h-4 w-4 rounded border-hairline accent-[rgb(var(--accent))]"
         />
         <span>
-          {t("auth.rememberPassword")}
-          <span className="block text-xs text-ink-muted">{t("auth.rememberPasswordHint")}</span>
+          {t("auth.rememberEmail")}
+          <span className="block text-xs text-ink-muted">{t("auth.rememberEmailHint")}</span>
         </span>
       </label>
       <Button type="submit" loading={loading} className="w-full">{loading ? t("auth.signingIn") : t("auth.signIn")}</Button>

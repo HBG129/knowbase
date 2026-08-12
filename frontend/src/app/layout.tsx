@@ -10,13 +10,19 @@ import { ToastProvider } from "@/components/ui/toast-provider";
 import { Menu } from "lucide-react";
 import "./globals.css";
 
+function isAuthPath(pathname: string): boolean {
+  const normalized = pathname.replace(/\/+$/, "");
+  return normalized === "/login" || normalized === "/register";
+}
+
 function AuthInit({ children }: { children: React.ReactNode }) {
   const fetchMe = useAuthStore((s) => s.fetchMe);
   const token = useAuthStore((s) => s.token);
   const pathname = usePathname();
   const router = useRouter();
   const [ready, setReady] = useState(false);
-  const isAuthPage = pathname === "/login" || pathname === "/register";
+  const t = useI18nStore((s) => s.t);
+  const isAuthPage = isAuthPath(pathname);
 
   useEffect(() => { fetchMe().finally(() => setReady(true)); }, [fetchMe]);
   useEffect(() => { if (ready && !token && !isAuthPage) router.push("/login"); }, [ready, token, isAuthPage, router]);
@@ -28,7 +34,7 @@ function AuthInit({ children }: { children: React.ReactNode }) {
           <div className="h-10 w-10 rounded-xl bg-ink flex items-center justify-center">
             <svg className="h-5 w-5 text-canvas animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
           </div>
-          <p className="text-sm text-ink-muted">Loading KnowBase…</p>
+          <p className="text-sm text-ink-muted">{t("app.loading")}</p>
         </div>
       </div>
     );
@@ -39,11 +45,15 @@ function AuthInit({ children }: { children: React.ReactNode }) {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const token = useAuthStore((s) => s.token);
-  const lang = useI18nStore((s) => s.lang);
-  const isAuthPage = pathname === "/login" || pathname === "/register";
+  const { lang, t, hydrateLanguage } = useI18nStore();
+  const isAuthPage = isAuthPath(pathname);
   const [mobileOpen, setMobileOpen] = useState(false);
   const closeMobile = useCallback(() => setMobileOpen(false), []);
   const { theme, setTheme } = useThemeStore();
+
+  useEffect(() => {
+    hydrateLanguage();
+  }, [hydrateLanguage]);
 
   // Init theme from localStorage / system preference
   useEffect(() => {
@@ -59,9 +69,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang={lang === "zh" ? "zh-CN" : "en"} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem("knowbase-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme:dark)").matches))document.documentElement.classList.add("dark")}catch(e){}` }} />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="bg-canvas">
         <AuthInit>
@@ -73,6 +80,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Sidebar mobileOpen={mobileOpen} onMobileClose={closeMobile} />
               <button
                 onClick={() => setMobileOpen(true)}
+                aria-label={t("nav.openMenu")}
+                title={t("nav.openMenu")}
                 className="fixed top-3 left-3 z-20 h-10 w-10 rounded-xl bg-canvas border border-hairline flex items-center justify-center shadow-sm lg:hidden"
               >
                 <Menu className="h-5 w-5 text-ink" />
