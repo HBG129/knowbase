@@ -10,6 +10,7 @@ Read:
 
 ```text
 README.md
+CODE_OF_CONDUCT.md
 docs\README.md
 docs\architecture.md
 SECURITY.md

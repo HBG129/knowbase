@@ -2,419 +2,248 @@
 
 [![CI](https://github.com/HBG129/knowbase/actions/workflows/ci.yml/badge.svg)](https://github.com/HBG129/knowbase/actions/workflows/ci.yml)
 [![Desktop Package](https://github.com/HBG129/knowbase/actions/workflows/desktop-package.yml/badge.svg)](https://github.com/HBG129/knowbase/actions/workflows/desktop-package.yml)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Status](https://img.shields.io/badge/status-pre--release-orange.svg)](docs/project-status.md)
 
-Private AI knowledge workspace for local documents.
+**A local-first AI knowledge and data workspace for Windows.**
 
-KnowBase turns PDFs, Word documents, Markdown notes, text files, and CSVs into searchable knowledge bases with cited AI answers. It is being built as a desktop-first product: a focused local knowledge app, not a generic chat website.
+KnowBase combines two first-class workflows in one desktop product: an
+enterprise-style knowledge-base RAG assistant for cited answers over private
+documents, and a CSV Analysis Agent that turns natural-language questions into
+guarded, read-only DuckDB SQL, tables, charts, and business insights.
 
-## Product Status
+Files and application data stay local by default. Only the question, relevant
+document excerpts, or analysis context needed for a request are sent to the LLM
+provider selected by the user.
 
-| Area | Status |
-| --- | --- |
-| Web app | Usable for local development |
-| Backend API | Working |
-| Backend executable | Working with PyInstaller |
-| Desktop shell | Tauri Windows packaging verified in CI and offline Windows Sandbox |
-| Desktop package workflow | Passing and uploading artifacts |
-| Release preflight | CI checks scripts, versions, sensitive files, and release documentation |
-| Customer installer | CI artifact available and locally install-verified, not publicly released yet |
-
-The current repository is ready for development and release-candidate packaging. A Windows installer artifact is produced by GitHub Actions and guarded by release preflight checks, locked dependencies, dependency manifests, checksums, and provenance generation. The exact CI installer has passed offline Windows Sandbox installation, launch, core local API workflows, graceful close, backend cleanup, uninstall, customer-data preservation, and real-provider RAG/Analysis validation. Code signing and final signed-artifact evidence remain before public customer release.
+> **Project status:** KnowBase is actively maintained and preparing its first
+> public release. The current Windows release candidate has passed CI,
+> clean-machine installation, offline runtime, cited RAG, CSV Analysis,
+> shutdown, and uninstall validation. The installer is not yet publicly
+> released; code signing or an explicitly approved unsigned-release policy is
+> still required. See [Project Status](docs/project-status.md).
 
 ## Why KnowBase
 
-Most AI chat tools make you bring context every time. KnowBase is designed around persistent document knowledge:
+Many AI tools either answer questions over documents or analyze structured
+data. KnowBase keeps both workflows together so a user can move from source
+material to evidence-backed answers and from CSV data to inspectable analysis
+without installing Python, Node.js, Rust, Git, or a separate database.
 
-- Upload documents into separate knowledge bases.
-- Ask questions against selected knowledge bases.
-- Get cited answers instead of unsupported free-form replies.
-- Keep conversation history tied to the knowledge base.
-- Move toward a Windows desktop app customers can install without Python or Node.js.
+| Knowledge-base RAG | CSV Analysis Agent |
+| --- | --- |
+| Upload PDF, Word, Markdown, TXT, and CSV files | Preview and profile completed CSV datasets |
+| Organize private documents into separate knowledge bases | Ask questions in natural language |
+| Stream grounded answers with source citations | Generate and display guarded read-only DuckDB SQL |
+| Keep conversations tied to their knowledge base | Review result tables, charts, summaries, and insights |
+| Control access with account and role-aware permissions | Restore runs from an independent analysis history |
 
-## Features
+## Highlights
 
-- Private knowledge bases for local documents
-- PDF, Word, Markdown, TXT, and CSV upload support
-- Document ingestion, chunking, and semantic retrieval
-- Streaming AI chat with source citations
-- Conversation history per knowledge base
-- Account registration and JWT login
-- Role-aware knowledge base access
-- App-style dashboard with first-run guidance
-- Recent conversation shortcuts
-- Dynamic chat input states based on document readiness
-- In-app destructive action confirmations
-- Light and dark theme support
-- Packaged backend executable foundation for desktop distribution
+- **Local-first Windows desktop:** Tauri shell with a packaged FastAPI backend,
+  local SQLite data, and an app-local WebView2 runtime.
+- **Cited RAG:** ingestion, chunking, semantic retrieval, streaming answers, and
+  traceable citations for supported documents.
+- **Safe structured analysis:** the Analysis Agent accepts only a single
+  read-only `SELECT` against the registered `dataset` relation, rejects unsafe
+  SQL and external access, and executes queries in a resource-bounded worker.
+- **Inspectable output:** users can see the generated SQL, result rows, chart,
+  summary, insights, and prior successful or failed analysis runs.
+- **Provider choice:** supports Zhipu GLM, DeepSeek, and OpenAI-compatible
+  configuration through user-provided API keys.
+- **Chinese and English UI:** core authentication, knowledge-base, cited chat,
+  settings, and Analysis workflows are localized.
+- **Release engineering:** locked dependencies, CI audits, PyInstaller and
+  Tauri/NSIS packaging, release manifests/SBOMs, provenance attestations,
+  release preflight, artifact verification, and customer support scripts.
 
-## Desktop App Roadmap
+## Verified Release Evidence
 
-KnowBase is being prepared for customers who should be able to install and run the app without setting up a development environment.
+The repository records reproducible engineering and release evidence rather
+than presenting KnowBase as a one-off demo:
 
-1. Backend executable with PyInstaller
-2. Tauri desktop shell foundation
-3. Desktop shell starts and stops the backend automatically
-4. Windows installer artifact in CI
-5. Clean-machine validation, signing, update flow, and release packaging
+- **158 backend tests** in the latest confirmed CI run.
+- Frontend production build and Python/Node production dependency audits.
+- Automated packaged-backend health and Analysis API contract checks.
+- Tauri runtime tests and Windows installer artifact verification.
+- Offline Windows Sandbox installation on a machine without development tools.
+- Real-provider validation covering Chinese cited RAG and guarded CSV Analysis.
+- Dynamic loopback-port fallback, graceful process cleanup, uninstall, and
+  customer-data preservation checks.
 
-Current milestone: the backend executable and Tauri Windows installer are produced by CI, and the exact CI installer passed offline Windows Sandbox plus real-provider cited RAG and natural-language CSV Analysis validation. The remaining public-release gate is a valid code signature or an explicitly approved unsigned-release decision, followed by final exact-artifact evidence and release notes.
-
-## Quick Start
-
-### For users
-
-A public customer installer is not released yet. GitHub Actions now produces a Windows installer artifact for validation.
-
-When a customer installer is available, the target experience is:
-
-- Install and launch KnowBase without Python, Node.js, Rust, or Git.
-- Register an account inside the app.
-- Create a knowledge base and upload documents.
-- Add a personal LLM API key from the sidebar `Set API Key` action if the installer does not include a system fallback key.
-- Ask questions after at least one document has finished processing.
-
-Customers should expect to provide:
-
-- Internet access for LLM API calls.
-- A supported provider key: Zhipu GLM, DeepSeek, or OpenAI.
-- Permission for KnowBase to store local app data under the Windows user profile.
-
-Customer quick start:
-
-```text
-docs\customer-quick-start.md
-```
-
-Documentation index:
-
-```text
-docs\README.md
-```
-
-Changelog:
-
-```text
-CHANGELOG.md
-```
-
-Roadmap:
-
-```text
-docs\roadmap.md
-```
-
-Project status:
-
-```text
-docs\project-status.md
-```
-
-Architecture overview:
-
-```text
-docs\architecture.md
-```
-
-Customer data and privacy notes:
-
-```text
-docs\customer-data-and-privacy.md
-```
-
-Known limitations before customer release:
-
-```text
-docs\known-limitations.md
-```
-
-Release process:
-
-```text
-docs\release-process.md
-```
-
-Release notes template:
-
-```text
-docs\release-notes-template.md
-```
-
-Demo asset guide:
-
-```text
-docs\demo-assets.md
-```
-
-### For developers
-
-Contribution guide:
-
-```text
-CONTRIBUTING.md
-```
-
-On Windows, from the project root:
-
-```powershell
-.\start-dev.bat
-```
-
-This checks the backend virtual environment, backend imports, Node.js, npm, and frontend dependencies before starting the dev servers.
-
-Frontend:
-
-```text
-http://localhost:3000
-```
-
-Backend:
-
-```text
-http://127.0.0.1:8000
-```
+Exact run identifiers, artifact hashes, limitations, and remaining release
+gates are tracked in [Project Status](docs/project-status.md) and the
+[release candidate record](docs/release-candidate-v0.1.0-rc.1.md).
 
 ## Architecture
 
 ```text
-KnowBase
-+-- frontend/        Next.js 14, React, Tailwind CSS, Zustand
-+-- backend/         FastAPI, SQLAlchemy, SQLite, LangChain
-+-- desktop path     PyInstaller backend exe, Tauri shell foundation
-+-- data/            Local runtime data, ignored by git
+KnowBase Desktop
+|-- Next.js 15 + React 18 + Tailwind CSS
+|   |-- knowledge-base and document workflows
+|   |-- streaming cited chat
+|   `-- CSV Analysis workbench
+|-- Tauri 2 Windows shell
+|   `-- lifecycle, authenticated dynamic loopback backend, NSIS installer
+`-- FastAPI + SQLAlchemy backend
+    |-- document ingestion, embeddings, retrieval, and citations
+    |-- resource-bounded DuckDB CSV analysis
+    |-- SQLite application and history storage
+    `-- provider credentials and API integrations
 ```
 
-Detailed architecture:
+See [Architecture](docs/architecture.md) for the request flows, storage model,
+desktop lifecycle, and security boundaries.
 
-```text
-docs\architecture.md
-```
+## Current Release Status
 
-### Frontend
+| Area | Current state |
+| --- | --- |
+| Knowledge-base RAG | Implemented and validated with real-provider citations |
+| CSV Analysis Agent | Implemented and validated with guarded SQL and saved history |
+| Windows packaging | CI produces a Tauri/NSIS installer artifact |
+| Clean-machine validation | Passed in offline Windows Sandbox |
+| Public GitHub Release | Not published yet |
+| Remaining gate | Valid code signature or approved unsigned-release disclosure |
 
-- Next.js 14
-- React 18
-- Tailwind CSS
-- Zustand
-- Radix UI primitives
-- lucide-react icons
+The controlled tester target is `v0.1.0-rc.1`; the general-availability target
+is `v0.1.0` after all release gates pass. Follow the
+[release-readiness checklist](docs/release-readiness-checklist.md) for the
+authoritative gate sequence.
 
-### Backend
+## Quick Start
 
-- FastAPI
-- SQLAlchemy
-- SQLite by default
-- LangChain
-- PyMuPDF, python-docx, Markdown parsing
-- Server-sent events for streaming chat responses
+### Windows users
 
-## Local Development
+A public customer installer is not available yet. Do not treat CI artifacts as
+a supported release unless you are participating in controlled validation.
 
-### 1. Environment file
+When the first release is published, the intended user flow is:
 
-Create `.env` from the example:
+1. Install and launch KnowBase without a development toolchain.
+2. Register a local account and add a supported provider API key.
+3. Create a knowledge base and upload documents or CSV files.
+4. Ask cited questions in Chat, or open **Analysis** to inspect and query CSV
+   data.
+
+See the [Customer Quick Start](docs/customer-quick-start.md),
+[Data and Privacy](docs/customer-data-and-privacy.md), and
+[Known Limitations](docs/known-limitations.md).
+
+Windows repository paths: `docs\customer-quick-start.md` and
+`docs\customer-data-and-privacy.md`.
+
+### Developers
+
+Prerequisites:
+
+- Windows 10 or 11
+- Python 3.12
+- Node.js 20 and npm
+- Rust and Microsoft C++ Build Tools only for local desktop packaging
+
+Clone the repository and create the local environment file:
 
 ```powershell
+git clone https://github.com/HBG129/knowbase.git
+cd knowbase
 Copy-Item .env.example .env
 ```
 
-Set at least:
-
-```env
-JWT_SECRET_KEY=replace-with-a-random-secret
-ZHIPU_API_KEY=
-DEEPSEEK_BASE_URL=https://api.deepseek.com
-OPENAI_API_KEY=
-```
-
-At least one LLM provider key should be configured for real chat responses.
-
-### 2. Backend
-
-Backend local development expects Python 3.12. Keep the virtual environment inside the project:
+Create the locked backend environment and install dependencies:
 
 ```powershell
 cd backend
-D:\Anaconda\python.exe -m venv .venv
-.\.venv\Scripts\python.exe -c "import subprocess, sys, tomllib; p=tomllib.load(open('pyproject.toml','rb'))['project']; deps=p['dependencies']+p['optional-dependencies']['dev']; subprocess.check_call([sys.executable,'-m','pip','install',*deps])"
-.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+uv sync --locked --extra dev --no-install-project --python 3.12
+cd ..
 ```
 
-Do not repoint an existing `.venv` to another Python install. If it points to a missing interpreter, delete and recreate `backend\.venv` with a working Python 3.12 interpreter.
-
-### 3. Frontend
+Install frontend dependencies and start both development servers:
 
 ```powershell
 cd frontend
 npm install
-npm run dev
+cd ..
+.\start-dev.bat
 ```
 
-## Backend Executable
+The frontend runs at `http://localhost:3000`; the backend uses
+`http://127.0.0.1:8000` by default.
 
-Build the backend executable:
-
-```powershell
-.\package-backend.bat
-```
-
-Output:
-
-```text
-backend\dist\KnowBaseBackend.exe
-```
-
-The packaged backend stores desktop runtime data under `%APPDATA%\KnowBase` by default. For testing, run the packaged backend health check, which uses an isolated local data directory and verifies `/api/health`:
-
-```powershell
-.\scripts\check-packaged-backend-health.ps1
-```
-
-The script starts `backend\dist\KnowBaseBackend.exe` with `KNOWBASE_BACKEND_PORT=8765`, checks:
-
-```text
-http://127.0.0.1:8765/api/health
-```
-
-Expected response:
-
-```json
-{"status":"ok"}
-```
-
-## Tauri Desktop Shell
-
-The repository includes the first Tauri shell foundation under:
-
-```text
-frontend\src-tauri
-```
-
-The local Rust toolchain used during development was installed under:
-
-```text
-D:\Codex_AI_Workspace\.tools\rustup
-D:\Codex_AI_Workspace\.tools\cargo
-```
-
-To use it in a terminal session:
-
-```powershell
-.\setup-rust-env.bat
-```
-
-To check the desktop packaging prerequisites from the project root:
-
-```powershell
-.\check-desktop-prereqs.bat
-```
-
-If desktop prerequisites fail, see:
-
-```text
-docs\desktop-build-troubleshooting.md
-```
-
-Before publishing a customer installer, use:
-
-```text
-docs\release-readiness-checklist.md
-```
-
-To run the desktop packaging pipeline from one entry point:
-
-```powershell
-.\package-desktop.bat
-```
-
-The packaging pipeline checks desktop prerequisites, prepares and verifies the pinned app-local WebView2 Fixed Version Runtime, builds the backend executable, then runs the Tauri build.
-
-Windows Tauri compilation also requires Microsoft C++ Build Tools. The prerequisite check tries to load common Visual Studio developer shell locations automatically. If `cl.exe` or `link.exe` is still not available, install Microsoft C++ Build Tools and select the `Desktop development with C++` workload before running a full Tauri build. See the official Tauri Windows prerequisites: <https://v2.tauri.app/start/prerequisites/>.
-
-Current local Rust verification:
-
-```text
-rustc 1.96.0
-cargo 1.96.0
-cargo metadata: passed
-backend runtime path tests: metadata check passed
-Microsoft C++ Build Tools: available under D:\DevTools\Microsoft\VSBuildTools2022
-fixed-runtime Tauri/NSIS build: passed
-```
-
-On this machine, load `D:\DevTools\Microsoft\VSBuildTools2022\Common7\Tools\VsDevCmd.bat` before a local Tauri build if the compiler and linker are not already on `PATH`.
-
-Development commands:
-
-```powershell
-cd frontend
-npm run tauri:dev
-npm run tauri:build
-```
-
-Release packaging command:
-
-```powershell
-.\package-desktop.bat
-```
-
-The current Tauri shell can attempt to start `KnowBaseBackend.exe` from an explicit `KNOWBASE_BACKEND_EXE` path, the packaged resource directory, the packaged app directory, or `backend\dist` during development. The Tauri config already declares `backend\dist\KnowBaseBackend.exe` as a bundle resource and includes a KnowBase app icon. Windows installer signing and update flow are still planned.
-
-## Docker Services
-
-The included `docker-compose.yml` can start PostgreSQL with pgvector, Redis, MinIO, backend, and frontend:
-
-```powershell
-docker compose up --build
-```
-
-The default local setup uses SQLite and does not require Docker.
+Configure at least one provider key through the application before running
+real chat, embeddings, or analysis. Never commit `.env` or provider keys.
 
 ## Verification
 
-GitHub Actions runs CI on pushes and pull requests to `main`:
+Run the checks that match your change.
 
-- frontend build with Node 20
-- backend tests with Python 3.12
-
-Frontend build:
-
-```powershell
-cd frontend
-npm run build
-```
-
-Backend tests:
+Backend tests and dependency audit:
 
 ```powershell
 cd backend
 .\.venv\Scripts\python.exe -m pytest
+.\.venv\Scripts\python.exe -m pip_audit --local --strict
 ```
 
-The backend pytest configuration limits discovery to `backend\tests`, so runtime data under `backend\data` is not collected as tests.
+Frontend build and production dependency audit:
 
-Recent local verification:
+```powershell
+cd frontend
+npm run build
+npm audit --omit=dev --audit-level=high
+```
 
-- Backend tests: 141 passed
-- Frontend production build and dependency audits: passed
-- Backend executable health check: `{"status":"ok"}`
-- Desktop runtime: prefers port `8000`, falls back to an available loopback port when occupied, and reports the selected URL to the frontend through Tauri
-- Installed desktop and clean-machine evidence: tracked in [`docs/project-status.md`](docs/project-status.md)
-- Rust toolchain: installed under `D:\Codex_AI_Workspace\.tools`
-- Desktop prerequisite check: available through `.\check-desktop-prereqs.bat`
-- Desktop packaging pipeline: available through `.\package-desktop.bat`
-- Tauri runtime tests: enforced by the Windows desktop packaging workflow
+Repository and release gates:
 
-## Repository Hygiene
+```powershell
+.\scripts\check-release-preflight.ps1 -SkipGitStatus
+.\scripts\check-packaged-backend-health.ps1
+```
 
-- `.gitattributes` keeps source files on LF and Windows batch files on CRLF.
-- Batch scripts use ASCII output where possible to avoid console mojibake.
-- Packaging scripts route pip, npm, and PyInstaller caches through `D:\Codex_AI_Workspace\.tools` when possible.
-- Runtime data, uploaded files, local databases, `.env`, virtual environments, PyInstaller output, `node_modules`, and Next.js build output are ignored by git.
+Full desktop packaging requires the prerequisites documented in
+[Desktop Build Troubleshooting](docs/desktop-build-troubleshooting.md):
 
-## Security Notes
+```powershell
+.\check-desktop-prereqs.bat
+.\package-desktop.bat
+.\scripts\check-desktop-artifacts.ps1
+```
 
-- Do not commit `.env`, uploaded files, local database files, or API keys.
-- Rotate `JWT_SECRET_KEY` before production deployment.
-- Customers still need their own LLM API key unless a hosted model service is added later.
-- Use production-grade database, object storage, and CORS settings before public exposure.
-- See `SECURITY.md` for reporting guidance and sensitive-data handling rules.
+## Documentation
+
+- [Documentation index](docs/README.md)
+- [Architecture](docs/architecture.md)
+- [Project status and verification evidence](docs/project-status.md)
+- [Roadmap](docs/roadmap.md)
+- [Release process](docs/release-process.md)
+- [Security policy](SECURITY.md)
+- [Changelog](CHANGELOG.md)
+
+## Contributing
+
+Issues, focused pull requests, documentation improvements, and reproducible
+validation reports are welcome. Before contributing, read
+[CONTRIBUTING.md](CONTRIBUTING.md) and the
+[Code of Conduct](CODE_OF_CONDUCT.md).
+
+Please keep changes surgical, update documentation when behavior changes, and
+run the checks relevant to the modified area. Structured templates are
+available for bug reports, feature requests, beta feedback, releases, and pull
+requests.
+
+## Security and Privacy
+
+Do not publish API keys, private documents, local databases, credential-store
+records, or support bundles containing sensitive data. Report vulnerabilities
+according to [SECURITY.md](SECURITY.md).
+
+KnowBase is local-first, not fully offline: provider-backed chat, embeddings,
+and analysis send the minimum request context needed to the configured provider.
+Review the [data and privacy notes](docs/customer-data-and-privacy.md) before
+using sensitive material.
+
+## License
+
+Copyright 2026 HBG129.
+
+Licensed under the [Apache License 2.0](LICENSE).
