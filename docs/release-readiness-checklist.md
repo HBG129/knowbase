@@ -77,6 +77,8 @@ After extracting or preparing the installer, verify its Authenticode status:
 
 The release validation issue must record either the valid signer and certificate thumbprint, or the unsigned approver, approval date, and exact release-notes disclosure. An invalid or undecided signature blocks release.
 
+For a signed customer candidate, use only the protected `Signed Windows Release Candidate` workflow from `main`. The `release-signing` Environment must require reviewers and restrict deployment to `main`; its PFX, password, and timestamp URL must be stored as Environment secrets/variables rather than repository files. Confirm the workflow signs and timestamps the packaged backend, desktop executable, and NSIS installer with the same certificate before accepting its artifact.
+
 ## Functional Smoke Test
 
 Run these checks before publishing a build:

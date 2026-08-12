@@ -81,10 +81,14 @@ function Run-ReleaseArtifactSmokeCheck {
     $supportToolsZipPath = Join-Path $packageOutputDir "KnowBaseSupportTools.zip"
     $checksumPath = Join-Path $packageOutputDir "SHA256SUMS.txt"
     $validationIssuePath = Join-Path $packageOutputDir "RELEASE_VALIDATION_ISSUE_DRAFT.md"
-    foreach ($requiredPath in @($supportToolsZipPath, $checksumPath, $validationIssuePath)) {
+    $releaseZipPath = Join-Path $packageOutputDir (Split-Path -Leaf $zipPath)
+    foreach ($requiredPath in @($supportToolsZipPath, $checksumPath, $validationIssuePath, $releaseZipPath)) {
       if (-not (Test-Path -LiteralPath $requiredPath)) {
         Fail "Release package smoke check did not generate: $requiredPath"
       }
+    }
+    if (-not (Test-Path -LiteralPath $releaseZipPath -PathType Leaf)) {
+      Fail "Source ZIP was not copied into the prepared release package."
     }
 
     Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -135,6 +139,12 @@ function Run-ReleaseArtifactSmokeCheck {
     $expectedChecksumLine = "$($supportToolsHash.Hash)  KnowBaseSupportTools.zip"
     if ($expectedChecksumLine -notin (Get-Content -LiteralPath $checksumPath)) {
       Fail "SHA256SUMS.txt does not contain the generated support tools ZIP checksum."
+    }
+
+    $releaseZipHash = Get-FileHash -Algorithm SHA256 -LiteralPath $releaseZipPath
+    $expectedZipChecksumLine = "$($releaseZipHash.Hash)  $(Split-Path -Leaf $releaseZipPath)"
+    if ($expectedZipChecksumLine -notin (Get-Content -LiteralPath $checksumPath)) {
+      Fail "SHA256SUMS.txt does not contain the copied source ZIP checksum."
     }
 
     $validationIssue = Get-Content -LiteralPath $validationIssuePath -Raw

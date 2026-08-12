@@ -226,6 +226,38 @@ def test_release_package_removes_stale_installers_before_writing_current_release
     assert "Release package smoke check retained a stale installer" in preflight
 
 
+def test_release_package_copies_source_zip_recorded_in_checksums():
+    repo_root = Path(__file__).resolve().parents[2]
+    release_script = (repo_root / "scripts" / "prepare-release-package.ps1").read_text(
+        encoding="utf-8"
+    )
+    preflight = (repo_root / "scripts" / "check-release-preflight.ps1").read_text(
+        encoding="utf-8"
+    )
+
+    assert "$releaseZipPath = Join-Path $OutputDir $zipName" in release_script
+    assert "Copy-Item -LiteralPath $zip.Path -Destination $releaseZipPath -Force" in release_script
+    assert "Source ZIP was not copied into the prepared release package" in preflight
+
+
+def test_release_package_can_pin_signer_and_require_timestamp():
+    repo_root = Path(__file__).resolve().parents[2]
+    release_script = (repo_root / "scripts" / "prepare-release-package.ps1").read_text(
+        encoding="utf-8"
+    )
+    workflow = (
+        repo_root / ".github" / "workflows" / "signed-release.yml"
+    ).read_text(encoding="utf-8")
+
+    assert "[string]$ExpectedSignerThumbprint" in release_script
+    assert "[switch]$RequireTimestamp" in release_script
+    assert "$installerSignature.TimeStamperCertificate" in release_script
+    assert "Installer signature does not match the expected certificate thumbprint" in release_script
+    assert "Installer signature does not contain a trusted timestamp" in release_script
+    assert "-ExpectedSignerThumbprint '${{ steps.signing-certificate.outputs.thumbprint }}'" in workflow
+    assert "-RequireTimestamp" in workflow
+
+
 def test_release_validation_records_signature_policy_evidence():
     repo_root = Path(__file__).resolve().parents[2]
     issue_template = (
@@ -428,6 +460,81 @@ def test_release_package_support_readme_explains_validation_report():
     assert "Desktop\\KnowBaseValidation" in content
     assert identity_description in content
     assert identity_description in release_docs_check
+
+
+def test_signed_release_workflow_is_manual_protected_and_fail_closed():
+    repo_root = Path(__file__).resolve().parents[2]
+    workflow_path = repo_root / ".github" / "workflows" / "signed-release.yml"
+
+    assert workflow_path.is_file()
+    workflow = workflow_path.read_text(encoding="utf-8")
+
+    assert "workflow_dispatch:" in workflow
+    assert "push:" not in workflow
+    assert "if: github.ref == 'refs/heads/main'" in workflow
+    assert "environment: release-signing" in workflow
+    assert "WINDOWS_CERTIFICATE_BASE64: ${{ secrets.WINDOWS_CERTIFICATE_BASE64 }}" in workflow
+    assert "WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}" in workflow
+    assert "WINDOWS_TIMESTAMP_URL: ${{ vars.WINDOWS_TIMESTAMP_URL }}" in workflow
+    assert "Import-PfxCertificate" in workflow
+    assert "Remove-Item -LiteralPath $certificatePath -Force" in workflow
+    assert "build-signed-release.ps1" in workflow
+    assert "prepare-release-package.ps1" in workflow
+    assert "-AllowUnsigned" not in workflow
+
+
+def test_signed_release_build_signs_backend_before_tauri_and_verifies_all_executables():
+    repo_root = Path(__file__).resolve().parents[2]
+    script_path = repo_root / "scripts" / "build-signed-release.ps1"
+
+    assert script_path.is_file()
+    script = script_path.read_text(encoding="utf-8")
+
+    backend_build = script.index("package-backend.bat")
+    backend_sign = script.index('sign-windows-artifact.ps1") -Path $backendExe')
+    tauri_build = script.index("npm run tauri:build")
+    assert backend_build < backend_sign < tauri_build
+    assert '"certificateThumbprint" = $CertificateThumbprint' in script
+    assert '"digestAlgorithm" = "sha256"' in script
+    assert '"timestampUrl" = $TimestampUrl' in script
+    assert "check-code-signature.ps1" in script
+    assert "backend\\dist\\KnowBaseBackend.exe" in script
+    assert "target\\release\\knowbase.exe" in script
+    assert "target\\release\\bundle\\nsis" in script
+    assert "-ExpectedThumbprint $CertificateThumbprint" in script
+    assert "-RequireTimestamp" in script
+    assert "function Import-MsvcEnvironment" in script
+    assert '& cmd.exe /d /s /c "`"$vsDevCmd`" -arch=x64 -host_arch=x64 >nul && set"' in script
+
+
+def test_signature_check_can_pin_signer_and_require_timestamp():
+    repo_root = Path(__file__).resolve().parents[2]
+    script = (repo_root / "scripts" / "check-code-signature.ps1").read_text(
+        encoding="utf-8"
+    )
+
+    assert "[string]$ExpectedThumbprint" in script
+    assert "[switch]$RequireTimestamp" in script
+    assert "$signature.TimeStamperCertificate" in script
+    assert "does not match expected thumbprint" in script
+    assert "does not contain a trusted timestamp" in script
+
+
+def test_signing_certificate_guard_requires_private_key_code_signing_eku_and_validity():
+    repo_root = Path(__file__).resolve().parents[2]
+    script_path = repo_root / "scripts" / "check-signing-certificate.ps1"
+
+    assert script_path.is_file()
+    script = script_path.read_text(encoding="utf-8")
+
+    assert "1.3.6.1.5.5.7.3.3" in script
+    assert ".HasPrivateKey" in script
+    assert ".NotBefore" in script
+    assert ".NotAfter" in script
+    assert "[string]$_.ObjectId" in script
+    assert ".ObjectId.Value" not in script
+    assert "Cert:\\CurrentUser\\My" in script
+    assert "Cert:\\LocalMachine\\My" in script
 
 
 def test_local_data_removal_includes_webview_profile():

@@ -177,6 +177,7 @@ This document tracks the practical delivery status of KnowBase.
 - The selected controlled tester candidate is `v0.1.0-rc.1`; the GA target is `v0.1.0` after all release gates pass.
 - The current installer is `NotSigned`. Publishing requires a valid signature or explicit unsigned-release approval with exact release-note disclosure.
 - Exact-artifact clean-machine and real-provider evidence are complete. The remaining release-policy decision is code signing or explicit unsigned-release approval with exact disclosure.
+- A protected manual signed-release workflow is implemented for `main`. It validates PFX private-key access, certificate validity and Code Signing EKU, signs and timestamps the packaged backend before embedding, requires Tauri to sign the desktop executable and NSIS installer with the same thumbprint, removes runner signing material, and generates a self-contained release candidate artifact. Production execution remains blocked until valid signing credentials and a provider timestamp URL are configured in the `release-signing` GitHub Environment.
 
 ### Local machine
 

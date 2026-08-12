@@ -136,6 +136,57 @@ Check the installer code signature:
 
 For explicitly approved unsigned validation or release builds, use `-AllowUnsigned` to record the signature state without failing, and disclose that status in the release notes.
 
+### Signed customer candidate
+
+The regular `Desktop Package` workflow intentionally produces an unsigned validation build. A customer-signed candidate must use the manual GitHub Actions workflow:
+
+```text
+Signed Windows Release Candidate
+```
+
+Run it only from `main`. Configure a protected GitHub Environment named `release-signing` with required reviewers and deployment branch restricted to `main`.
+
+Environment secrets:
+
+```text
+WINDOWS_CERTIFICATE_BASE64
+WINDOWS_CERTIFICATE_PASSWORD
+```
+
+Environment variable:
+
+```text
+WINDOWS_TIMESTAMP_URL
+```
+
+`WINDOWS_CERTIFICATE_BASE64` is the Base64 encoding of a PFX that contains an accessible private key and the Code Signing EKU (`1.3.6.1.5.5.7.3.3`). Never commit the PFX, Base64 value, password, or private key. Use the timestamp URL supplied by the certificate provider.
+
+The protected workflow:
+
+1. imports the PFX into the ephemeral runner's current-user certificate store,
+2. validates certificate validity, private-key access, and Code Signing EKU,
+3. signs and timestamps `KnowBaseBackend.exe` before it is embedded,
+4. lets Tauri sign and timestamp the desktop executable and NSIS installer,
+5. pins all three signatures to the same certificate thumbprint and requires a trusted timestamp,
+6. removes the PFX and imported certificate even when a later step fails,
+7. generates a self-contained release package without using `-AllowUnsigned`.
+
+Expected artifact:
+
+```text
+KnowBaseSignedRelease-<run number>
+```
+
+It contains the signed installer, the source desktop ZIP, support tools, SHA256 checksums, release notes draft, artifact summary, and release-validation issue draft. The workflow does not publish a GitHub Release; Issue #17 must record the final `Ready` decision first.
+
+For a local certificate already installed in Windows, run:
+
+```powershell
+.\scripts\build-signed-release.ps1 `
+  -CertificateThumbprint <40-character-thumbprint> `
+  -TimestampUrl <provider-RFC3161-URL>
+```
+
 ## 4. Test On A Clean Windows Machine
 
 Install the generated package on a Windows machine or virtual machine without the development toolchain.

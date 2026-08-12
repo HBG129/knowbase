@@ -48,6 +48,9 @@ $requiredPaths = @(
   "scripts\backup-local-data.ps1",
   "scripts\check-desktop-artifacts.ps1",
   "scripts\check-code-signature.ps1",
+  "scripts\check-signing-certificate.ps1",
+  "scripts\sign-windows-artifact.ps1",
+  "scripts\build-signed-release.ps1",
   "scripts\check-frontend-api-empty-response.ps1",
   "scripts\check-frontend-dialogs.ps1",
   "scripts\check-frontend-text.ps1",
@@ -241,6 +244,26 @@ $contentChecks = @(
   @{
     Path = "docs\release-process.md"
     Needle = ".\scripts\check-packaged-backend-health.ps1"
+  },
+  @{
+    Path = "docs\release-process.md"
+    Needle = "Signed Windows Release Candidate"
+  },
+  @{
+    Path = "docs\release-process.md"
+    Needle = "WINDOWS_CERTIFICATE_BASE64"
+  },
+  @{
+    Path = "docs\release-process.md"
+    Needle = "release-signing"
+  },
+  @{
+    Path = ".github\workflows\signed-release.yml"
+    Needle = "environment: release-signing"
+  },
+  @{
+    Path = ".github\workflows\signed-release.yml"
+    Needle = "build-signed-release.ps1"
   },
   @{
     Path = "docs\release-process.md"

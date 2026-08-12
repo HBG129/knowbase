@@ -10,14 +10,26 @@ param(
 
   [int64]$MinInstallerBytes = 50000000,
 
-  [switch]$AllowUnsigned
+  [switch]$AllowUnsigned,
+
+  [string]$ExpectedSignerThumbprint = "",
+
+  [switch]$RequireTimestamp
 )
 
 $ErrorActionPreference = "Stop"
+$normalizedExpectedThumbprint = ($ExpectedSignerThumbprint -replace "\s", "").ToUpperInvariant()
 
 function Fail($Message) {
   Write-Error $Message
   exit 1
+}
+
+if ($AllowUnsigned -and ($normalizedExpectedThumbprint -or $RequireTimestamp)) {
+  Fail "-AllowUnsigned cannot be combined with signed-release verification options."
+}
+if ($normalizedExpectedThumbprint -and $normalizedExpectedThumbprint -notmatch "^[A-F0-9]{40}$") {
+  Fail "ExpectedSignerThumbprint must contain exactly 40 hexadecimal characters."
 }
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
@@ -60,14 +72,25 @@ try {
   $signatureStatus = [string]$installerSignature.Status
   $signatureSigner = ""
   $signatureThumbprint = ""
+  $timestampSigner = ""
+  $timestampCertificateExpiry = ""
   if ($installerSignature.SignerCertificate) {
     $signatureSigner = [string]$installerSignature.SignerCertificate.Subject
     $signatureThumbprint = [string]$installerSignature.SignerCertificate.Thumbprint
+  }
+  if ($installerSignature.TimeStamperCertificate) {
+    $timestampSigner = [string]$installerSignature.TimeStamperCertificate.Subject
+    $timestampCertificateExpiry = $installerSignature.TimeStamperCertificate.NotAfter.ToString("o")
   }
 
   $approvedUnsigned = $signatureStatus -eq "NotSigned" -and $AllowUnsigned
   if ($signatureStatus -ne "Valid" -and -not $approvedUnsigned) {
     $signatureFailure = "Installer code signature is not acceptable. Status: $signatureStatus. -AllowUnsigned permits only explicitly approved unsigned builds with status NotSigned; invalid or untrusted signatures always fail."
+  } elseif ($normalizedExpectedThumbprint -and
+      ($signatureThumbprint -replace "\s", "").ToUpperInvariant() -ne $normalizedExpectedThumbprint) {
+    $signatureFailure = "Installer signature does not match the expected certificate thumbprint."
+  } elseif ($RequireTimestamp -and -not $installerSignature.TimeStamperCertificate) {
+    $signatureFailure = "Installer signature does not contain a trusted timestamp."
   } else {
     New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
     Get-ChildItem -LiteralPath $OutputDir -Filter "KnowBase_*_x64-setup.exe" -File -ErrorAction SilentlyContinue |
@@ -99,6 +122,11 @@ $supportToolsDir = Join-Path $OutputDir "support-tools"
 $supportToolsZipPath = Join-Path $OutputDir "KnowBaseSupportTools.zip"
 $installerName = Split-Path -Leaf $installerPath
 $zipName = Split-Path -Leaf $zip.Path
+$releaseZipPath = Join-Path $OutputDir $zipName
+$resolvedReleaseZipPath = [System.IO.Path]::GetFullPath($releaseZipPath)
+if (-not $zip.Path.Equals($resolvedReleaseZipPath, [System.StringComparison]::OrdinalIgnoreCase)) {
+  Copy-Item -LiteralPath $zip.Path -Destination $releaseZipPath -Force
+}
 
 if (Test-Path -LiteralPath $supportToolsDir) {
   Remove-Item -LiteralPath $supportToolsDir -Recurse -Force
@@ -199,6 +227,8 @@ $summary = @(
   "- Status: ``$signatureStatus``"
   "- Signer: ``$signatureSigner``"
   "- Thumbprint: ``$signatureThumbprint``"
+  "- Timestamp signer: ``$timestampSigner``"
+  "- Timestamp certificate valid until: ``$timestampCertificateExpiry``"
   ''
   '## Next Step'
   ''
@@ -270,6 +300,12 @@ $releaseNotes = @(
   ''
   '```text'
   $signatureThumbprint
+  '```'
+  ''
+  'Timestamp signer:'
+  ''
+  '```text'
+  $timestampSigner
   '```'
   ''
   'Expected local data directory:'
@@ -374,6 +410,8 @@ $validationIssue = @(
   "Signature status: $signatureStatus"
   "Signer: $signatureSigner"
   "Thumbprint: $signatureThumbprint"
+  "Timestamp signer: $timestampSigner"
+  "Timestamp certificate valid until: $timestampCertificateExpiry"
   'Unsigned approver:'
   'Approval date:'
   'Release-notes disclosure:'

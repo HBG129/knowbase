@@ -6,7 +6,7 @@ This document lists current KnowBase limitations before a public customer releas
 
 - A customer Windows installer has not been released yet.
 - The controlled tester candidate is `v0.1.0-rc.1`, with `v0.1.0` selected as the GA target after all release gates pass.
-- Code signing and the auto-update flow are not finalized.
+- The protected signed-release workflow is implemented, but no production code-signing certificate is configured yet. The auto-update flow is not finalized.
 - The exact fixed-runtime CI installer passed automated offline Windows Sandbox and real-provider RAG/Analysis validation. The current candidate remains unsigned, so Windows may show SmartScreen or publisher warnings until a valid code-signing certificate is integrated.
 
 ## Runtime Requirements
