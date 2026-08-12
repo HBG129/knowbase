@@ -4,7 +4,9 @@ from __future__ import annotations
 import csv
 import json
 import math
+import multiprocessing
 import re
+import time
 import uuid
 from collections import Counter
 from decimal import Decimal
@@ -21,6 +23,8 @@ from app.services.llm_service import chat_sync
 
 MAX_RESULT_ROWS = 200
 MAX_CHART_POINTS = 24
+ANALYSIS_QUERY_TIMEOUT_SECONDS = 10.0
+ANALYSIS_MEMORY_LIMIT = "256MB"
 FORBIDDEN_SQL_RE = re.compile(
     r"\b(insert|update|delete|drop|alter|create|copy|attach|install|load|export|pragma)\b|\bread_\w+\b|\b\w+_scan\s*\(|\b(glob|range|generate_series|query|query_table|sniff_csv)\s*\(|from\s+['\"]",
     re.IGNORECASE,
@@ -43,6 +47,10 @@ class AnalysisQueryExecutionError(ValueError):
     def __init__(self, message: str, sql: str):
         super().__init__(message)
         self.sql = sql
+
+
+class AnalysisQueryTimeoutError(AnalysisQueryExecutionError):
+    """Raised when analysis SQL exceeds its execution deadline."""
 
 
 def _to_json_value(value: Any) -> Any:
@@ -163,10 +171,13 @@ def ensure_safe_select_sql(sql: str) -> str:
     return candidate
 
 
-def execute_csv_query(file_path: str, sql: str, limit: int = MAX_RESULT_ROWS) -> dict:
-    safe_sql = ensure_safe_select_sql(sql)
+def _execute_csv_query_worker(sender, file_path: str, safe_sql: str, limit: int) -> None:
     con = duckdb.connect(database=":memory:")
     try:
+        con.execute("set threads=1")
+        con.execute(f"set memory_limit='{ANALYSIS_MEMORY_LIMIT}'")
+        con.execute("set max_temp_directory_size='0B'")
+        con.execute("set preserve_insertion_order=false")
         con.execute("create table dataset as select * from read_csv(?)", [file_path])
         con.execute("set enable_external_access=false")
         result = con.execute(f"select * from ({safe_sql}) as analysis_result limit {int(limit)}")
@@ -175,9 +186,58 @@ def execute_csv_query(file_path: str, sql: str, limit: int = MAX_RESULT_ROWS) ->
             [_to_json_value(value) for value in row]
             for row in result.fetchall()
         ]
-        return {"columns": columns, "rows": rows}
+        sender.send(("ok", {"columns": columns, "rows": rows}))
+    except Exception as error:
+        sender.send(("error", type(error).__name__, str(error)))
     finally:
         con.close()
+        sender.close()
+
+
+def execute_csv_query(
+    file_path: str,
+    sql: str,
+    limit: int = MAX_RESULT_ROWS,
+    timeout_seconds: float = ANALYSIS_QUERY_TIMEOUT_SECONDS,
+) -> dict:
+    safe_sql = ensure_safe_select_sql(sql)
+    context = multiprocessing.get_context("spawn")
+    receiver, sender = context.Pipe(duplex=False)
+    process = context.Process(
+        target=_execute_csv_query_worker,
+        args=(sender, file_path, safe_sql, int(limit)),
+        daemon=True,
+    )
+    process.start()
+    sender.close()
+    deadline = time.monotonic() + timeout_seconds
+    message = None
+    try:
+        while time.monotonic() < deadline:
+            if receiver.poll(min(0.05, max(0.0, deadline - time.monotonic()))):
+                message = receiver.recv()
+                break
+            if not process.is_alive():
+                if receiver.poll(0.1):
+                    message = receiver.recv()
+                break
+    finally:
+        if process.is_alive():
+            process.terminate()
+        process.join(timeout=1)
+        if process.is_alive():
+            process.kill()
+            process.join()
+        receiver.close()
+
+    if message is None:
+        if time.monotonic() >= deadline:
+            raise AnalysisQueryTimeoutError("Analysis query exceeded the time limit", safe_sql)
+        raise duckdb.Error("Analysis query worker exited without a result")
+    if message[0] == "error":
+        error_type = getattr(duckdb, message[1], duckdb.Error)
+        raise error_type(message[2])
+    return message[1]
 
 
 def get_csv_document(db: Session, kb_id: str, doc_id: str) -> Document | None:

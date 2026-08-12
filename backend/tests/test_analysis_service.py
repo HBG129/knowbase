@@ -1,8 +1,10 @@
 import duckdb
 import pytest
+import time
 
 from app.services.analysis_service import (
     UnsafeAnalysisQuery,
+    AnalysisQueryTimeoutError,
     _chart_from_result,
     build_csv_profile,
     ensure_safe_select_sql,
@@ -131,6 +133,38 @@ def test_execute_csv_query_disables_duckdb_external_file_access(tmp_path, monkey
 
     with pytest.raises(duckdb.PermissionException, match="file system operations are disabled"):
         execute_csv_query(str(path), sql, limit=10)
+
+
+def test_execute_csv_query_applies_duckdb_resource_limits(tmp_path):
+    path = tmp_path / "sales.csv"
+    path.write_text("channel,revenue\nweb,1200\n", encoding="utf-8")
+
+    result = execute_csv_query(
+        str(path),
+        "select current_setting('threads') as threads, "
+        "current_setting('memory_limit') as memory_limit from dataset",
+        limit=10,
+    )
+
+    assert result["columns"] == ["threads", "memory_limit"]
+    assert result["rows"][0][0] == 1
+    assert result["rows"][0][1]
+
+
+def test_execute_csv_query_terminates_worker_after_deadline(tmp_path):
+    path = tmp_path / "sales.csv"
+    path.write_text("value\n1\n", encoding="utf-8")
+    started = time.monotonic()
+
+    with pytest.raises(AnalysisQueryTimeoutError, match="time limit"):
+        execute_csv_query(
+            str(path),
+            "select * from dataset",
+            limit=10,
+            timeout_seconds=0.001,
+        )
+
+    assert time.monotonic() - started < 3
 
 
 def test_chart_falls_back_to_table_for_nonnumeric_values():

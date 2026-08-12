@@ -525,7 +525,13 @@ def test_desktop_backend_discovers_an_available_loopback_port():
         (repo_root / "frontend" / "src-tauri" / "tauri.conf.json").read_text(encoding="utf-8")
     )
 
-    assert "select_backend_port_with_preferred" in runtime
+    desktop_server = (repo_root / "backend" / "desktop_server.py").read_text(encoding="utf-8")
+
+    assert "KNOWBASE_BACKEND_READY_FILE" in runtime
+    assert 'PREFERRED_BACKEND_PORT.to_string()' in runtime
+    assert "server.run(sockets=[listener])" in desktop_server
+    assert 'port = int(os.environ.get("KNOWBASE_BACKEND_PORT", "8000"))' in desktop_server
+    assert "SO_EXCLUSIVEADDRUSE" in desktop_server
     assert 'format!("http://{BACKEND_HOST}:{port}")' in runtime
     assert "backend_base_url" in tauri_lib
     assert 'invoke<string>("backend_base_url")' in api

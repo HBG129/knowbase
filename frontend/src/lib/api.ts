@@ -14,37 +14,50 @@ interface TokenResponse {
 }
 
 let refreshPromise: Promise<string | null> | null = null;
-let baseUrlPromise: Promise<string> | null = null;
+interface BackendConnection {
+  baseUrl: string;
+  capabilityToken: string | null;
+}
+
+let connectionPromise: Promise<BackendConnection> | null = null;
 
 function localizedMessage(key: TranslationKey, values?: TranslationValues): string {
   const lang: Lang = typeof window !== "undefined" && localStorage.getItem("knowbase-lang") === "en" ? "en" : "zh";
   return t(lang, key, values);
 }
 
-function getBaseUrl(): Promise<string> {
+function getBackendConnection(): Promise<BackendConnection> {
   if (CONFIGURED_BASE_URL || typeof window === "undefined") {
-    return Promise.resolve(BROWSER_BASE_URL);
+    return Promise.resolve({ baseUrl: BROWSER_BASE_URL, capabilityToken: null });
   }
 
-  if (!baseUrlPromise) {
-    baseUrlPromise = import("@tauri-apps/api/core")
-      .then(({ invoke, isTauri }) => {
-        if (!isTauri()) return BROWSER_BASE_URL;
-        return invoke<string>("backend_base_url");
+  if (!connectionPromise) {
+    connectionPromise = import("@tauri-apps/api/core")
+      .then(async ({ invoke, isTauri }) => {
+        if (!isTauri()) return { baseUrl: BROWSER_BASE_URL, capabilityToken: null };
+        const [baseUrl, capabilityToken] = await Promise.all([
+          invoke<string>("backend_base_url"),
+          invoke<string>("backend_capability_token"),
+        ]);
+        return { baseUrl, capabilityToken };
       })
-      .then((baseUrl) => {
+      .then((connection) => {
+        const { baseUrl, capabilityToken } = connection;
         if (!/^http:\/\/127\.0\.0\.1:\d+$/.test(baseUrl)) {
           throw new Error("Invalid desktop backend URL");
         }
-        return baseUrl;
+        if (capabilityToken !== null && !/^[a-f0-9]{64}$/.test(capabilityToken)) {
+          throw new Error("Invalid desktop capability token");
+        }
+        return connection;
       })
       .catch(() => {
-        baseUrlPromise = null;
+        connectionPromise = null;
         throw new Error(localizedMessage("api.networkError"));
       });
   }
 
-  return baseUrlPromise;
+  return connectionPromise;
 }
 
 function localizeApiDetail(detail: unknown): string {
@@ -100,9 +113,13 @@ async function refreshAccessToken(): Promise<string | null> {
   if (!refreshPromise) {
     refreshPromise = (async () => {
       try {
-        const res = await fetchWithNetworkMessage((await getBaseUrl()) + "/api/auth/refresh", {
+        const { baseUrl, capabilityToken } = await getBackendConnection();
+        const res = await fetchWithNetworkMessage(baseUrl + "/api/auth/refresh", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(capabilityToken ? { "X-KnowBase-Desktop-Token": capabilityToken } : {}),
+          },
           body: JSON.stringify({ refresh_token: refreshToken }),
         });
         if (!res.ok) {
@@ -127,9 +144,10 @@ async function refreshAccessToken(): Promise<string | null> {
 }
 
 async function fetchWithAuth(path: string, init?: RequestInit): Promise<Response> {
-  const baseUrl = await getBaseUrl();
+  const { baseUrl, capabilityToken } = await getBackendConnection();
   const buildHeaders = (token: string | null) => ({
     ...init?.headers,
+    ...(capabilityToken ? { "X-KnowBase-Desktop-Token": capabilityToken } : {}),
     ...(token ? { Authorization: "Bearer " + token } : {}),
   });
 
