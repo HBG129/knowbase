@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-08-11
+Last updated: 2026-08-12
 
 This document tracks the practical delivery status of KnowBase.
 
@@ -53,7 +53,7 @@ This document tracks the practical delivery status of KnowBase.
 - Release package prepared from `KnowBaseDesktop-Windows-24.zip`:
   - output: `D:\Codex_AI_Workspace\artifacts\knowbase-release-pr16-run-29498356330`,
   - support tools ZIP SHA256: `2A2260AE73214B88E83FBA8F66D5ADE68F6F88F7F993A9A8CCBBEAE924B02B63`,
-  - generated checksums match the installer, source ZIP, and support tools ZIP,
+  - generated checksums match the installer, desktop bundle ZIP, and support tools ZIP,
   - support tools ZIP contains only `check-installed-app.ps1`, `collect-support-info.ps1`, and `README.txt`.
 - Local install verification for `KnowBaseDesktop-Windows-20` passed:
   - installer runs silently with exit code `0`,
@@ -142,12 +142,15 @@ This document tracks the practical delivery status of KnowBase.
 - CI blocks tracked `.env`, local databases, uploads, artifacts, and desktop build outputs.
 - CI checks required release documentation paths and references.
 - CI runs the release preflight script that aggregates repository checks before packaging or publishing.
+- Backend dependencies are resolved in committed `backend\uv.lock`; CI and desktop packaging use `uv sync --locked` instead of dynamically resolving broad dependency ranges.
+- Signed release preparation generates backend/frontend CycloneDX SBOMs, a normalized Rust dependency manifest, source-linked build metadata, and checksums; GitHub provenance attestations cover the signed installer and exact release ZIP.
+- Remote GitHub Actions are pinned to full commit SHAs and remain covered by weekly Dependabot updates.
 - Frontend production dependency audit is release-clean on Next.js 15.5.23 with PostCSS 8.5.26 and Nano ID 3.3.18; both full and production-only npm audits report zero vulnerabilities.
 - Complete Chinese and English product localization now covers authentication, navigation, the knowledge-base dashboard, document workflows, cited chat, API key settings, CSV Analysis, errors, empty states, relative dates, and accessibility labels.
 - Language preference hydrates after client mount, avoiding server/client language mismatches, and authentication routes remain correctly recognized with or without a trailing slash.
 - CI and release preflight enforce Chinese/English key parity, reject unknown translation keys and duplicate entries, scan product surfaces for hardcoded interface copy and mojibake, and verify localized API and authentication behavior.
 - Chinese and English localization was visually verified on desktop and mobile viewports, including the dashboard, knowledge-base details, document list, and CSV Analysis workspace.
-- Last confirmed pushed CI run: run `31426401406` for commit `8611043353e81704944255b7b66d0543185c64af`; repository checks, Python and frontend production dependency audits, `141` backend tests, and frontend build passed.
+- Last confirmed pushed CI run: run `31590836898` for commit `38a23c01db0c97be378139e8e56e42eee2d1e2fe`; repository checks, Python and frontend production dependency audits, backend tests, and frontend build passed.
 - Desktop artifact verification script checks for:
   - `backend\dist\KnowBaseBackend.exe`
   - NSIS installer under `frontend\src-tauri\target\release\bundle\nsis`
@@ -158,7 +161,7 @@ This document tracks the practical delivery status of KnowBase.
 - A WM_CLOSE-equivalent window close removed the desktop process; both packaged backend processes and the port `8000` listener exited; silent uninstall returned `0` and removed the installed executable.
 - Uninstall preserved `%APPDATA%\KnowBase`, matching the documented customer-controlled backup and removal policy.
 - The current source pins WebView2 Fixed Version Runtime `150.0.4078.99`, verifies the CAB SHA256 and Microsoft Authenticode signature before packaging, and prepares the app-local runtime successfully.
-- Current local verification passes with `141` backend tests, a no-known-vulnerability Python dependency audit, a Next.js `15.5.23` production build, and zero-vulnerability frontend audits. Release preflight is rerun before each release commit.
+- Current local verification passes from the committed backend lock with a no-known-vulnerability Python dependency audit, a Next.js `15.5.23` production build, and zero-vulnerability frontend audits. Release preflight is rerun before each release commit.
 - The desktop runtime now prefers port `8000` but falls back to an available loopback port when it is occupied; the frontend obtains the selected URL through a Tauri command, and support tools discover the listener by `KnowBaseBackend.exe` process ownership.
 - The current GitHub Actions fixed-runtime Tauri/NSIS build completed successfully in run `31426443435` for commit `8611043353e81704944255b7b66d0543185c64af`:
   - artifact: `KnowBaseDesktop-Windows-36`,
@@ -178,6 +181,7 @@ This document tracks the practical delivery status of KnowBase.
 - The current installer is `NotSigned`. Publishing requires a valid signature or explicit unsigned-release approval with exact release-note disclosure.
 - Exact-artifact clean-machine and real-provider evidence are complete. The remaining release-policy decision is code signing or explicit unsigned-release approval with exact disclosure.
 - A protected manual signed-release workflow is implemented for `main`. It validates PFX private-key access, certificate validity and Code Signing EKU, signs and timestamps the packaged backend before embedding, requires Tauri to sign the desktop executable and NSIS installer with the same thumbprint, removes runner signing material, and generates a self-contained release candidate artifact. Production execution remains blocked until valid signing credentials and a provider timestamp URL are configured in the `release-signing` GitHub Environment.
+- The protected workflow also produces lock-derived dependency manifests and GitHub provenance; these steps still require one successful signed-candidate execution with production credentials before release approval.
 
 ### Local machine
 
@@ -205,6 +209,7 @@ The desktop package workflow is currently passing:
 1. Integrate the supplied code-signing certificate and verify the signed installer and installed executable.
 2. Rebuild and repeat exact-artifact signature, clean-machine, and real-provider checks for the signed candidate.
 3. Generate final release notes and release-validation evidence from the signed artifact.
+4. Verify the signed installer and exact release ZIP provenance and archive checksums against the recorded source commit.
 
 ## Not Release Ready Until
 

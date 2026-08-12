@@ -1,5 +1,10 @@
 name: Desktop Package
 
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
 on:
   workflow_dispatch:
   push:
@@ -11,6 +16,7 @@ on:
       - "frontend/**"
       - "scripts/check-code-signature.ps1"
       - "scripts/check-desktop-artifacts.ps1"
+      - "scripts/generate-release-manifests.ps1"
       - "scripts/check-packaged-backend-health.ps1"
       - "scripts/prepare-webview2-fixed-runtime.ps1"
       - "check-desktop-prereqs.bat"
@@ -24,17 +30,17 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Node
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "20"
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
       - name: Setup Miniconda Python
-        uses: conda-incubator/setup-miniconda@v4
+        uses: conda-incubator/setup-miniconda@8ee1f361103df19b6f8c8655fd3967a8ecb162d5 # v4.0.1
         with:
           python-version: "3.12"
           auto-update-conda: false
@@ -49,12 +55,18 @@ jobs:
           rustc --version
           cargo --version
 
+      - name: Setup uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          version: "0.11.32"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+
       - name: Install backend dependencies
         shell: pwsh
         run: |
-          python -m venv backend\.venv
-          .\backend\.venv\Scripts\python.exe -m pip install --upgrade pip
-          .\backend\.venv\Scripts\python.exe -c "import subprocess, sys, tomllib; p=tomllib.load(open('backend/pyproject.toml','rb'))['project']; deps=p['dependencies']+p['optional-dependencies']['dev']+p['optional-dependencies']['packaging']; subprocess.check_call([sys.executable,'-m','pip','install',*deps])"
+          uv sync --locked --project backend --extra dev --extra packaging `
+            --no-install-project --python "$env:CONDA_PREFIX\python.exe"
           "CONDA_DLL_DIR=$env:CONDA_PREFIX\Library\bin" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Install frontend dependencies
@@ -112,8 +124,21 @@ jobs:
           }
           .\scripts\check-code-signature.ps1 -Path $installer.FullName -AllowUnsigned
 
+      - name: Generate validation release manifests
+        shell: pwsh
+        run: |
+          .\scripts\generate-release-manifests.ps1 `
+            -OutputDir artifacts\release-manifests `
+            -Version 0.1.0-rc.1 `
+            -CommitSha $env:GITHUB_SHA
+
+      - name: Attest validation installer provenance
+        uses: actions/attest@c32b4b8b198b65d0bd9d63490e847ff7b53989d4 # v4.0.0
+        with:
+          subject-path: frontend/src-tauri/target/release/bundle/nsis/KnowBase_*_x64-setup.exe
+
       - name: Upload backend executable
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: KnowBaseBackend-${{ github.run_number }}
           path: backend/dist/KnowBaseBackend.exe
@@ -121,10 +146,18 @@ jobs:
           retention-days: 14
 
       - name: Upload desktop installer bundle
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: KnowBaseDesktop-Windows-${{ github.run_number }}
           path: |
             frontend/src-tauri/target/release/bundle/nsis/*.exe
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload release manifests
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: KnowBaseReleaseManifests-${{ github.run_number }}
+          path: artifacts/release-manifests/*
           if-no-files-found: error
           retention-days: 14

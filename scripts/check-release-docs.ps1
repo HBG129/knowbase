@@ -51,6 +51,7 @@ $requiredPaths = @(
   "scripts\check-signing-certificate.ps1",
   "scripts\sign-windows-artifact.ps1",
   "scripts\build-signed-release.ps1",
+  "scripts\generate-release-manifests.ps1",
   "scripts\check-frontend-api-empty-response.ps1",
   "scripts\check-frontend-dialogs.ps1",
   "scripts\check-frontend-text.ps1",
@@ -96,6 +97,10 @@ $contentChecks = @(
   @{
     Path = "AGENTS.md"
     Needle = "Frontend production dependency audit is release-clean"
+  },
+  @{
+    Path = "AGENTS.md"
+    Needle = "uv sync --locked"
   },
   @{
     Path = "README.md"
@@ -258,6 +263,14 @@ $contentChecks = @(
     Needle = "release-signing"
   },
   @{
+    Path = "docs\release-process.md"
+    Needle = "backend-sbom.cdx.json"
+  },
+  @{
+    Path = "docs\release-process.md"
+    Needle = "gh attestation verify"
+  },
+  @{
     Path = ".github\workflows\signed-release.yml"
     Needle = "environment: release-signing"
   },
@@ -296,6 +309,14 @@ $contentChecks = @(
   @{
     Path = "docs\release-readiness-checklist.md"
     Needle = ".\scripts\check-packaged-backend-health.ps1"
+  },
+  @{
+    Path = "docs\release-readiness-checklist.md"
+    Needle = "frontend-sbom.cdx.json"
+  },
+  @{
+    Path = "docs\release-readiness-checklist.md"
+    Needle = "gh attestation verify"
   },
   @{
     Path = "docs\release-readiness-checklist.md"

@@ -14,7 +14,9 @@ param(
 
   [string]$ExpectedSignerThumbprint = "",
 
-  [switch]$RequireTimestamp
+  [switch]$RequireTimestamp,
+
+  [string[]]$AdditionalFiles = @()
 )
 
 $ErrorActionPreference = "Stop"
@@ -128,6 +130,34 @@ if (-not $zip.Path.Equals($resolvedReleaseZipPath, [System.StringComparison]::Or
   Copy-Item -LiteralPath $zip.Path -Destination $releaseZipPath -Force
 }
 
+$reservedNames = @(
+  $installerName,
+  $zipName,
+  "KnowBaseSupportTools.zip",
+  "SHA256SUMS.txt",
+  "RELEASE_ARTIFACTS.md",
+  "RELEASE_NOTES_DRAFT.md",
+  "RELEASE_VALIDATION_ISSUE_DRAFT.md"
+)
+$additionalReleaseFiles = @()
+foreach ($additionalPath in $AdditionalFiles) {
+  $resolvedAdditional = Resolve-Path -LiteralPath $additionalPath -ErrorAction SilentlyContinue
+  if (-not $resolvedAdditional -or -not (Test-Path -LiteralPath $resolvedAdditional.Path -PathType Leaf)) {
+    Fail "Additional release file was not found: $additionalPath"
+  }
+  $additionalName = Split-Path -Leaf $resolvedAdditional.Path
+  if ($additionalName -in $reservedNames -or
+      $additionalName -in @($additionalReleaseFiles | ForEach-Object Name)) {
+    Fail "Additional release file name is duplicated or reserved: $additionalName"
+  }
+  $destination = Join-Path $OutputDir $additionalName
+  $resolvedDestination = [System.IO.Path]::GetFullPath($destination)
+  if (-not $resolvedAdditional.Path.Equals($resolvedDestination, [System.StringComparison]::OrdinalIgnoreCase)) {
+    Copy-Item -LiteralPath $resolvedAdditional.Path -Destination $destination -Force
+  }
+  $additionalReleaseFiles += Get-Item -LiteralPath $destination
+}
+
 if (Test-Path -LiteralPath $supportToolsDir) {
   Remove-Item -LiteralPath $supportToolsDir -Recurse -Force
 }
@@ -196,11 +226,18 @@ Compress-Archive -Path (Join-Path $supportToolsDir "*") -DestinationPath $suppor
 
 $supportToolsHash = Get-FileHash -Algorithm SHA256 -LiteralPath $supportToolsZipPath
 $supportToolsZipName = Split-Path -Leaf $supportToolsZipPath
+$additionalFileHashes = @($additionalReleaseFiles | ForEach-Object {
+  [pscustomobject]@{
+    Name = $_.Name
+    Hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $_.FullName).Hash
+  }
+})
 
 $checksums = @(
   "$($installerHash.Hash)  $installerName"
   "$($zipHash.Hash)  $zipName"
   "$($supportToolsHash.Hash)  $supportToolsZipName"
+  $additionalFileHashes | ForEach-Object { "$($_.Hash)  $($_.Name)" }
 )
 Set-Content -LiteralPath $checksumPath -Value $checksums -Encoding ASCII
 
@@ -212,8 +249,9 @@ $summary = @(
   '## Files'
   ''
   "- Installer: ``$installerName``"
-  "- Source ZIP artifact: ``$zipName``"
+  "- Desktop bundle ZIP artifact: ``$zipName``"
   "- Support tools ZIP: ``$supportToolsZipName``"
+  $additionalReleaseFiles | ForEach-Object { "- Release manifest: ``$($_.Name)``" }
   '- Checksums: `SHA256SUMS.txt`'
   ''
   '## SHA256'
@@ -261,7 +299,7 @@ $releaseNotes = @(
   ''
   '- production enterprise deployment,'
   '- unattended installation at scale,'
-  '- environments that require code signing or automatic updates.'
+  '- environments that require unattended deployment or automatic updates.'
   ''
   '## Requirements'
   ''
@@ -318,6 +356,12 @@ $releaseNotes = @(
   ''
   '```text'
   $supportToolsZipName
+  '```'
+  ''
+  'Supply-chain manifests:'
+  ''
+  '```text'
+  @($additionalReleaseFiles | ForEach-Object Name)
   '```'
   ''
   '## First Run'

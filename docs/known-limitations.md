@@ -7,6 +7,7 @@ This document lists current KnowBase limitations before a public customer releas
 - A customer Windows installer has not been released yet.
 - The controlled tester candidate is `v0.1.0-rc.1`, with `v0.1.0` selected as the GA target after all release gates pass.
 - The protected signed-release workflow is implemented, but no production code-signing certificate is configured yet. The auto-update flow is not finalized.
+- Dependency versions are committed in backend, frontend, and Rust lockfiles. The signed-candidate workflow includes dependency manifests, SHA256 checksums, and GitHub provenance attestations.
 - The exact fixed-runtime CI installer passed automated offline Windows Sandbox and real-provider RAG/Analysis validation. The current candidate remains unsigned, so Windows may show SmartScreen or publisher warnings until a valid code-signing certificate is integrated.
 
 ## Runtime Requirements
@@ -21,7 +22,7 @@ This document lists current KnowBase limitations before a public customer releas
 - Uploaded documents and the SQLite database remain local unless content is sent to the configured LLM provider for answering or embeddings.
 - In the packaged Windows desktop runtime, saved API keys are stored through Windows Credential Manager and the local database stores only a credential reference. Non-desktop fallback modes use encrypted local database storage.
 - Local database encryption is not implemented yet.
-- Backup, restore, and uninstall data removal are documented, but not automated in the final installer yet.
+- Uninstall intentionally preserves customer data. Backup, restore, and complete dry-run-first removal are provided through support tools rather than an installer deletion option.
 
 ## Product Scope
 

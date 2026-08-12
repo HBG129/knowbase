@@ -70,7 +70,9 @@ function Run-ReleaseArtifactSmokeCheck {
     New-Item -ItemType Directory -Force -Path $packageOutputDir | Out-Null
     $staleInstallerPath = Join-Path $packageOutputDir "KnowBase_0.0.0_x64-setup.exe"
     Set-Content -LiteralPath $staleInstallerPath -Value "stale installer" -Encoding ASCII
-    & (Join-Path $PSScriptRoot "prepare-release-package.ps1") -ZipPath $zipPath -OutputDir $packageOutputDir -Version "0.1.0-smoke" -MinInstallerBytes 1 -AllowUnsigned
+    $manifestPath = Join-Path $testRoot "BUILD_METADATA.json"
+    Set-Content -LiteralPath $manifestPath -Value '{"product":"KnowBase","test":true}' -Encoding ASCII
+    & (Join-Path $PSScriptRoot "prepare-release-package.ps1") -ZipPath $zipPath -OutputDir $packageOutputDir -Version "0.1.0-smoke" -MinInstallerBytes 1 -AllowUnsigned -AdditionalFiles $manifestPath
     if (-not $?) {
       exit 1
     }
@@ -88,7 +90,7 @@ function Run-ReleaseArtifactSmokeCheck {
       }
     }
     if (-not (Test-Path -LiteralPath $releaseZipPath -PathType Leaf)) {
-      Fail "Source ZIP was not copied into the prepared release package."
+        Fail "Desktop bundle ZIP was not copied into the prepared release package."
     }
 
     Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -144,7 +146,13 @@ function Run-ReleaseArtifactSmokeCheck {
     $releaseZipHash = Get-FileHash -Algorithm SHA256 -LiteralPath $releaseZipPath
     $expectedZipChecksumLine = "$($releaseZipHash.Hash)  $(Split-Path -Leaf $releaseZipPath)"
     if ($expectedZipChecksumLine -notin (Get-Content -LiteralPath $checksumPath)) {
-      Fail "SHA256SUMS.txt does not contain the copied source ZIP checksum."
+      Fail "SHA256SUMS.txt does not contain the copied desktop bundle ZIP checksum."
+    }
+
+    $copiedManifestPath = Join-Path $packageOutputDir "BUILD_METADATA.json"
+    $manifestHash = Get-FileHash -Algorithm SHA256 -LiteralPath $copiedManifestPath
+    if ("$($manifestHash.Hash)  BUILD_METADATA.json" -notin (Get-Content -LiteralPath $checksumPath)) {
+      Fail "SHA256SUMS.txt does not contain the additional release manifest checksum."
     }
 
     $validationIssue = Get-Content -LiteralPath $validationIssuePath -Raw

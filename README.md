@@ -19,7 +19,7 @@ KnowBase turns PDFs, Word documents, Markdown notes, text files, and CSVs into s
 | Release preflight | CI checks scripts, versions, sensitive files, and release documentation |
 | Customer installer | CI artifact available and locally install-verified, not publicly released yet |
 
-The current repository is ready for development and release-candidate packaging. A Windows installer artifact is produced by GitHub Actions and guarded by release preflight checks. The exact CI installer has passed offline Windows Sandbox installation, launch, core local API workflows, graceful close, backend cleanup, uninstall, customer-data preservation, and real-provider RAG/Analysis validation. Code signing and final signed-artifact evidence remain before public customer release.
+The current repository is ready for development and release-candidate packaging. A Windows installer artifact is produced by GitHub Actions and guarded by release preflight checks, locked dependencies, dependency manifests, checksums, and provenance generation. The exact CI installer has passed offline Windows Sandbox installation, launch, core local API workflows, graceful close, backend cleanup, uninstall, customer-data preservation, and real-provider RAG/Analysis validation. Code signing and final signed-artifact evidence remain before public customer release.
 
 ## Why KnowBase
 

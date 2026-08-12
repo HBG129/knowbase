@@ -9,6 +9,7 @@ param(
 $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $frontendRoot = Join-Path $repoRoot "frontend"
+$backendRoot = Join-Path $repoRoot "backend"
 $tauriRoot = Join-Path $frontendRoot "src-tauri"
 $backendExe = Join-Path $repoRoot "backend\dist\KnowBaseBackend.exe"
 $mainExe = Join-Path $tauriRoot "target\release\knowbase.exe"
@@ -73,6 +74,40 @@ function Import-MsvcEnvironment {
   }
 }
 
+function Sync-LockedBackendEnvironment {
+  $uvCommand = Get-Command "uv" -ErrorAction SilentlyContinue
+  $uvPath = if ($uvCommand) { $uvCommand.Source } else { Join-Path $backendRoot ".venv\Scripts\uv.exe" }
+  if (-not (Test-Path -LiteralPath $uvPath -PathType Leaf)) {
+    Fail "uv was not found. Install uv 0.11.32 before building a signed release."
+  }
+  $pythonPath = Join-Path $backendRoot ".venv\Scripts\python.exe"
+  if (-not (Test-Path -LiteralPath $pythonPath -PathType Leaf)) {
+    Fail "Backend virtual environment was not found: $pythonPath"
+  }
+
+  $syncUvPath = $uvPath
+  $copiedUvPath = ""
+  if ([System.IO.Path]::GetFullPath($uvPath).StartsWith(
+      [System.IO.Path]::GetFullPath((Join-Path $backendRoot ".venv")),
+      [System.StringComparison]::OrdinalIgnoreCase)) {
+    New-Item -ItemType Directory -Force -Path $tempRoot | Out-Null
+    $copiedUvPath = Join-Path $tempRoot "knowbase-uv-$([guid]::NewGuid().ToString('N')).exe"
+    Copy-Item -LiteralPath $uvPath -Destination $copiedUvPath -Force
+    $syncUvPath = $copiedUvPath
+  }
+
+  try {
+    & $syncUvPath sync --project $backendRoot --locked --extra dev --extra packaging --no-install-project `
+      --python $pythonPath
+    if ($LASTEXITCODE -ne 0) { Fail "Locked backend dependency sync failed." }
+  }
+  finally {
+    if ($copiedUvPath -and (Test-Path -LiteralPath $copiedUvPath)) {
+      Remove-Item -LiteralPath $copiedUvPath -Force
+    }
+  }
+}
+
 & (Join-Path $PSScriptRoot "check-signing-certificate.ps1") `
   -CertificateThumbprint $CertificateThumbprint
 if (-not $?) { exit 1 }
@@ -80,6 +115,7 @@ if (-not $?) { exit 1 }
 & (Join-Path $repoRoot "check-desktop-prereqs.bat")
 if ($LASTEXITCODE -ne 0) { Fail "Desktop prerequisites check failed." }
 Import-MsvcEnvironment
+Sync-LockedBackendEnvironment
 
 & (Join-Path $PSScriptRoot "prepare-webview2-fixed-runtime.ps1")
 if (-not $?) { exit 1 }

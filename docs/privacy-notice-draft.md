@@ -64,18 +64,18 @@ Review the generated Markdown report before sharing it.
 Before public or enterprise release, these areas still need review:
 
 - local database encryption is not implemented,
-- code signing is not configured,
+- the current validation candidate is unsigned; the protected production signing path is implemented but awaits production credentials,
 - enterprise privacy notice and in-app legal copy are not final,
 - logs should continue to be reviewed for accidental API key or document content exposure.
 
 ## Data Removal
 
-Uninstall behavior is not finalized. Until the installer explicitly offers a data removal option, assume uninstalling the app may leave local data behind under:
+Uninstalling KnowBase removes application binaries but intentionally preserves customer data under:
 
 ```text
 %APPDATA%\KnowBase
 ```
 
-Manual deletion of this folder removes local accounts, uploaded documents, knowledge bases, conversations, saved API key records, and the local SQLite database.
+This preservation behavior passed clean-machine validation. To remove all local app data, WebView session data, and KnowBase Credential Manager entries, use the dry-run-first `remove-local-data.ps1` support tool and explicitly confirm deletion only after reviewing its plan.
 
 Do not delete this folder unless the user understands the data loss.

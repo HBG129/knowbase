@@ -47,6 +47,9 @@ packaging = [
 testpaths = ["tests"]
 addopts = "-p no:cacheprovider"
 
+[tool.uv]
+required-version = "==0.11.32"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

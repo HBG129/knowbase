@@ -11,6 +11,8 @@ on:
 
 permissions:
   contents: read
+  id-token: write
+  attestations: write
 
 concurrency:
   group: knowbase-signed-windows-release
@@ -25,17 +27,17 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Node
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "20"
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
       - name: Setup Miniconda Python
-        uses: conda-incubator/setup-miniconda@v4
+        uses: conda-incubator/setup-miniconda@8ee1f361103df19b6f8c8655fd3967a8ecb162d5 # v4.0.1
         with:
           python-version: "3.12"
           auto-update-conda: false
@@ -50,12 +52,18 @@ jobs:
           rustc --version
           cargo --version
 
+      - name: Setup uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          version: "0.11.32"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+
       - name: Install backend dependencies
         shell: pwsh
         run: |
-          python -m venv backend\.venv
-          .\backend\.venv\Scripts\python.exe -m pip install --upgrade pip
-          .\backend\.venv\Scripts\python.exe -c "import subprocess, sys, tomllib; p=tomllib.load(open('backend/pyproject.toml','rb'))['project']; deps=p['dependencies']+p['optional-dependencies']['dev']+p['optional-dependencies']['packaging']; subprocess.check_call([sys.executable,'-m','pip','install',*deps])"
+          uv sync --locked --project backend --extra dev --extra packaging `
+            --no-install-project --python "$env:CONDA_PREFIX\python.exe"
           "CONDA_DLL_DIR=$env:CONDA_PREFIX\Library\bin" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Install frontend dependencies
@@ -165,6 +173,16 @@ jobs:
         shell: pwsh
         run: .\scripts\check-desktop-artifacts.ps1
 
+      - name: Generate release manifests
+        shell: pwsh
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          .\scripts\generate-release-manifests.ps1 `
+            -OutputDir artifacts\release-manifests `
+            -Version $env:RELEASE_VERSION `
+            -CommitSha $env:GITHUB_SHA
+
       - name: Prepare signed release package
         shell: pwsh
         env:
@@ -173,23 +191,48 @@ jobs:
           if ($env:RELEASE_VERSION -notmatch '^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$') {
             throw "Release version must be a semantic version such as 0.1.0-rc.1."
           }
+          if (Test-Path -LiteralPath artifacts\signed-release) {
+            Remove-Item -LiteralPath artifacts\signed-release -Recurse -Force
+          }
           $installer = Get-ChildItem -LiteralPath frontend\src-tauri\target\release\bundle\nsis `
             -Filter "*.exe" -File | Select-Object -First 1
           if (-not $installer) {
             throw "No signed NSIS installer was found."
           }
-          $sourceZip = Join-Path $env:RUNNER_TEMP "KnowBaseDesktop-Windows-Signed.zip"
-          Compress-Archive -LiteralPath $installer.FullName -DestinationPath $sourceZip -Force
-          .\scripts\prepare-release-package.ps1 -ZipPath $sourceZip `
+          $desktopBundleZip = Join-Path $env:RUNNER_TEMP "KnowBaseDesktop-Bundle-Windows-Signed.zip"
+          Compress-Archive -LiteralPath $installer.FullName -DestinationPath $desktopBundleZip -Force
+          $releaseManifests = @(Get-ChildItem -LiteralPath artifacts\release-manifests -File | `
+            Select-Object -ExpandProperty FullName)
+          .\scripts\prepare-release-package.ps1 -ZipPath $desktopBundleZip `
             -Version $env:RELEASE_VERSION -OutputDir artifacts\signed-release `
             -ExpectedSignerThumbprint '${{ steps.signing-certificate.outputs.thumbprint }}' `
-            -RequireTimestamp
+            -RequireTimestamp -AdditionalFiles $releaseManifests
+
+      - name: Create exact signed release archive
+        shell: pwsh
+        run: |
+          $archive = "artifacts\KnowBaseSignedRelease-${{ github.run_number }}.zip"
+          Compress-Archive -Path artifacts\signed-release\* -DestinationPath $archive -Force
+          if (-not (Test-Path -LiteralPath $archive -PathType Leaf)) {
+            throw "Signed release archive was not created."
+          }
+
+      - name: Attest signed installer provenance
+        uses: actions/attest@c32b4b8b198b65d0bd9d63490e847ff7b53989d4 # v4.0.0
+        with:
+          subject-path: artifacts/signed-release/KnowBase_*_x64-setup.exe
+
+      - name: Attest exact release archive provenance
+        uses: actions/attest@c32b4b8b198b65d0bd9d63490e847ff7b53989d4 # v4.0.0
+        with:
+          subject-path: artifacts/KnowBaseSignedRelease-${{ github.run_number }}.zip
 
       - name: Upload signed release candidate
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: KnowBaseSignedRelease-${{ github.run_number }}
-          path: artifacts/signed-release/*
+          name: KnowBaseSignedRelease-${{ github.run_number }}.zip
+          path: artifacts/KnowBaseSignedRelease-${{ github.run_number }}.zip
+          archive: false
           if-no-files-found: error
           retention-days: 30
 

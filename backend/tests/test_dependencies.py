@@ -47,6 +47,96 @@ def test_backend_dependencies_enforce_current_security_floors():
     assert "cryptography>=50.0.0" in dependencies
 
 
+def test_backend_dependencies_are_locked_and_ci_installs_the_lock():
+    repo_root = Path(__file__).resolve().parents[2]
+    lock_path = repo_root / "backend" / "uv.lock"
+    ci = (repo_root / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    desktop = (repo_root / ".github" / "workflows" / "desktop-package.yml").read_text(
+        encoding="utf-8"
+    )
+    signed = (repo_root / ".github" / "workflows" / "signed-release.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert lock_path.is_file()
+    assert "version = 1" in lock_path.read_text(encoding="utf-8")
+    for workflow in (ci, desktop, signed):
+        assert "astral-sh/setup-uv@" in workflow
+        assert "uv sync --locked" in workflow
+        assert "tomllib.load" not in workflow
+
+
+def test_signed_release_generates_manifests_and_attests_customer_artifacts():
+    repo_root = Path(__file__).resolve().parents[2]
+    workflow = (repo_root / ".github" / "workflows" / "signed-release.yml").read_text(
+        encoding="utf-8"
+    )
+    generator_path = repo_root / "scripts" / "generate-release-manifests.ps1"
+
+    assert generator_path.is_file()
+    generator = generator_path.read_text(encoding="utf-8")
+    assert "export --project $backendRoot --locked --no-dev --format cyclonedx1.5" in generator
+    assert "cyclonedx1.5" in generator
+    assert "npm sbom" in generator
+    assert "cargo metadata" in generator
+    assert "backend-sbom.cdx.json" in generator
+    assert "frontend-sbom.cdx.json" in generator
+    assert "rust-dependencies.json" in generator
+    assert "BUILD_METADATA.json" in generator
+
+    assert "id-token: write" in workflow
+    assert "attestations: write" in workflow
+    assert "generate-release-manifests.ps1" in workflow
+    assert "actions/attest@c32b4b8b198b65d0bd9d63490e847ff7b53989d4 # v4.0.0" in workflow
+    assert "subject-path:" in workflow
+    assert "KnowBaseSignedRelease-${{ github.run_number }}.zip" in workflow
+    assert "name: KnowBaseSignedRelease-${{ github.run_number }}.zip" in workflow
+    assert "archive: false" in workflow
+
+
+def test_release_manifests_are_written_as_utf8_without_bom():
+    repo_root = Path(__file__).resolve().parents[2]
+    generator = (repo_root / "scripts" / "generate-release-manifests.ps1").read_text(
+        encoding="utf-8"
+    )
+
+    assert "function Write-Utf8NoBom" in generator
+    assert "New-Object System.Text.UTF8Encoding($false)" in generator
+    assert "Write-Utf8NoBom -Path $frontendSbom" in generator
+    assert "Write-Utf8NoBom -Path $rustDependencies" in generator
+    assert "Write-Utf8NoBom -Path $buildMetadataPath" in generator
+
+
+def test_validation_desktop_workflow_exercises_manifests_and_provenance():
+    repo_root = Path(__file__).resolve().parents[2]
+    workflow = (
+        repo_root / ".github" / "workflows" / "desktop-package.yml"
+    ).read_text(encoding="utf-8")
+
+    assert "id-token: write" in workflow
+    assert "attestations: write" in workflow
+    assert "generate-release-manifests.ps1" in workflow
+    assert "Attest validation installer provenance" in workflow
+    assert "actions/attest@c32b4b8b198b65d0bd9d63490e847ff7b53989d4 # v4.0.0" in workflow
+    assert "KnowBaseReleaseManifests-${{ github.run_number }}" in workflow
+
+
+def test_release_package_includes_additional_manifests_in_checksums():
+    repo_root = Path(__file__).resolve().parents[2]
+    release_script = (repo_root / "scripts" / "prepare-release-package.ps1").read_text(
+        encoding="utf-8"
+    )
+    workflow = (repo_root / ".github" / "workflows" / "signed-release.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert "[string[]]$AdditionalFiles" in release_script
+    assert "$additionalFileHashes" in release_script
+    assert "Additional release file name is duplicated" in release_script
+    assert "-AdditionalFiles" in workflow
+    assert "release-manifests" in workflow
+
+
 def test_frontend_overrides_next_sharp_to_patched_version():
     repo_root = Path(__file__).resolve().parents[2]
     package = json.loads((repo_root / "frontend" / "package.json").read_text(encoding="utf-8"))
@@ -226,7 +316,7 @@ def test_release_package_removes_stale_installers_before_writing_current_release
     assert "Release package smoke check retained a stale installer" in preflight
 
 
-def test_release_package_copies_source_zip_recorded_in_checksums():
+def test_release_package_copies_desktop_bundle_zip_recorded_in_checksums():
     repo_root = Path(__file__).resolve().parents[2]
     release_script = (repo_root / "scripts" / "prepare-release-package.ps1").read_text(
         encoding="utf-8"
@@ -237,7 +327,7 @@ def test_release_package_copies_source_zip_recorded_in_checksums():
 
     assert "$releaseZipPath = Join-Path $OutputDir $zipName" in release_script
     assert "Copy-Item -LiteralPath $zip.Path -Destination $releaseZipPath -Force" in release_script
-    assert "Source ZIP was not copied into the prepared release package" in preflight
+    assert "Desktop bundle ZIP was not copied into the prepared release package" in preflight
 
 
 def test_release_package_can_pin_signer_and_require_timestamp():
@@ -505,6 +595,10 @@ def test_signed_release_build_signs_backend_before_tauri_and_verifies_all_execut
     assert "-RequireTimestamp" in script
     assert "function Import-MsvcEnvironment" in script
     assert '& cmd.exe /d /s /c "`"$vsDevCmd`" -arch=x64 -host_arch=x64 >nul && set"' in script
+    assert "sync --project $backendRoot" in script
+    assert "--locked" in script
+    assert "--extra dev" in script
+    assert "--extra packaging" in script
 
 
 def test_signature_check_can_pin_signer_and_require_timestamp():
@@ -608,7 +702,7 @@ def test_ci_workflows_audit_python_dependencies():
         assert content.index("-m pip_audit --local --strict") < content.index("-m pytest")
 
 
-def test_github_workflows_use_node24_action_runtimes_and_current_miniconda_inputs():
+def test_github_workflows_use_current_action_runtimes_and_miniconda_inputs():
     repo_root = Path(__file__).resolve().parents[2]
     ci_workflow = (repo_root / ".github" / "workflows" / "ci.yml").read_text(
         encoding="utf-8"
@@ -618,17 +712,46 @@ def test_github_workflows_use_node24_action_runtimes_and_current_miniconda_input
     ).read_text(encoding="utf-8")
     workflows = ci_workflow + desktop_workflow
 
-    assert "actions/checkout@v7" in ci_workflow
-    assert "actions/setup-node@v7" in ci_workflow
-    assert "actions/setup-python@v6" in ci_workflow
-    assert "actions/checkout@v7" in desktop_workflow
-    assert "actions/setup-node@v7" in desktop_workflow
-    assert "actions/upload-artifact@v7" in desktop_workflow
-    assert "conda-incubator/setup-miniconda@v4" in desktop_workflow
+    assert "actions/checkout@" in ci_workflow
+    assert "actions/setup-node@" in ci_workflow
+    assert "actions/setup-python@" in ci_workflow
+    assert "actions/checkout@" in desktop_workflow
+    assert "actions/setup-node@" in desktop_workflow
+    assert "actions/upload-artifact@" in desktop_workflow
+    assert "conda-incubator/setup-miniconda@" in desktop_workflow
     assert "auto-activate: true" in desktop_workflow
     assert "activate-environment: base" in desktop_workflow
     assert "channels: defaults" in desktop_workflow
     assert "auto-activate-base" not in workflows
+
+
+def test_github_workflows_pin_remote_actions_to_commit_shas():
+    repo_root = Path(__file__).resolve().parents[2]
+    workflow_dir = repo_root / ".github" / "workflows"
+    action_ref = re.compile(r"^\s*uses:\s*[^./][^@\s]*@([^\s#]+)", re.MULTILINE)
+
+    for workflow_path in workflow_dir.glob("*.yml"):
+        workflow = workflow_path.read_text(encoding="utf-8")
+        refs = action_ref.findall(workflow)
+        assert refs, f"No remote actions found in {workflow_path.name}"
+        assert all(re.fullmatch(r"[0-9a-f]{40}", ref) for ref in refs), (
+            f"{workflow_path.name} contains a mutable action ref: {refs}"
+        )
+
+
+def test_signed_release_recreates_output_directory_before_packaging():
+    repo_root = Path(__file__).resolve().parents[2]
+    workflow = (repo_root / ".github" / "workflows" / "signed-release.yml").read_text(
+        encoding="utf-8"
+    )
+
+    prepare_step = workflow.split("- name: Prepare signed release package", 1)[1].split(
+        "- name: Create exact signed release archive", 1
+    )[0]
+    assert "Remove-Item -LiteralPath artifacts\\signed-release -Recurse -Force" in prepare_step
+    assert prepare_step.index("Remove-Item -LiteralPath") < prepare_step.index(
+        "prepare-release-package.ps1"
+    )
 
 
 def test_analysis_chart_uses_zero_baseline_and_bounded_bar_width():

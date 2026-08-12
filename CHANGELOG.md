@@ -16,6 +16,7 @@ This project is still pre-release. Version numbers below describe repository mil
 - Dry-run-first backup, restore, and local-data removal tools plus non-sensitive support and installed-app reports.
 - Synthetic demo data for safe screenshots, release validation, and interview walkthroughs.
 - GitHub issue templates, pull request template, Dependabot configuration, and release notes categorization.
+- Lock-derived backend/frontend SBOMs, normalized Rust dependency inventory, source-linked build metadata, and GitHub artifact provenance for signed releases.
 
 ### Changed
 
@@ -23,6 +24,7 @@ This project is still pre-release. Version numbers below describe repository mil
 - Release documentation now separates release notes, readiness checks, and demo asset guidance.
 - Packaged API keys use Windows Credential Manager; non-desktop fallback storage is encrypted.
 - GitHub Actions and Miniconda setup use Node 24-compatible action runtimes.
+- Backend CI and desktop packaging now install from the committed universal `uv.lock`; remote Actions are pinned to immutable commit SHAs.
 - Windows NSIS packages now embed the offline WebView2 Runtime instead of depending on a successful first-run download.
 - Next.js resolves `sharp` to patched version `0.35.3` after the upstream libvips security advisory.
 - Frontend security floors now use Next.js `15.5.23`, PostCSS `8.5.26`, and Nano ID `3.3.18`; backend security floors require aiohttp `3.14.3` and cryptography `50.0.0` or newer.

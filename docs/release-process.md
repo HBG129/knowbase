@@ -169,15 +169,26 @@ The protected workflow:
 4. lets Tauri sign and timestamp the desktop executable and NSIS installer,
 5. pins all three signatures to the same certificate thumbprint and requires a trusted timestamp,
 6. removes the PFX and imported certificate even when a later step fails,
-7. generates a self-contained release package without using `-AllowUnsigned`.
+7. exports the locked backend and frontend CycloneDX SBOMs, a normalized Rust dependency manifest, and build metadata tied to the source commit,
+8. includes every manifest in `SHA256SUMS.txt`, creates one exact release ZIP, and generates GitHub provenance attestations for both the signed installer and exact release ZIP,
+9. generates a self-contained release package without using `-AllowUnsigned`.
 
 Expected artifact:
 
 ```text
-KnowBaseSignedRelease-<run number>
+KnowBaseSignedRelease-<run number>.zip
 ```
 
-It contains the signed installer, the source desktop ZIP, support tools, SHA256 checksums, release notes draft, artifact summary, and release-validation issue draft. The workflow does not publish a GitHub Release; Issue #17 must record the final `Ready` decision first.
+It contains the signed installer, desktop bundle ZIP, support tools, SHA256 checksums, release notes draft, artifact summary, release-validation issue draft, `backend-sbom.cdx.json`, `frontend-sbom.cdx.json`, `rust-dependencies.json`, and `BUILD_METADATA.json`. Backend builds resolve from `backend\uv.lock`; frontend and Rust continue to use their committed lockfiles.
+
+Verify the downloaded installer and exact release ZIP against their GitHub build provenance:
+
+```powershell
+gh attestation verify .\KnowBase_0.1.0_x64-setup.exe -R HBG129/knowbase
+gh attestation verify .\KnowBaseSignedRelease-<run number>.zip -R HBG129/knowbase
+```
+
+An attestation links the artifact to its GitHub workflow and source commit; it does not replace Authenticode, dependency auditing, clean-machine validation, or the release approval gate. The workflow does not publish a GitHub Release; Issue #17 must record the final `Ready` decision first.
 
 For a local certificate already installed in Windows, run:
 

@@ -57,6 +57,10 @@ A customer can install KnowBase, launch it, create an account, configure an API 
 
 4. Release readiness
    - Keep release preflight green.
+   - Keep `backend\uv.lock` synchronized with `backend\pyproject.toml`; CI and desktop packaging must install with `uv sync --locked`.
+   - Keep remote GitHub Actions pinned to full commit SHAs while retaining version comments for Dependabot updates.
+   - Generate backend and frontend CycloneDX SBOMs, the normalized Rust dependency manifest, and source-linked build metadata for every signed candidate.
+   - Keep GitHub provenance attestations verifiable for the signed installer and exact signed-release ZIP.
    - Frontend production dependency audit is release-clean on Next.js 15.5.23 with PostCSS 8.5.26 and Nano ID 3.3.18; keep the audit gate green.
    - Keep support and validation docs current.
    - Record signature policy evidence in the release validation issue: valid signer details, or unsigned approver, approval date, and exact release-notes disclosure.
@@ -80,6 +84,7 @@ cd backend
 .\.venv\Scripts\python.exe -m pip_audit --local --strict
 .\.venv\Scripts\python.exe -m pytest
 cd ..
+uv lock --check --project backend
 cd frontend
 npm run build
 npm audit --omit=dev --audit-level=high
@@ -107,6 +112,7 @@ Microsoft C++ Build Tools are installed under `D:\DevTools\Microsoft\VSBuildTool
 - Prefer `D:` for non-essential generated files, caches, tools, and artifacts on this machine when practical.
 - Do not weaken SQL safety checks for the Analysis Agent to make a test pass.
 - Treat high or critical production dependency advisories as release-blocking; do not waive them silently.
+- Do not bypass `uv.lock`, remove signed-release manifests, use mutable Action tags, or publish artifacts whose GitHub provenance cannot be verified.
 - Do not publish or describe KnowBase as customer-release ready until the release readiness checklist passes on a clean Windows machine.
 
 ## Non-Goals For The Current Release

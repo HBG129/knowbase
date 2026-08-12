@@ -27,7 +27,7 @@ The build machine must have:
 - Rust and Cargo
 - Microsoft C++ Build Tools with `Desktop development with C++`
 - Python 3.12 virtual environment for backend packaging
-- Project dependencies installed
+- `uv` `0.11.32` and project dependencies installed from `backend\uv.lock`
 - Valid LLM API key for runtime testing
 
 Run:
@@ -60,6 +60,21 @@ Required workflow artifacts:
 - `KnowBaseDesktop-Windows-<run number>`
 
 The desktop workflow is not release-ready if either artifact is missing.
+
+Release builds must also satisfy these supply-chain gates:
+
+- `uv lock --check --project backend` passes and every backend CI/package install uses `uv sync --locked`.
+- Remote GitHub Actions are pinned to full commit SHAs.
+- `backend-sbom.cdx.json`, `frontend-sbom.cdx.json`, `rust-dependencies.json`, and `BUILD_METADATA.json` are generated from committed lockfiles.
+- Every manifest is listed in `SHA256SUMS.txt` inside the exact release ZIP.
+- GitHub provenance attestations verify for both the signed installer and exact signed-release ZIP.
+
+Verify downloaded provenance with:
+
+```powershell
+gh attestation verify .\KnowBase_0.1.0_x64-setup.exe -R HBG129/knowbase
+gh attestation verify .\KnowBaseSignedRelease-<run number>.zip -R HBG129/knowbase
+```
 
 After downloading the desktop ZIP, verify the release artifact before installing it:
 
@@ -153,6 +168,7 @@ Before public release, confirm:
 Before release, confirm:
 
 - `.env` is never bundled with secrets.
+- Dependency lockfiles, SBOMs, checksums, build metadata, and provenance point to the same source commit.
 - Local database and uploaded files are not committed.
 - JWT secret is generated for production use.
 - API keys are stored in a customer-controlled location.

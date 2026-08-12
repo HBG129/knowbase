@@ -28,6 +28,7 @@ This document records the selected release target and current validation evidenc
 - Installer: `KnowBase_0.1.0_x64-setup.exe`, `310498339` bytes, SHA256 `A7A8C3C48BF5BDF1967958C57605511D64FFF9061C3B91B6CD916047F69E5685`
 - Installer Authenticode status: `NotSigned`
 - The candidate pins Next.js `15.5.23`, Next's bundled PostCSS `8.5.26`, Nano ID `3.3.18`, Python security floors `aiohttp>=3.14.3` and `cryptography>=50.0.0`, and WebView2 Fixed Version Runtime `150.0.4078.99`.
+- The release pipeline now locks Python dependencies in `backend\uv.lock`, pins remote Actions to immutable commit SHAs, and prepares CycloneDX SBOMs, a normalized Rust dependency manifest, source-linked build metadata, checksums, and GitHub provenance attestations. This pipeline evidence is pending execution for the final signed candidate.
 - Local upgrade/install verification passed for shortcuts, bundled backend startup, listener ownership, health response, and process cleanup after closing the desktop window.
 - Complete Chinese/English desktop and mobile visual checks passed for the dashboard, knowledge-base, document, chat, and Analysis surfaces.
 - Offline Windows Sandbox validation on 2026-08-11 passed for the exact artifact without Python, Node.js, npm, Rust, Cargo, Git, project source code, or network access.
@@ -37,5 +38,6 @@ This document records the selected release target and current validation evidenc
 ## Blocking Gates
 
 - Obtain a valid code-signing certificate, or record explicit approval for an unsigned tester release and include the exact disclosure in the release notes.
+- Run the protected workflow and verify Authenticode, timestamp, checksums, manifests, and GitHub provenance for the exact signed release ZIP.
 
 Do not create a public GitHub Release until every blocking gate is resolved and the release validation issue records a `Ready` decision.

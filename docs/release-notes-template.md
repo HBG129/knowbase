@@ -30,7 +30,7 @@ This release is not intended for:
 
 - production enterprise deployment,
 - unattended installation at scale,
-- environments that require code signing or automatic updates.
+- environments that require unattended deployment or automatic updates.
 
 ## Requirements
 
@@ -59,6 +59,7 @@ Code signature:
 Status: [Valid/NotSigned/Unknown]
 Signer: [signer subject or blank]
 Thumbprint: [certificate thumbprint or blank]
+Timestamp signer: [timestamp signer subject or blank]
 ```
 
 Expected local data directory:
@@ -92,6 +93,15 @@ Expected local data directory:
 - Local data backup dry-run: [passed/failed/not tested]
 - Local data restore dry-run: [passed/failed/not tested]
 - Local data removal dry-run: [passed/failed/not tested]
+- GitHub provenance attestation for installer: [passed/failed/not tested]
+- GitHub provenance attestation for exact release ZIP: [passed/failed/not tested]
+
+## Supply Chain
+
+- Backend CycloneDX SBOM: `backend-sbom.cdx.json`
+- Frontend CycloneDX SBOM: `frontend-sbom.cdx.json`
+- Rust dependency manifest: `rust-dependencies.json`
+- Build metadata and source commit: `BUILD_METADATA.json`
 
 ## Known Limitations
 
